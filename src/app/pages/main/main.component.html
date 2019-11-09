@@ -3,26 +3,52 @@
     Hello, {{me.name}}.
   </div>
 
-  <div>
+  <div *ngIf="recentPlayers | async as recentPlayers">
     Recent players
-    <ul *ngIf="recentPlayers | async as recentPlayers">
+    <ul>
       <li *ngFor="let player of recentPlayers">
-        [Lv.{{player.level}}] {{player.name}}
+        [{{player.level}}] {{player.name}}
+        <a (click)="toggleWinner(player.ldap)" 
+            [style.color]="isWinner(player.ldap) ? 'blue' : 'black'">
+          {{ isTie ? '[Team1]' : '[Win]' }}
+        </a>
+        <a (click)="toggleLoser(player.ldap)" 
+            [style.color]="isLoser(player.ldap) ? 'red' : 'black'">
+          {{ isTie ? '[Team2]' : '[Lose]' }}
+        </a>
         <a (click)="removeFromCache(player.ldap)">[Del]</a>
       </li>
     </ul>
-
+    <div>
+      IsTie <input type="checkbox" [(ngModel)]="isTie">
+    </div>
     <input type="text" [(ngModel)]="ldapInput">
     <button (click)="addToRecentPlayers(ldapInput)">
       Add
     </button>
+    <!-- Hacky workaround to use lastRecord with async pipe. -->
+    <div *ngIf="lastRecord | async as lastRecord; else withoutRecord">
+      <button (click)="recordGame(recentPlayers, lastRecord)"> 
+        Record Game
+      </button>
+    </div>
+    <ng-template #withoutRecord>
+      <button (click)="recordGame(recentPlayers)">
+        Record Game
+      </button>
+    </ng-template>
+    <!-- End of hacky workaround -->
   </div>
 
   <div>
     Recent games
-    <ul *ngIf="records | async as records">
-      <li *ngFor="let record of records">
-        {{record}}
+    <ul>
+      <li *ngFor="let record of records | async">
+        Winners: {{ record.winners[0].playerId }}, {{ record.winners[1].playerId }} <br>
+        Losers: {{ record.losers[0].playerId }}, {{ record.losers[1].playerId }} <br>
+        isTie: {{ record.isTie }} <br>
+        winStreaks: {{ record.winStreaks }} <br>
+        createdAt: {{ record.createdAt }}
       </li>
     </ul>
   </div>

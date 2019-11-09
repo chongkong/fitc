@@ -26,6 +26,18 @@ function groupByLdap(players: Player[]) {
   }, {});
 }
 
+function membershipEquals<T>(arr1: T[], arr2: T[]) {
+  for (let item of arr1) {
+    if (!arr2.includes(item))
+      return false;
+  }
+  for (let item of arr2) {
+    if (!arr1.includes(item))
+      return false;
+  }
+  return true;
+}
+
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
@@ -37,6 +49,7 @@ export class MainComponent implements OnInit {
   me: Observable<Player>;
   recentPlayers: Observable<Player[]>;
   records: Observable<GameRecord[]>;
+  lastRecord: Observable<GameRecord | undefined>;
 
   // Document & collection reference from firestore.
   
@@ -46,6 +59,9 @@ export class MainComponent implements OnInit {
   // Component bindings.
 
   ldapInput: string = '';
+  winners: string[] = [];
+  losers: string[] = [];
+  isTie: boolean = false;
 
   constructor(
       public afAuth: AngularFireAuth,
@@ -76,6 +92,12 @@ export class MainComponent implements OnInit {
     this.records = this.tableDoc.collection<GameRecord>('records', ref => 
         ref.orderBy('createdAt', 'desc').limit(50)
     ).valueChanges();
+
+    // Setup lastRecord
+    this.lastRecord = this.records
+        .pipe(map(records => records ? records[0] : undefined));
+
+    // Setup recordCollection
     this.recordCollection = this.tableDoc.collection<GameRecord>('records');
   }
 
@@ -104,6 +126,79 @@ export class MainComponent implements OnInit {
             recentPlayers: snapshot.data().recentPlayers.filter(v => v !== ldap)
           });
         });
+  }
+
+  private toggle(alpha: string[], beta: string[], value: string) {
+    const addTo = (arr: string[], val: string) => {
+      if (!arr.includes(val)) {
+        arr.push(val);
+        if (arr.length > 2)
+          arr.shift();
+      }
+    }
+
+    const removeFrom = (arr: string[], val: string) => {
+      if (arr.includes(val)) {
+        arr.splice(arr.indexOf(val), 1);
+      }
+    }
+
+    if (alpha.includes(value)) {
+      removeFrom(alpha, value);
+    } else {
+      addTo(alpha, value);
+      removeFrom(beta, value);
+    }
+  }
+
+  toggleWinner(ldap: string) {
+    this.toggle(this.winners, this.losers, ldap);
+  }
+
+  toggleLoser(ldap: string) {
+    this.toggle(this.losers, this.winners, ldap);
+  }
+
+  isWinner(ldap: string) {
+    return this.winners.includes(ldap);
+  }
+
+  isLoser(ldap: string) {
+    return this.losers.includes(ldap);
+  }
+
+  recordGame(players: Player[], lastRecord: GameRecord | undefined) {
+    // You must have chosen proper winners and losers before recording.
+    if (this.winners.length !== 2 || this.losers.length !== 2) {
+      return;
+    }
+
+    const playersByLdap = groupByLdap(players);
+    const makeSnapshot = (playerId: string) => ({
+      playerId, 
+      level: playersByLdap[playerId].level
+    });
+
+    // Check winStreaks from lastRecord.
+    let winStreaks = this.isTie ? 0 : 1;
+    if (!this.isTie && lastRecord && !lastRecord.isTie) {
+      let prevWinners = lastRecord.winners.map(snapshot => snapshot.playerId);
+      if (membershipEquals(prevWinners, this.winners)) {
+        winStreaks = lastRecord.winStreaks + 1;
+      }
+    }
+
+    const now = new Date();
+    this.recordCollection.doc(now.getTime().toString()).set({
+      winners: this.winners.map(makeSnapshot),
+      losers: this.losers.map(makeSnapshot),
+      isTie: this.isTie,
+      winStreaks,
+      createdAt: now
+    });
+
+    // Remove losers for next challengers.
+    this.losers = [];
   }
 
   ngOnInit() {
