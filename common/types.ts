@@ -4,6 +4,7 @@
 */
 export interface Player {
   name: string;
+  ldap: string;
   level: number;
 
   // Whether the player has newly joined and kept level 1 or not.
@@ -24,15 +25,15 @@ export interface PlayerSnapshot {
  * Stored under `tables/{FoosballTable}/records`.
  */
 export interface GameRecord {
-  winners?: Array<PlayerSnapshot>;
-  losers?: Array<PlayerSnapshot>;
+  winners: PlayerSnapshot[];
+  losers: PlayerSnapshot[];
   // If game is tie, we use `winners` and `losers` only to resolve 
   // player team, without regarding as winning or losing.
   isTie: boolean;
   // Number of consecutive wins for current game.
   winStreaks: number;
   // Game timestamp.
-  createdAt: number;
+  createdAt: Date;
 }
 
 /**
@@ -43,8 +44,7 @@ export interface GameRecord {
 export interface FoosballTable {
   name: string;
   lastRecord?: GameRecord;
-  lastPlayers?: Array<number>;
-  recentPlayers?: Array<number>;
+  recentPlayers: string[];
 }
 
 /**

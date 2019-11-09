@@ -1,1 +1,29 @@
-<p>main works!</p>
+<div>
+  <div *ngIf="me | async as me">
+    Hello, {{me.name}}.
+  </div>
+
+  <div>
+    Recent players
+    <ul *ngIf="recentPlayers | async as recentPlayers">
+      <li *ngFor="let player of recentPlayers">
+        [Lv.{{player.level}}] {{player.name}}
+        <a (click)="removeFromCache(player.ldap)">[Del]</a>
+      </li>
+    </ul>
+
+    <input type="text" [(ngModel)]="ldapInput">
+    <button (click)="addToRecentPlayers(ldapInput)">
+      Add
+    </button>
+  </div>
+
+  <div>
+    Recent games
+    <ul *ngIf="records | async as records">
+      <li *ngFor="let record of records">
+        {{record}}
+      </li>
+    </ul>
+  </div>
+</div>

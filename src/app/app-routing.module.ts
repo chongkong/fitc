@@ -20,7 +20,7 @@ const routes: Routes = [
     component: LoginComponent,
   },
   {
-    path: 'main',
+    path: '',
     component: MainComponent,
     ...canActivate(loggedInWithCorpAccount),
   },
