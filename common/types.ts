@@ -78,3 +78,26 @@ export interface PlayerStats {
     }
   };
 }
+
+/**
+ * Event schema.
+ * 
+ * Stored under `events/`
+ */
+export interface Event {
+  type: 'promotion' | 'demotion';
+  payload: PromotionEvent | DemotionEvent;
+  createdAt: Date;
+}
+
+export interface PromotionEvent {
+  ldap: string;
+  levelFrom: number;
+  levelTo: number;
+}
+
+export interface DemotionEvent {
+  ldap: string;
+  levelFrom: number;
+  levelTo: number;
+}
