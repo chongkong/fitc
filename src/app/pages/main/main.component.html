@@ -16,7 +16,7 @@
             [style.color]="isLoser(player.ldap) ? 'red' : 'black'">
           {{ isTie ? '[Team2]' : '[Lose]' }}
         </a>
-        <a (click)="removeFromCache(player.ldap)">[Del]</a>
+        <a (click)="removeFromRecentPlayers(player.ldap)">[Del]</a>
       </li>
     </ul>
     <div>

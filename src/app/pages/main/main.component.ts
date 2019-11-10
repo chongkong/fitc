@@ -120,6 +120,11 @@ export class MainComponent implements OnInit {
   }
 
   removeFromRecentPlayers(ldap: string) {
+    if (this.winners.includes(ldap))
+      this.winners.splice(this.winners.indexOf(ldap), 1);
+    else if (this.losers.includes(ldap))
+      this.losers.splice(this.losers.indexOf(ldap), 1);
+
     this.tableDoc.get()
         .subscribe((snapshot) => {
           this.tableDoc.update({
