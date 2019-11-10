@@ -54,6 +54,7 @@ export class MainComponent implements OnInit {
   // Document & collection reference from firestore.
   
   tableDoc: AngularFirestoreDocument<FoosballTable>;
+  playerCollection: AngularFirestoreCollection<Player>;
   recordCollection: AngularFirestoreCollection<GameRecord>;
 
   // Component bindings.
@@ -97,7 +98,8 @@ export class MainComponent implements OnInit {
     this.lastRecord = this.records
         .pipe(map(records => records ? records[0] : undefined));
 
-    // Setup recordCollection
+    // Setup remaining collections.
+    this.playerCollection = afs.collection<Player>('players');
     this.recordCollection = this.tableDoc.collection<GameRecord>('records');
   }
 
@@ -111,10 +113,14 @@ export class MainComponent implements OnInit {
   }
 
   addToRecentPlayers(ldap: string) {
-    this.tableDoc.get()
-        .subscribe((snapshot) => {
+    combineLatest(this.tableDoc.get(), this.playerCollection.get())
+        .subscribe(([tableSnapshot, playersSnapshot]) => {
+          const validLdaps = playersSnapshot.docs.map(player => player.data().ldap);
+          if (!validLdaps.includes(ldap)) {
+            return;
+          }
           this.tableDoc.update({
-            recentPlayers: [...snapshot.data().recentPlayers, ldap]
+            recentPlayers: [...tableSnapshot.data().recentPlayers, ldap]
           });
         });
   }
