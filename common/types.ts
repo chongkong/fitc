@@ -9,6 +9,7 @@ export interface Player {
 
   // Whether the player has newly joined and kept level 1 or not.
   isNewbie: boolean;
+  lastLevelUpdate?: Date;
 }
 
 /**
@@ -54,7 +55,7 @@ export interface FoosballTable {
 export interface PlayerStats {
   totalWins: number;
   totalLoses: number;
-  mostStreaks: number;
+  mostWinStreaks: number;
   recentGames: string;
 
   perYear: {
