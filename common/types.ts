@@ -37,6 +37,8 @@ export interface GameRecord {
   createdAt: Date;
   // Player who recorded this game.
   recordedBy: string;
+  // Flag to prevent event update (for old data migration)
+  preventEvent?: boolean;
 }
 
 /**

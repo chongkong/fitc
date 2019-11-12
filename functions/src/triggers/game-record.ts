@@ -172,25 +172,34 @@ async function checkEvent(ldap: string) {
 
 export const onGameRecordCreate = functions.firestore
     .document('tables/{tableId}/records/{recordId}')
-    .onCreate(async (snapshot) => {
+    .onCreate((snapshot) => {
       let record = snapshot.data() as GameRecord;
       if (record.isTie) {
         return;
       }
 
+      let promisesToWait = [];
+
       const winners = record.winners.map(snapshot => snapshot.playerId);
       const losers = record.losers.map(snapshot => snapshot.playerId);
       const [w1, w2] = winners;
       const [l1, l2] = losers;
-      
-      return Promise.all([
+
+      promisesToWait.push(
         recordWinStats(w1, w2, losers, record.winStreaks),
         recordWinStats(w2, w1, losers, record.winStreaks),
         recordLoseStats(l1, l2, winners),
         recordLoseStats(l2, l1, winners),
-        checkEvent(w1),
-        checkEvent(w2),
-        checkEvent(w1),
-        checkEvent(w2),
-      ]);
+      );
+
+      if (!record.preventEvent) {
+        promisesToWait.push(
+          checkEvent(w1),
+          checkEvent(w2),
+          checkEvent(w1),
+          checkEvent(w2),
+        );
+      }
+      
+      return Promise.all(promisesToWait);
     });
