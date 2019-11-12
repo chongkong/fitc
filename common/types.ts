@@ -35,6 +35,8 @@ export interface GameRecord {
   winStreaks: number;
   // Game timestamp.
   createdAt: Date;
+  // Player who recorded this game.
+  recordedBy: string;
 }
 
 /**

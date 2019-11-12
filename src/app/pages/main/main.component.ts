@@ -59,6 +59,7 @@ export class MainComponent implements OnInit {
 
   // Component bindings.
 
+  myLdap: string = '';
   ldapInput: string = '';
   winners: string[] = [];
   losers: string[] = [];
@@ -72,12 +73,8 @@ export class MainComponent implements OnInit {
     this.me = afAuth.user
         .pipe(flatMap((user: firebase.User) => {
           const ldap = user.email.split('@')[0];
-          const playerDoc = afs.doc<Player>(`players/${ldap}`);
-          playerDoc.get().subscribe((snapshot) => {
-            if (!snapshot.exists)
-              this.registerPlayer(ldap, user);
-          });
-          return playerDoc.valueChanges();
+          this.myLdap = ldap;
+          return afs.doc<Player>(`players/${ldap}`).valueChanges();
         }));
 
     // Setup recentPlayers
@@ -200,13 +197,15 @@ export class MainComponent implements OnInit {
     }
 
     const now = new Date();
-    this.recordCollection.doc(now.getTime().toString()).set({
+    const record: GameRecord = {
       winners: this.winners.map(makeSnapshot),
       losers: this.losers.map(makeSnapshot),
       isTie: this.isTie,
       winStreaks,
-      createdAt: now
-    });
+      createdAt: now,
+      recordedBy: this.myLdap
+    };
+    this.recordCollection.doc(now.getTime().toString()).set(record);
 
     // Remove losers for next challengers.
     this.losers = [];
