@@ -1,33 +1,11 @@
 import * as functions from 'firebase-functions';
 
-import { Player, PlayerStats } from '../../../common/types';
+import { createNewPlayer, createNewPlayerStats } from '../factory';
 import { firestore } from '../admin';
 
 const ALLOWED_DOMAINS = [
   'google.com'
 ]
-
-function createNewPlayer(name: string, ldap: string): Player {
-  return {
-    name,
-    ldap,
-    level: 1,
-    isNewbie: true
-  }
-}
-
-function createNewPlayerStats(): PlayerStats {
-  return {
-    totalWins: 0,
-    totalLoses: 0,
-    mostWinStreaks: 0,
-    recentGames: '',
-
-    perSeason: {},
-    asOpponent: {},
-    asTeammate: {},
-  };
-}
 
 export const onUserCreate = functions.auth.user()
     .onCreate(user => {

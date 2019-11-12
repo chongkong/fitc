@@ -5,6 +5,7 @@ import * as functions from 'firebase-functions';
 import { GameRecord, Player, PlayerStats, PlayerSnapshot, Event } from '../../../common/types';
 import { firestore } from '../admin';
 import { PROMO_THRESHOLD } from '../data';
+import { createNewPlayerStats } from '../factory';
 
 
 function updateRecentGames(recentGames: string, newGame: string, maxLength: number = 50): string {
@@ -13,7 +14,7 @@ function updateRecentGames(recentGames: string, newGame: string, maxLength: numb
 
 async function recordWinStats(ldap: string, teammate: string, opponents: string[], winStreaks: number) {
   const myStatsDoc = firestore.doc(`stats/${ldap}`);
-  const myStats = (await myStatsDoc.get()).data() as PlayerStats;
+  const myStats = (await myStatsDoc.get()).data() as PlayerStats || createNewPlayerStats();
   myStats.recentGames = updateRecentGames(myStats.recentGames, 'W');
   myStats.totalWins += 1;
   myStats.mostWinStreaks = Math.max(myStats.mostWinStreaks, winStreaks);
@@ -60,7 +61,7 @@ async function recordWinStats(ldap: string, teammate: string, opponents: string[
 
 async function recordLoseStats(ldap: string, teammate: string, opponents: string[]) {
   const myStatsDoc = firestore.doc(`stats/${ldap}`);
-  const myStats = (await myStatsDoc.get()).data() as PlayerStats;
+  const myStats = (await myStatsDoc.get()).data() as PlayerStats || createNewPlayerStats();
   myStats.recentGames = updateRecentGames(myStats.recentGames, 'L');
   myStats.totalLoses += 1;
 
