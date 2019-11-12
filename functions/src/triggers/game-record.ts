@@ -7,7 +7,7 @@ import { firestore } from 'functions/src/admin';
 import { PROMO_THRESHOLD } from 'functions/src/data';
 
 
-function updateRecentGames(recentGames: string, newGame: string, maxLength?: number = 50): string {
+function updateRecentGames(recentGames: string, newGame: string, maxLength: number = 50): string {
   return (newGame + recentGames).substr(0, maxLength);
 }
 
@@ -105,7 +105,7 @@ async function recordLoseStats(ldap: string, teammate: string, opponents: string
 }
 
 async function getRecentGamesAfterLevelUpdate(
-    ldap: string, after?: Date, maxLength?: number = 50): Promise<('W' | 'L')[]> {
+    ldap: string, after?: Date, maxLength: number = 50): Promise<('W' | 'L')[]> {
   const collection = firestore.collection(`tables/default/records`);
   let queries = [
     collection.where('winners', 'array-contains', ldap),
