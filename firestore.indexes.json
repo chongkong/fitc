@@ -1,4 +1,33 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "records",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "winners",
+          "mode": "ARRAY_CONTAINS"
+        },
+        {
+          "fieldPath": "createdAt",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "records",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "losers",
+          "mode": "ARRAY_CONTAINS"
+        },
+        {
+          "fieldPath": "createdAt",
+          "mode": "DESCENDING"
+        }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }
