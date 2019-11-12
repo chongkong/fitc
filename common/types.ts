@@ -1,7 +1,7 @@
-/** Player schema. 
- * 
+/** Player schema.
+ *
  * Stored under `players/`.
-*/
+ */
 export interface Player {
   name: string;
   ldap: string;
@@ -22,13 +22,13 @@ export interface PlayerSnapshot {
 
 /**
  * Game record schema.
- * 
+ *
  * Stored under `tables/{FoosballTable}/records`.
  */
 export interface GameRecord {
   winners: PlayerSnapshot[];
   losers: PlayerSnapshot[];
-  // If game is tie, we use `winners` and `losers` only to resolve 
+  // If game is tie, we use `winners` and `losers` only to resolve
   // player team, without regarding as winning or losing.
   isTie: boolean;
   // Number of consecutive wins for current game.
@@ -43,7 +43,7 @@ export interface GameRecord {
 
 /**
  * Foosball table schema.
- * 
+ *
  * Stored under `tables/`.
  */
 export interface FoosballTable {
@@ -53,7 +53,7 @@ export interface FoosballTable {
 
 /**
  * Player stats schema.
- * 
+ *
  * Stored under `playerStats/`
  */
 export interface PlayerStats {
@@ -69,14 +69,14 @@ export interface PlayerStats {
     }
   };
   asOpponent: {
-    [key: string]: {      
+    [key: string]: {
       totalWins: number;
       totalLoses: number;
       recentGames: string;
     }
   };
   asTeammate: {
-    [key: string]: {      
+    [key: string]: {
       totalWins: number;
       totalLoses: number;
       recentGames: string;
@@ -86,7 +86,7 @@ export interface PlayerStats {
 
 /**
  * Event schema.
- * 
+ *
  * Stored under `events/`
  */
 export interface Event {

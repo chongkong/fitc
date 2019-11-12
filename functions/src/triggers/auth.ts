@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 
-import { Player, PlayerStats } from 'common/types';
-import { firestore } from 'functions/src/admin';
+import { Player, PlayerStats } from '../../../common/types';
+import { firestore } from '../admin';
 
 const ALLOWED_DOMAINS = [
   'google.com'
@@ -11,14 +11,14 @@ export const onUserCreate = functions.auth.user()
     .onCreate(user => {
       if (!user.email)
         return;
-      let [ldap, domain] = user.email!.split('@');
+      const [ldap, domain] = user.email.split('@');
       if (!ALLOWED_DOMAINS.includes(domain))
         return;
 
-      let promises = [];
+      const promises = [];
       
       // 1. Create Player entry.
-      let player: Player = {
+      const player: Player = {
         name: user.displayName || ldap,
         ldap,
         level: 1,
@@ -28,7 +28,7 @@ export const onUserCreate = functions.auth.user()
           firestore.doc(`players/${ldap}`).set(player));
 
       // 2. Create PlayerStats entry.
-      let playerStats: PlayerStats = {
+      const playerStats: PlayerStats = {
         totalWins: 0,
         totalLoses: 0,
         mostWinStreaks: 0,

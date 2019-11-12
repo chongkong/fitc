@@ -2,9 +2,9 @@
 
 import * as functions from 'firebase-functions';
 
-import { GameRecord, Player, PlayerStats, Event } from 'common/types';
-import { firestore } from 'functions/src/admin';
-import { PROMO_THRESHOLD } from 'functions/src/data';
+import { GameRecord, Player, PlayerStats, PlayerSnapshot, Event } from '../../../common/types';
+import { firestore } from '../admin';
+import { PROMO_THRESHOLD } from '../data';
 
 
 function updateRecentGames(recentGames: string, newGame: string, maxLength: number = 50): string {
@@ -18,8 +18,8 @@ async function recordWinStats(ldap: string, teammate: string, opponents: string[
   myStats.totalWins += 1;
   myStats.mostWinStreaks = Math.max(myStats.mostWinStreaks, winStreaks);
 
-  let season = new Date().getFullYear();
-  let seasonStats = myStats.perSeason[season];
+  const season = new Date().getFullYear();
+  const seasonStats = myStats.perSeason[season];
   if (seasonStats) {
     seasonStats.totalWins += 1;
   } else {
@@ -29,7 +29,7 @@ async function recordWinStats(ldap: string, teammate: string, opponents: string[
     };
   }
 
-  let teammateStats = myStats.asTeammate[teammate];
+  const teammateStats = myStats.asTeammate[teammate];
   if (teammateStats) {
     teammateStats.recentGames = updateRecentGames(teammateStats.recentGames, 'W');
     teammateStats.totalWins += 1;
@@ -42,7 +42,7 @@ async function recordWinStats(ldap: string, teammate: string, opponents: string[
   }
 
   for (const opponent of opponents) {
-    let opponentStats = myStats.asOpponent[teammate];
+    const opponentStats = myStats.asOpponent[teammate];
     if (opponentStats) {
       opponentStats.recentGames = updateRecentGames(opponentStats.recentGames, 'W');
       opponentStats.totalWins += 1;
@@ -64,8 +64,8 @@ async function recordLoseStats(ldap: string, teammate: string, opponents: string
   myStats.recentGames = updateRecentGames(myStats.recentGames, 'L');
   myStats.totalLoses += 1;
 
-  let season = new Date().getFullYear();
-  let seasonStats = myStats.perSeason[season];
+  const season = new Date().getFullYear();
+  const seasonStats = myStats.perSeason[season];
   if (seasonStats) {
     seasonStats.totalLoses += 1;
   } else {
@@ -75,7 +75,7 @@ async function recordLoseStats(ldap: string, teammate: string, opponents: string
     };
   }
 
-  let teammateStats = myStats.asTeammate[teammate];
+  const teammateStats = myStats.asTeammate[teammate];
   if (teammateStats) {
     teammateStats.recentGames = updateRecentGames(teammateStats.recentGames, 'L');
     teammateStats.totalLoses += 1;
@@ -88,7 +88,7 @@ async function recordLoseStats(ldap: string, teammate: string, opponents: string
   }
 
   for (const opponent of opponents) {
-    let opponentStats = myStats.asOpponent[teammate];
+    const opponentStats = myStats.asOpponent[teammate];
     if (opponentStats) {
       opponentStats.recentGames = updateRecentGames(opponentStats.recentGames, 'L');
       opponentStats.totalLoses += 1;
@@ -151,7 +151,7 @@ async function checkEvent(ldap: string) {
   const player = (await firestore.doc(`players/${ldap}`).get()).data() as Player;
   let numWins = 0;
   let numLoses = 0;
-  for (let result of await getRecentGamesAfterLevelUpdate(ldap, player.lastLevelUpdate)) {
+  for (const result of await getRecentGamesAfterLevelUpdate(ldap, player.lastLevelUpdate)) {
     numWins += (result === 'W' ? 1 : 0);
     numLoses += (result === 'L' ? 1 : 0);
     if (numWins + numLoses < 10)
@@ -173,15 +173,15 @@ async function checkEvent(ldap: string) {
 export const onGameRecordCreate = functions.firestore
     .document('tables/{tableId}/records/{recordId}')
     .onCreate((snapshot) => {
-      let record = snapshot.data() as GameRecord;
+      const record = snapshot.data() as GameRecord;
       if (record.isTie) {
         return;
       }
 
-      let promisesToWait: Promise<any>[] = [];
+      const promisesToWait: Promise<any>[] = [];
 
-      const winners = record.winners.map(snapshot => snapshot.playerId);
-      const losers = record.losers.map(snapshot => snapshot.playerId);
+      const winners = record.winners.map((p: PlayerSnapshot) => p.playerId);
+      const losers = record.losers.map(p => p.playerId);
       const [w1, w2] = winners;
       const [l1, l2] = losers;
 
