@@ -58,8 +58,8 @@ export interface PlayerStats {
   mostWinStreaks: number;
   recentGames: string;
 
-  perYear: {
-    [key: number]: {
+  perSeason: {
+    [key: string]: {
       totalWins: number;
       totalLoses: number;
     }

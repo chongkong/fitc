@@ -34,7 +34,7 @@ export const onUserCreate = functions.auth.user()
         mostWinStreaks: 0,
         recentGames: '',
 
-        perYear: {},
+        perSeason: {},
         asOpponent: {},
         asTeammate: {},
       };
