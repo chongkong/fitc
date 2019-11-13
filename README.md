@@ -36,3 +36,18 @@ functions/  -- Firebase functions (BE)
 public/     -- Public files (e.g. html, favicon, etc.)
 src/        -- Angular codes (FE)
 ```
+
+## Frontend Development
+
+### Running local firestore emulator
+
+Instead of directly connecting to a live firestore database, we can run a [local firebase emulator](https://firebase.google.com/docs/rules/emulator-setup). To do this, you need a credentials for the service account (named `serviceAccountKey.json`.) Please contact `jjong@` to get the secret file.
+
+Once you've placed `serviceAccountKey.json` file in the project directory, you can run firebase emulator by running the following command.
+
+```sh
+set GOOGLE_APPLICATION_CREDENTIALS="./serviceAccountKey.json"
+firebase emulators:start
+```
+
+The emulator firestore database instance is completely empty on every run! Since there's no feature for initial data for the firestore emulator [yet](https://github.com/firebase/firebase-tools/issues/1167), we have to manually run a python script `scripts/init_emulator.py` **after starting emulator every time**. The script adds initial data for development.

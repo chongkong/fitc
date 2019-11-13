@@ -80,7 +80,7 @@ export class MainComponent implements OnInit {
     // Setup recentPlayers
     this.tableDoc = afs.doc<FoosballTable>('tables/default');
     const recentPlayersLdap = this.tableDoc.valueChanges()
-        .pipe(map(table => table.recentPlayers));
+        .pipe(map(table => table ? table.recentPlayers : []));
     const playersByLdap = afs.collection<Player>('players').valueChanges()
         .pipe(map(groupByLdap));
     this.recentPlayers = combineLatest(recentPlayersLdap, playersByLdap)

@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { AngularFireModule } from '@angular/fire';
-import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFirestoreModule, FirestoreSettingsToken } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { FormsModule } from '@angular/forms';
 
@@ -28,6 +28,13 @@ import { AngularFireAuthGuardModule } from '@angular/fire/auth-guard';
     FormsModule,
   ],
   providers: [
+    {
+      provide: FirestoreSettingsToken,
+      useValue: environment.production ? undefined : {
+        host: 'localhost:8081',
+        ssl: false
+      }
+    }
   ],
   bootstrap: [AppComponent]
 })
