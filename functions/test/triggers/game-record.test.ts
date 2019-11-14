@@ -23,12 +23,12 @@ describe('onGameRecordCreate', () => {
       await onGameRecordCreate({
         data: () => ({
           winners: [
-            {playerId: 'jjong', level: 2}, 
-            {playerId: 'hdmoon', level: 2}
+            {ldap: 'jjong', level: 2}, 
+            {ldap: 'hdmoon', level: 2}
           ],
           losers: [
-            {playerId: 'shinjiwon', level: 2},
-            {playerId: 'hyeonjilee', level: 3}
+            {ldap: 'shinjiwon', level: 2},
+            {ldap: 'hyeonjilee', level: 3}
           ],
           isTie: false,
           winStreaks: 1,

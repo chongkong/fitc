@@ -44,8 +44,8 @@
     Recent games
     <ul>
       <li *ngFor="let record of records | async">
-        Winners: {{ record.winners[0].playerId }}, {{ record.winners[1].playerId }} <br>
-        Losers: {{ record.losers[0].playerId }}, {{ record.losers[1].playerId }} <br>
+        Winners: {{ record.winners[0].ldap }}, {{ record.winners[1].ldap }} <br>
+        Losers: {{ record.losers[0].ldap }}, {{ record.losers[1].ldap }} <br>
         isTie: {{ record.isTie }} <br>
         winStreaks: {{ record.winStreaks }} <br>
         createdAt: {{ record.createdAt }}

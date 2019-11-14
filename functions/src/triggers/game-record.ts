@@ -156,8 +156,8 @@ export const onGameRecordCreate = functions.firestore
 
       const promisesToWait: Promise<any>[] = [];
 
-      const winners = record.winners.map((p: PlayerSnapshot) => p.playerId);
-      const losers = record.losers.map(p => p.playerId);
+      const winners = record.winners.map(p => p.ldap);
+      const losers = record.losers.map(p => p.ldap);
       const [w1, w2] = winners;
       const [l1, l2] = losers;
 

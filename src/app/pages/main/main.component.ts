@@ -182,15 +182,15 @@ export class MainComponent implements OnInit {
     }
 
     const playersByLdap = groupByLdap(players);
-    const makeSnapshot = (playerId: string) => ({
-      playerId, 
-      level: playersByLdap[playerId].level
+    const makeSnapshot = (ldap: string) => ({
+      ldap, 
+      level: playersByLdap[ldap].level
     });
 
     // Check winStreaks from lastRecord.
     let winStreaks = this.isTie ? 0 : 1;
     if (!this.isTie && lastRecord && !lastRecord.isTie) {
-      let prevWinners = lastRecord.winners.map(snapshot => snapshot.playerId);
+      let prevWinners = lastRecord.winners.map(snapshot => snapshot.ldap);
       if (membershipEquals(prevWinners, this.winners)) {
         winStreaks = lastRecord.winStreaks + 1;
       }

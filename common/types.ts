@@ -16,8 +16,8 @@ export interface Player {
  * Player snapshot that is used in `GameRecord`.
  */
 export interface PlayerSnapshot {
-  playerId: string;
-  level: number;
+  ldap: string;
+  level?: number;
 }
 
 /**
