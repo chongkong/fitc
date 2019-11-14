@@ -2,13 +2,13 @@
 
 import * as functions from 'firebase-functions';
 
-import { GameRecord, Player, PlayerStats, PlayerSnapshot, Event } from '../../../common/types';
+import { GameRecord, Player, PlayerStats, PlayerSnapshot } from '../../../common/types';
 import { firestore } from '../admin';
 import { PROMO_THRESHOLD } from '../data';
-import { createNewPlayerStats } from '../factory';
+import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
 
 
-function updateRecentGames(recentGames: string, newGame: string, maxLength: number = 50): string {
+function updateRecentGames(recentGames: string, newGame: 'W'|'L', maxLength: number = 50): string {
   return (newGame + recentGames).substr(0, maxLength);
 }
 
@@ -56,7 +56,7 @@ async function recordWinStats(ldap: string, teammate: string, opponents: string[
     }
   }
 
-  return await myStatsDoc.set(myStats);
+  return myStatsDoc.set(myStats);
 }
 
 async function recordLoseStats(ldap: string, teammate: string, opponents: string[]) {
@@ -102,7 +102,7 @@ async function recordLoseStats(ldap: string, teammate: string, opponents: string
     }
   }
 
-  return await myStatsDoc.set(myStats);
+  return myStatsDoc.set(myStats);
 }
 
 async function getRecentGamesAfterLevelUpdate(
@@ -124,30 +124,6 @@ async function getRecentGamesAfterLevelUpdate(
       .slice(0, maxLength);
 }
 
-function promotionEvent(ldap: string, levelFrom: number, createdAt: Date): Event {
-  return {
-    type: 'promotion', 
-    payload: {
-      ldap,
-      levelFrom,
-      levelTo: levelFrom + 1,
-    },
-    createdAt
-  } as Event;
-}
-
-function demotionEvent(ldap: string, levelFrom: number, createdAt: Date): Event {
-  return {
-    type: 'demotion', 
-    payload: {
-      ldap,
-      levelFrom,
-      levelTo: levelFrom - 1,
-    },
-    createdAt
-  } as Event;
-}
-
 async function checkEvent(ldap: string) {
   const player = (await firestore.doc(`players/${ldap}`).get()).data() as Player;
   let numWins = 0;
@@ -159,16 +135,15 @@ async function checkEvent(ldap: string) {
       continue;
     if (numWins > PROMO_THRESHOLD[numWins + numLoses]) {
       const now = new Date();
-      await firestore.doc(`events/${now.getTime()}-${ldap}-promotion`)
-          .set(promotionEvent(ldap, player.level, now));
-      return;
+      return firestore.doc(`events/${now.getTime()}-${ldap}-promotion`)
+          .set(createPromotionEvent(ldap, player.level, now));
     } else if (player.level > 1 && numLoses > PROMO_THRESHOLD[numWins + numLoses]) {
       const now = new Date();
-      await firestore.doc(`events/${now.getTime()}-${ldap}-demotion`)
-          .set(demotionEvent(ldap, player.level, now));
-      return;
+      return firestore.doc(`events/${now.getTime()}-${ldap}-demotion`)
+          .set(createDemotionEvent(ldap, player.level, now));
     }
   }
+  return;
 }
 
 export const onGameRecordCreate = functions.firestore
@@ -201,6 +176,6 @@ export const onGameRecordCreate = functions.firestore
           checkEvent(w2),
         );
       }
-      
+
       return Promise.all(promisesToWait);
     });
