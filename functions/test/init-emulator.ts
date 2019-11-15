@@ -1,5 +1,5 @@
 import { createNewPlayer, createNewPlayerStats, createNewTable } from '../src/factory';
-import { firestore } from '../src/admin';
+import { firestore } from '../src/firebase';
 
 
 export async function initEmulator() {

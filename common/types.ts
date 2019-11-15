@@ -24,11 +24,11 @@ export interface GameRecord {
   // player team, without regarding as winning or losing.
   isTie: boolean;
   // Number of consecutive wins for current game.
-  winStreaks: number;
+  winStreaks?: number;
   // Game timestamp.
   createdAt: Date;
   // Player who recorded this game.
-  recordedBy: string;
+  recordedBy?: string;
   // Flag to prevent event update (for old data migration)
   preventEvent?: boolean;
 }

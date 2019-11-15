@@ -3,7 +3,7 @@
 import * as functions from 'firebase-functions';
 
 import { GameRecord, Player, PlayerStats } from '../../../common/types';
-import { firestore, firebaseAuth } from '../admin';
+import { firestore, fireauth } from '../firebase';
 import { PROMO_THRESHOLD } from '../data';
 import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
 import { setEquals } from '../../../common/utils';
@@ -15,12 +15,12 @@ export const onGameRecordCreate = functions.firestore
       const rawRecord = snapshot.data() as GameRecord;
       const deferred: Promise<any>[] = [];
 
+      // Sanitize record
       const record = await sanitizeRecord(rawRecord, context);
-      if (record.winStreaks != rawRecord.winStreaks) {
-        deferred.push(snapshot.ref.set(record));
-      }
+      deferred.push(snapshot.ref.set(record));
 
       if (!record.isTie) {
+        // Record player stats
         const {winners, losers, winStreaks} = record;
         const [w1, w2] = winners;
         const [l1, l2] = losers;
@@ -32,6 +32,7 @@ export const onGameRecordCreate = functions.firestore
           updateLoseStats(l2, l1, winners),
         );
 
+        // Check promotion / demotion event
         if (!record.preventEvent) {
           deferred.push(
             checkEvent(w1),
@@ -42,7 +43,11 @@ export const onGameRecordCreate = functions.firestore
         }
       }
 
-      return Promise.all(deferred);
+      return Promise.all(deferred)
+        .catch(error => {
+          console.error(error);
+          return;
+        });
     });
 
 async function sanitizeRecord(dirty: GameRecord, context: functions.EventContext) {
@@ -55,10 +60,10 @@ async function sanitizeRecord(dirty: GameRecord, context: functions.EventContext
   } else {
     deferred.push(
       getPreviousRecord(dirty.createdAt).then(prev => {
-        if (prev && !prev.isTie 
+        if (prev && !prev.isTie
             && isConsecutivePlay(prev, dirty)
             && setEquals(prev.winners, dirty.winners)) {
-          sanitized.winStreaks = prev.winStreaks + 1;
+          sanitized.winStreaks = (prev.winStreaks || 0) + 1;
         } else {
           sanitized.winStreaks = 1;
         }
@@ -71,11 +76,11 @@ async function sanitizeRecord(dirty: GameRecord, context: functions.EventContext
     sanitized.recordedBy = 'admin';
   } else if (context.auth) {
     deferred.push(
-      firebaseAuth.getUser(context.auth.uid)
+      fireauth.getUser(context.auth.uid)
         .then(user => {
           if (user.email) {
             const [ldap, domain] = user.email.split('@');
-            if (domain == 'google.com') {
+            if (domain === 'google.com') {
               sanitized.recordedBy = ldap;
             }
           }
@@ -98,16 +103,18 @@ async function getPreviousRecord(before: Date) {
 }
 
 function isConsecutivePlay(r1: GameRecord, r2: GameRecord) {
-  r1.createdAt.getTime() > r2.createdAt.getTime() - 60 * 60 * 1000;
+  return r1.createdAt.getTime() > r2.createdAt.getTime() - 60 * 60 * 1000;
 }
 
 function updateRecentGames(recentGames: string, newGame: 'W'|'L', maxLength: number = 50): string {
   return (newGame + recentGames).substr(0, maxLength);
 }
 
-async function updateWinStats(ldap: string, teammate: string, opponents: string[], winStreaks: number) {
-  const myStatsDoc = firestore.doc(`stats/${ldap}`);
-  const myStats = (await myStatsDoc.get()).data() as PlayerStats || createNewPlayerStats();
+async function updateWinStats(ldap: string, teammate: string, opponents: string[], winStreaks: number = 0) {
+  const myStatsSnapshot = await firestore.doc(`stats/${ldap}`).get();
+  const myStats = myStatsSnapshot.exists
+    ? myStatsSnapshot.data() as PlayerStats
+    : createNewPlayerStats();
   myStats.recentGames = updateRecentGames(myStats.recentGames, 'W');
   myStats.totalWins += 1;
   myStats.mostWinStreaks = Math.max(myStats.mostWinStreaks, winStreaks);
@@ -149,12 +156,14 @@ async function updateWinStats(ldap: string, teammate: string, opponents: string[
     }
   }
 
-  return myStatsDoc.set(myStats);
+  return myStatsSnapshot.ref.set(myStats);
 }
 
 async function updateLoseStats(ldap: string, teammate: string, opponents: string[]) {
-  const myStatsDoc = firestore.doc(`stats/${ldap}`);
-  const myStats = (await myStatsDoc.get()).data() as PlayerStats || createNewPlayerStats();
+  const myStatsSnapshot = await firestore.doc(`stats/${ldap}`).get();
+  const myStats = myStatsSnapshot.exists
+    ? myStatsSnapshot.data() as PlayerStats
+    : createNewPlayerStats();
   myStats.recentGames = updateRecentGames(myStats.recentGames, 'L');
   myStats.totalLoses += 1;
 
@@ -195,7 +204,7 @@ async function updateLoseStats(ldap: string, teammate: string, opponents: string
     }
   }
 
-  return myStatsDoc.set(myStats);
+  return myStatsSnapshot.ref.set(myStats);
 }
 
 async function getRecentGamesAfterLevelUpdate(
@@ -219,7 +228,12 @@ async function getRecentGamesAfterLevelUpdate(
 }
 
 async function checkEvent(ldap: string) {
-  const player = (await firestore.doc(`players/${ldap}`).get()).data() as Player;
+  const playerSnapshot = await firestore.doc(`players/${ldap}`).get();
+  if (!playerSnapshot.exists) {
+    console.warn(`Player ${ldap} doesn't exist!`);
+    return;
+  }
+  const player = playerSnapshot.data() as Player;
   let numWins = 0;
   let numLoses = 0;
   for (const result of await getRecentGamesAfterLevelUpdate(player)) {

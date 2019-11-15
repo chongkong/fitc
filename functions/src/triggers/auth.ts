@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 
 import { createNewPlayer, createNewPlayerStats } from '../factory';
-import { firestore } from '../admin';
+import { firestore } from '../firebase';
 
 const ALLOWED_DOMAINS = [
   'google.com'

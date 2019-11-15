@@ -9,6 +9,14 @@ export const test = testFactory({
 });
 
 export { firebase };
-export const firebaseApp = firebase.initializeAdminApp({ projectId });
+export const jjongAuth = {
+  uid: 'GpXfrqW6ntP15nNSxpevOitpfff2',
+  email: 'jjong@google.com',
+  displayName: 'Jongbin Park'
+};
+export const firebaseApp = firebase.initializeTestApp({
+  projectId,
+  auth: jjongAuth
+});
 export const firestore = firebaseApp.firestore();
-export const firebaseAuth = firebaseApp.auth();
+

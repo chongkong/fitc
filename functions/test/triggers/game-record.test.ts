@@ -1,42 +1,49 @@
-import { firebase, projectId, firestore, firebaseAuth, test } from '..';
+import { firebase, projectId, firestore, test, jjongAuth } from '..';
 import { initEmulator } from '../init-emulator';
 import * as functions from '../../src';
-import { PlayerStats } from '../../../common/types';
+import { PlayerStats, GameRecord } from '../../../common/types';
 
 // Mock firestore to a local emulator.
-jest.mock('../../src/admin', () => ({
+jest.mock('../../src/firebase', () => ({
   firestore,
-  firebaseAuth
+  fireauth: {
+    getUser: async () => jjongAuth
+  }
 }));
 
 describe('onGameRecordCreate', () => {
-  beforeEach(() => {
-    return initEmulator();
-  });
 
-  afterEach(() => {
-    return firebase.clearFirestoreData({ projectId });
-  })
+  describe('[Case] First Game', () => {
+    const theRecord: GameRecord = {
+      winners: ['jjong', 'hdmoon'],
+      losers: ['shinjiwon', 'hyeonjilee'],
+      isTie: false,
+      createdAt: new Date('2019-11-11T12:34:56'),
+    };
+    const theRecordRef = firestore.collection('tables/default/records')
+      .doc(theRecord.createdAt.getTime().toString());
 
-  describe('typical case', () => {
-    beforeEach(async () => {
+    beforeAll(async () => {
+      await initEmulator();
       const onGameRecordCreate = test.wrap(functions.onGameRecordCreate);
       await onGameRecordCreate({
-        data: () => ({
-          winners: [
-            {ldap: 'jjong', level: 2}, 
-            {ldap: 'hdmoon', level: 2}
-          ],
-          losers: [
-            {ldap: 'shinjiwon', level: 2},
-            {ldap: 'hyeonjilee', level: 3}
-          ],
-          isTie: false,
-          winStreaks: 1,
-          createdAt: new Date('2019-11-11T12:34:56'),
-          recordedBy: 'jjong'
-        })
+        data: () => theRecord,
+        ref: theRecordRef
+      }, {
+        auth: jjongAuth
       });
+    });
+
+    afterAll(() => {
+      return firebase.clearFirestoreData({ projectId });
+    })
+
+    it('GameRecord is sanitized', async () => {
+      const sanitizedSnapshot = await theRecordRef.get();
+      expect(sanitizedSnapshot.exists).toBeTruthy();
+      const sanitized = sanitizedSnapshot.data() as GameRecord;
+      expect(sanitized.recordedBy).toBe('jjong');
+      expect(sanitized.winStreaks).toBe(1);
     });
 
     it('jjong@ stats changed', async () => {
