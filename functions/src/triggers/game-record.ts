@@ -112,7 +112,7 @@ async function updateWinStats(ldap: string, teammate: string, opponents: string[
   myStats.totalWins += 1;
   myStats.mostWinStreaks = Math.max(myStats.mostWinStreaks, winStreaks);
 
-  const season = new Date().getFullYear();
+  const season = new Date().getFullYear().toString();
   const seasonStats = myStats.perSeason[season];
   if (seasonStats) {
     seasonStats.totalWins += 1;
@@ -158,7 +158,7 @@ async function updateLoseStats(ldap: string, teammate: string, opponents: string
   myStats.recentGames = updateRecentGames(myStats.recentGames, 'L');
   myStats.totalLoses += 1;
 
-  const season = new Date().getFullYear();
+  const season = new Date().getFullYear().toString();
   const seasonStats = myStats.perSeason[season];
   if (seasonStats) {
     seasonStats.totalLoses += 1;
@@ -199,14 +199,15 @@ async function updateLoseStats(ldap: string, teammate: string, opponents: string
 }
 
 async function getRecentGamesAfterLevelUpdate(
-    ldap: string, after?: Date, maxLength: number = 50): Promise<('W' | 'L')[]> {
+    player: Player, maxLength: number = 50): Promise<('W' | 'L')[]> {
   const collection = firestore.collection(`tables/default/records`);
+  const { ldap, lastLevelUpdate } = player;
   let queries = [
     collection.where('winners', 'array-contains', ldap),
     collection.where('losers', 'array-contains', ldap)
   ];
-  if (after) {
-    queries = queries.map(q => q.where('createdAt', '>', after));
+  if (lastLevelUpdate) {
+    queries = queries.map(q => q.where('createdAt', '>', lastLevelUpdate));
   }
   queries = queries.map(q => q.orderBy('createdAt', 'desc').limit(maxLength));
   const [winRecords, loseRecords] = await Promise.all(queries.map(q => q.get()));
@@ -221,12 +222,12 @@ async function checkEvent(ldap: string) {
   const player = (await firestore.doc(`players/${ldap}`).get()).data() as Player;
   let numWins = 0;
   let numLoses = 0;
-  for (const result of await getRecentGamesAfterLevelUpdate(ldap, player.lastLevelUpdate)) {
+  for (const result of await getRecentGamesAfterLevelUpdate(player)) {
     numWins += (result === 'W' ? 1 : 0);
     numLoses += (result === 'L' ? 1 : 0);
-    if (numWins + numLoses < 10)
+    if (numWins + numLoses < 10) {
       continue;
-    if (numWins > PROMO_THRESHOLD[numWins + numLoses]) {
+    } else if (numWins > PROMO_THRESHOLD[numWins + numLoses]) {
       const now = new Date();
       return firestore.doc(`events/${now.getTime()}-${ldap}-promotion`)
           .set(createPromotionEvent(ldap, player.level, now));
