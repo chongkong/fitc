@@ -2,17 +2,93 @@
 
 import * as functions from 'firebase-functions';
 
-import { GameRecord, Player, PlayerStats, PlayerSnapshot } from '../../../common/types';
+import { GameRecord, Player, PlayerStats } from '../../../common/types';
 import { firestore } from '../admin';
 import { PROMO_THRESHOLD } from '../data';
 import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
+import { setEquals } from '../../../common/utils';
 
+
+export const onGameRecordCreate = functions.firestore
+    .document('tables/default/records/{recordId}')
+    .onCreate(async (snapshot) => {
+      const rawRecord = snapshot.data() as GameRecord;
+      const deferred: Promise<any>[] = [];
+
+      const record = await sanitizeRecord(rawRecord);
+      if (record.winStreaks != rawRecord.winStreaks) {
+        deferred.push(snapshot.ref.set(record));
+      }
+
+      if (!record.isTie) {
+        const {winners, losers, winStreaks} = record;
+        const [w1, w2] = winners;
+        const [l1, l2] = losers;
+
+        deferred.push(
+          updateWinStats(w1, w2, losers, winStreaks),
+          updateWinStats(w2, w1, losers, winStreaks),
+          updateLoseStats(l1, l2, winners),
+          updateLoseStats(l2, l1, winners),
+        );
+
+        if (!record.preventEvent) {
+          deferred.push(
+            checkEvent(w1),
+            checkEvent(w2),
+            checkEvent(w1),
+            checkEvent(w2),
+          );
+        }
+      }
+
+      return Promise.all(deferred);
+    });
+
+async function sanitizeRecord(dirty: GameRecord) {
+  const sanitized: GameRecord = Object.assign({}, dirty);
+  const deferred = [];
+
+  // Check winStreaks
+  if (dirty.isTie) {
+    sanitized.winStreaks = 0;
+  } else {
+    deferred.push(
+      getPreviousRecord(dirty.createdAt).then(prev => {
+        if (prev && !prev.isTie 
+            && isConsecutivePlay(prev, dirty)
+            && setEquals(prev.winners, dirty.winners)) {
+          sanitized.winStreaks = prev.winStreaks + 1;
+        } else {
+          sanitized.winStreaks = 1;
+        }
+      })
+    );
+  }
+
+  await Promise.all(deferred);
+
+  return sanitized;
+}
+
+async function getPreviousRecord(before: Date) {
+  const prevRecords = await firestore.collection(`tables/default/records`)
+      .where('createdAt', '<', before)
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get();
+  return prevRecords.empty ? undefined : prevRecords.docs[0].data() as GameRecord;
+}
+
+function isConsecutivePlay(r1: GameRecord, r2: GameRecord) {
+  r1.createdAt.getTime() > r2.createdAt.getTime() - 60 * 60 * 1000;
+}
 
 function updateRecentGames(recentGames: string, newGame: 'W'|'L', maxLength: number = 50): string {
   return (newGame + recentGames).substr(0, maxLength);
 }
 
-async function recordWinStats(ldap: string, teammate: string, opponents: string[], winStreaks: number) {
+async function updateWinStats(ldap: string, teammate: string, opponents: string[], winStreaks: number) {
   const myStatsDoc = firestore.doc(`stats/${ldap}`);
   const myStats = (await myStatsDoc.get()).data() as PlayerStats || createNewPlayerStats();
   myStats.recentGames = updateRecentGames(myStats.recentGames, 'W');
@@ -59,7 +135,7 @@ async function recordWinStats(ldap: string, teammate: string, opponents: string[
   return myStatsDoc.set(myStats);
 }
 
-async function recordLoseStats(ldap: string, teammate: string, opponents: string[]) {
+async function updateLoseStats(ldap: string, teammate: string, opponents: string[]) {
   const myStatsDoc = firestore.doc(`stats/${ldap}`);
   const myStats = (await myStatsDoc.get()).data() as PlayerStats || createNewPlayerStats();
   myStats.recentGames = updateRecentGames(myStats.recentGames, 'L');
@@ -145,37 +221,3 @@ async function checkEvent(ldap: string) {
   }
   return;
 }
-
-export const onGameRecordCreate = functions.firestore
-    .document('tables/{tableId}/records/{recordId}')
-    .onCreate((snapshot) => {
-      const record = snapshot.data() as GameRecord;
-      if (record.isTie) {
-        return;
-      }
-
-      const promisesToWait: Promise<any>[] = [];
-
-      const winners = record.winners.map(p => p.ldap);
-      const losers = record.losers.map(p => p.ldap);
-      const [w1, w2] = winners;
-      const [l1, l2] = losers;
-
-      promisesToWait.push(
-        recordWinStats(w1, w2, losers, record.winStreaks),
-        recordWinStats(w2, w1, losers, record.winStreaks),
-        recordLoseStats(l1, l2, winners),
-        recordLoseStats(l2, l1, winners),
-      );
-
-      if (!record.preventEvent) {
-        promisesToWait.push(
-          checkEvent(w1),
-          checkEvent(w2),
-          checkEvent(w1),
-          checkEvent(w2),
-        );
-      }
-
-      return Promise.all(promisesToWait);
-    });
