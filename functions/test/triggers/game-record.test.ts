@@ -1,11 +1,12 @@
-import { firebase, projectId, firestore, test } from '..';
+import { firebase, projectId, firestore, firebaseAuth, test } from '..';
 import { initEmulator } from '../init-emulator';
 import * as functions from '../../src';
 import { PlayerStats } from '../../../common/types';
 
 // Mock firestore to a local emulator.
 jest.mock('../../src/admin', () => ({
-  firestore 
+  firestore,
+  firebaseAuth
 }));
 
 describe('onGameRecordCreate', () => {

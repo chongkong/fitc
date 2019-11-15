@@ -11,3 +11,4 @@ export const test = testFactory({
 export { firebase };
 export const firebaseApp = firebase.initializeAdminApp({ projectId });
 export const firestore = firebaseApp.firestore();
+export const firebaseAuth = firebaseApp.auth();

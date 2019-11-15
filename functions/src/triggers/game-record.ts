@@ -3,7 +3,7 @@
 import * as functions from 'firebase-functions';
 
 import { GameRecord, Player, PlayerStats } from '../../../common/types';
-import { firestore } from '../admin';
+import { firestore, firebaseAuth } from '../admin';
 import { PROMO_THRESHOLD } from '../data';
 import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
 import { setEquals } from '../../../common/utils';
@@ -11,11 +11,11 @@ import { setEquals } from '../../../common/utils';
 
 export const onGameRecordCreate = functions.firestore
     .document('tables/default/records/{recordId}')
-    .onCreate(async (snapshot) => {
+    .onCreate(async (snapshot, context) => {
       const rawRecord = snapshot.data() as GameRecord;
       const deferred: Promise<any>[] = [];
 
-      const record = await sanitizeRecord(rawRecord);
+      const record = await sanitizeRecord(rawRecord, context);
       if (record.winStreaks != rawRecord.winStreaks) {
         deferred.push(snapshot.ref.set(record));
       }
@@ -45,7 +45,7 @@ export const onGameRecordCreate = functions.firestore
       return Promise.all(deferred);
     });
 
-async function sanitizeRecord(dirty: GameRecord) {
+async function sanitizeRecord(dirty: GameRecord, context: functions.EventContext) {
   const sanitized: GameRecord = Object.assign({}, dirty);
   const deferred = [];
 
@@ -63,6 +63,23 @@ async function sanitizeRecord(dirty: GameRecord) {
           sanitized.winStreaks = 1;
         }
       })
+    );
+  }
+
+  // Check recordedBy
+  if (context.authType === 'ADMIN') {
+    sanitized.recordedBy = 'admin';
+  } else if (context.auth) {
+    deferred.push(
+      firebaseAuth.getUser(context.auth.uid)
+        .then(user => {
+          if (user.email) {
+            const [ldap, domain] = user.email.split('@');
+            if (domain == 'google.com') {
+              sanitized.recordedBy = ldap;
+            }
+          }
+        })
     );
   }
 
