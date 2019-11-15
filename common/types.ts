@@ -13,21 +13,13 @@ export interface Player {
 }
 
 /**
- * Player snapshot that is used in `GameRecord`.
- */
-export interface PlayerSnapshot {
-  ldap: string;
-  level?: number;
-}
-
-/**
  * Game record schema.
  *
  * Stored under `tables/{FoosballTable}/records`.
  */
 export interface GameRecord {
-  winners: PlayerSnapshot[];
-  losers: PlayerSnapshot[];
+  winners: string[];
+  losers: string[];
   // If game is tie, we use `winners` and `losers` only to resolve
   // player team, without regarding as winning or losing.
   isTie: boolean;

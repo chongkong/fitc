@@ -28,12 +28,12 @@
     </button>
     <!-- Hacky workaround to use lastRecord with async pipe. -->
     <div *ngIf="lastRecord | async as lastRecord; else withoutRecord">
-      <button (click)="recordGame(recentPlayers, lastRecord)"> 
+      <button (click)="recordGame(lastRecord)"> 
         Record Game
       </button>
     </div>
     <ng-template #withoutRecord>
-      <button (click)="recordGame(recentPlayers)">
+      <button (click)="recordGame()">
         Record Game
       </button>
     </ng-template>

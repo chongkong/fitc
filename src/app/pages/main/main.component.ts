@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Observable, combineLatest } from 'rxjs';
+import { map, flatMap } from 'rxjs/operators';
 
 import { Player, GameRecord, FoosballTable } from 'common/types';
-import { map, flatMap } from 'rxjs/operators';
+import { setEquals } from 'common/utils';
 
 /**
  * Sort by level DESC, name ASC.
@@ -24,18 +25,6 @@ function groupByLdap(players: Player[]) {
     dict[player.ldap] = player;
     return dict;
   }, {});
-}
-
-function membershipEquals<T>(arr1: T[], arr2: T[]) {
-  for (let item of arr1) {
-    if (!arr2.includes(item))
-      return false;
-  }
-  for (let item of arr2) {
-    if (!arr1.includes(item))
-      return false;
-  }
-  return true;
 }
 
 @Component({
@@ -175,31 +164,25 @@ export class MainComponent implements OnInit {
     return this.losers.includes(ldap);
   }
 
-  recordGame(players: Player[], lastRecord: GameRecord | undefined) {
+  recordGame(lastRecord: GameRecord | undefined) {
     // You must have chosen proper winners and losers before recording.
     if (this.winners.length !== 2 || this.losers.length !== 2) {
       return;
     }
 
-    const playersByLdap = groupByLdap(players);
-    const makeSnapshot = (ldap: string) => ({
-      ldap, 
-      level: playersByLdap[ldap].level
-    });
-
     // Check winStreaks from lastRecord.
     let winStreaks = this.isTie ? 0 : 1;
     if (!this.isTie && lastRecord && !lastRecord.isTie) {
-      let prevWinners = lastRecord.winners.map(snapshot => snapshot.ldap);
-      if (membershipEquals(prevWinners, this.winners)) {
+      let prevWinners = lastRecord.winners;
+      if (setEquals(prevWinners, this.winners)) {
         winStreaks = lastRecord.winStreaks + 1;
       }
     }
 
     const now = new Date();
     const record: GameRecord = {
-      winners: this.winners.map(makeSnapshot),
-      losers: this.losers.map(makeSnapshot),
+      winners: this.winners,
+      losers: this.losers,
       isTie: this.isTie,
       winStreaks,
       createdAt: now,
