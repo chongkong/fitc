@@ -1,61 +1,68 @@
 // import { firestore as fs } from 'firebase';
 import { firestore as fs } from 'firebase';
 
-import { test, testApp, jjongAuth, clearFirestoreData } from '../helper';
+import { test, createTestApp, jjongAuth, clearFirestoreData } from '../helper';
 import { initEmulator } from '../init-emulator';
 import * as functions from '../../src';
+import { app } from '../../src/firebase';
 import { PlayerStats, GameRecord } from '../../../common/types';
 
 // Mock firestore to a local emulator.
 // Note that testApp doesn't support auth, and we have to manually mock
 // the auth() service for each usage.
-jest.mock('../../src/firebase', () => ({
-  app: {
-    firestore: () => testApp.firestore(),
-    auth: () => ({
-      getUser: async () => jjongAuth
-    })
+jest.mock('../../src/firebase', () => {
+  const app = createTestApp();
+  return {
+    app: {
+      firestore: () => app.firestore(),
+      auth: () => ({
+        getUser: async () => jjongAuth
+      }),
+      delete: () => app.delete()
+    }
   }
-}));
+});
+
+afterAll(async (done) => {
+  await app.delete();
+  done();
+});
 
 describe('onGameRecordCreate', () => {
+  const onGameRecordCreate = test.wrap(functions.onGameRecordCreate);
 
   describe('[Case] First Game', () => {
     const theRecord: GameRecord = {
       winners: ['jjong', 'hdmoon'],
       losers: ['shinjiwon', 'hyeonjilee'],
       isTie: false,
+      winStreaks: 1,
       createdAt: fs.Timestamp.fromDate(new Date('2019-11-11T12:34:56')),
+      recordedBy: 'jjong',
     };
-    const theRecordRef = testApp.firestore()
+    const theRecordRef = app.firestore()
       .collection('tables/default/records')
       .doc(theRecord.createdAt.toMillis().toString());
 
-    beforeAll(async () => {
+    beforeAll(async (done) => {
       await initEmulator();
-      const onGameRecordCreate = test.wrap(functions.onGameRecordCreate);
       await onGameRecordCreate({
         data: () => theRecord,
         ref: theRecordRef
       }, {
         auth: jjongAuth
       });
+      done();
     });
 
-    afterAll(() => {
-      return clearFirestoreData();
+    afterAll(async (done) => {
+      test.cleanup();
+      await clearFirestoreData();
+      done();
     })
 
-    it('GameRecord is sanitized', async () => {
-      const sanitizedSnapshot = await theRecordRef.get();
-      expect(sanitizedSnapshot.exists).toBeTruthy();
-      const sanitized = sanitizedSnapshot.data() as GameRecord;
-      expect(sanitized.recordedBy).toBe('jjong');
-      expect(sanitized.winStreaks).toBe(1);
-    });
-
-    it('jjong@ stats changed', async () => {
-      const jjongStatsSnapshot = await testApp.firestore().collection('stats').doc('jjong').get();
+    it('jjong@ stats changed', async (done) => {
+      const jjongStatsSnapshot = await app.firestore().collection('stats').doc('jjong').get();
       const jjongStats = jjongStatsSnapshot.data() as PlayerStats;
       // Global stats
       expect(jjongStats.totalWins).toBe(1);
@@ -77,10 +84,12 @@ describe('onGameRecordCreate', () => {
       expect(jjongStats.asOpponent['hyeonjilee'].totalWins).toBe(1);
       expect(jjongStats.asOpponent['hyeonjilee'].totalLoses).toBe(0);
       expect(jjongStats.asOpponent['hyeonjilee'].recentGames).toBe('W');
+
+      done();
     });
 
-    it('hdmoon@ stats changed', async () => {
-      const hdmoonStatsSnapshot = await testApp.firestore()
+    it('hdmoon@ stats changed', async (done) => {
+      const hdmoonStatsSnapshot = await app.firestore()
       .collection('stats').doc('hdmoon').get();
       const hdmoonStats = hdmoonStatsSnapshot.data() as PlayerStats;
       // Global stats
@@ -104,10 +113,11 @@ describe('onGameRecordCreate', () => {
       expect(hdmoonStats.asOpponent['hyeonjilee'].totalLoses).toBe(0);
       expect(hdmoonStats.asOpponent['hyeonjilee'].recentGames).toBe('W');
 
+      done();
     })
 
-    it('shinjiwon@ stats changed', async () => {
-      const shinjiwonStatsSnapshot = await testApp.firestore()
+    it('shinjiwon@ stats changed', async (done) => {
+      const shinjiwonStatsSnapshot = await app.firestore()
       .collection('stats').doc('shinjiwon').get();
       const shinjiwonStats = shinjiwonStatsSnapshot.data() as PlayerStats;
       // Global stats
@@ -130,10 +140,12 @@ describe('onGameRecordCreate', () => {
       expect(shinjiwonStats.asOpponent['hdmoon'].totalWins).toBe(0);
       expect(shinjiwonStats.asOpponent['hdmoon'].totalLoses).toBe(1);
       expect(shinjiwonStats.asOpponent['hdmoon'].recentGames).toBe('L');
+
+      done();
     });
 
-    it('hyeonjilee@ stats changed', async () => {
-      const hyeonjileeStatsSnapshot = await testApp.firestore()
+    it('hyeonjilee@ stats changed', async (done) => {
+      const hyeonjileeStatsSnapshot = await app.firestore()
       .collection('stats').doc('hyeonjilee').get();
       const hyeonjileeStats = hyeonjileeStatsSnapshot.data() as PlayerStats;
       // Global stats
@@ -156,10 +168,52 @@ describe('onGameRecordCreate', () => {
       expect(hyeonjileeStats.asOpponent['hdmoon'].totalWins).toBe(0);
       expect(hyeonjileeStats.asOpponent['hdmoon'].totalLoses).toBe(1);
       expect(hyeonjileeStats.asOpponent['hdmoon'].recentGames).toBe('L');
+
+      done();
     });
   });
 
-  describe('consecutive wins', () => {
-    
+  describe('[Case] 10 Consecutive Wins', () => {
+    beforeAll(async (done) => {
+      await initEmulator();
+      for (let winStreaks = 1; winStreaks <= 9; ++winStreaks) {
+        const now = fs.Timestamp.now();
+        await app.firestore()
+        .doc(`tables/default/records/${now.toMillis()}`).set({
+          winners: ['jjong', 'hdmoon'], 
+          losers: ['shinjiwon', 'hyenojilee'],
+          isTie: false,
+          winStreaks,
+          createdAt: now,
+          recordedBy: 'jjong',
+        });
+      }
+
+      const now = fs.Timestamp.now();
+      await onGameRecordCreate({
+        data: () => ({
+          winners: ['jjong', 'hdmoon'], 
+          losers: ['shinjiwon', 'hyenojilee'],
+          isTie: false,
+          createdAt: now
+        }),
+        ref: app.firestore()
+          .doc(`tables/default/records/${now.toMillis()}`)
+      });
+
+      done();
+    });
+
+    afterAll(async (done) => {
+      test.cleanup();
+      await clearFirestoreData();
+      done();
+    });
+
+    it('Events created', async (done) => {
+      const events = await app.firestore().collection('events').get();
+      console.log('Events:', events.docs.map(snap => snap.data()));
+      done();
+    })
   });
 });
