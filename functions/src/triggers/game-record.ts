@@ -162,7 +162,7 @@ async function getRecentGamesAfterLevelUpdate(
   const [winRecords, loseRecords] = await Promise.all(queries.map(q => q.get()));
   return winRecords.docs.map(snapshot => ['W', snapshot.data().createdAt])
       .concat(loseRecords.docs.map(snapshot => ['L', snapshot.data().createdAt]))
-      .sort((a, b) =>  b[1].createdAt.toMillis() - a[1].createdAt.toMillis())
+      .sort((a, b) => b[1].toMillis() - a[1].toMillis())
       .map(resultAndTime => resultAndTime[0])
       .slice(0, maxLength);
 }
