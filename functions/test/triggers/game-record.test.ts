@@ -1,4 +1,3 @@
-// import { firestore as fs } from 'firebase';
 import { firestore as fs } from 'firebase';
 
 import { test, createTestApp, jjongAuth, clearFirestoreData } from '../helper';
