@@ -1,3 +1,4 @@
+import { firestore } from 'firebase-admin';
 import { Player, PlayerStats, Event, FoosballTable } from '../../common/types';
 
 export function createNewTable(name: string, recentPlayers: string[]): FoosballTable {
@@ -29,7 +30,7 @@ export function createNewPlayerStats(): PlayerStats {
   };
 }
 
-export function createPromotionEvent(ldap: string, levelFrom: number, createdAt: Date): Event {
+export function createPromotionEvent(ldap: string, levelFrom: number, createdAt: firestore.Timestamp): Event {
   return {
     type: 'promotion', 
     payload: {
@@ -41,7 +42,7 @@ export function createPromotionEvent(ldap: string, levelFrom: number, createdAt:
   } as Event;
 }
 
-export function createDemotionEvent(ldap: string, levelFrom: number, createdAt: Date): Event {
+export function createDemotionEvent(ldap: string, levelFrom: number, createdAt: firestore.Timestamp): Event {
   return {
     type: 'demotion', 
     payload: {

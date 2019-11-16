@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 
 import { createNewPlayer, createNewPlayerStats } from '../factory';
-import { firestore } from '../firebase';
+import { app } from '../firebase';
 
 const ALLOWED_DOMAINS = [
   'google.com'
@@ -18,7 +18,7 @@ export const onUserCreate = functions.auth.user()
       const promises = [];
       
       // 1. Create Player entry.
-      const playerDoc = firestore.doc(`players/${ldap}`);
+      const playerDoc = app.firestore().doc(`players/${ldap}`);
       promises.push(
         playerDoc.get().then(snapshot => {
           return snapshot.exists ? undefined : playerDoc.set(
@@ -28,7 +28,7 @@ export const onUserCreate = functions.auth.user()
 
       // 2. Create PlayerStats entry.
       promises.push(
-        firestore.doc(`stats/${ldap}`).set(createNewPlayerStats())
+        app.firestore().doc(`stats/${ldap}`).set(createNewPlayerStats())
       );
       
       return Promise.all(promises);

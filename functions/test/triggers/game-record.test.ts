@@ -1,13 +1,20 @@
-import { firebase, projectId, firestore, test, jjongAuth } from '..';
+// import { firestore as fs } from 'firebase';
+import { firestore as fs } from 'firebase';
+
+import { test, testApp, jjongAuth, clearFirestoreData } from '../helper';
 import { initEmulator } from '../init-emulator';
 import * as functions from '../../src';
 import { PlayerStats, GameRecord } from '../../../common/types';
 
 // Mock firestore to a local emulator.
+// Note that testApp doesn't support auth, and we have to manually mock
+// the auth() service for each usage.
 jest.mock('../../src/firebase', () => ({
-  firestore,
-  fireauth: {
-    getUser: async () => jjongAuth
+  app: {
+    firestore: () => testApp.firestore(),
+    auth: () => ({
+      getUser: async () => jjongAuth
+    })
   }
 }));
 
@@ -18,10 +25,11 @@ describe('onGameRecordCreate', () => {
       winners: ['jjong', 'hdmoon'],
       losers: ['shinjiwon', 'hyeonjilee'],
       isTie: false,
-      createdAt: new Date('2019-11-11T12:34:56'),
+      createdAt: fs.Timestamp.fromDate(new Date('2019-11-11T12:34:56')),
     };
-    const theRecordRef = firestore.collection('tables/default/records')
-      .doc(theRecord.createdAt.getTime().toString());
+    const theRecordRef = testApp.firestore()
+      .collection('tables/default/records')
+      .doc(theRecord.createdAt.toMillis().toString());
 
     beforeAll(async () => {
       await initEmulator();
@@ -35,7 +43,7 @@ describe('onGameRecordCreate', () => {
     });
 
     afterAll(() => {
-      return firebase.clearFirestoreData({ projectId });
+      return clearFirestoreData();
     })
 
     it('GameRecord is sanitized', async () => {
@@ -47,7 +55,7 @@ describe('onGameRecordCreate', () => {
     });
 
     it('jjong@ stats changed', async () => {
-      const jjongStatsSnapshot = await firestore.collection('stats').doc('jjong').get();
+      const jjongStatsSnapshot = await testApp.firestore().collection('stats').doc('jjong').get();
       const jjongStats = jjongStatsSnapshot.data() as PlayerStats;
       // Global stats
       expect(jjongStats.totalWins).toBe(1);
@@ -72,7 +80,8 @@ describe('onGameRecordCreate', () => {
     });
 
     it('hdmoon@ stats changed', async () => {
-      const hdmoonStatsSnapshot = await firestore.collection('stats').doc('hdmoon').get();
+      const hdmoonStatsSnapshot = await testApp.firestore()
+      .collection('stats').doc('hdmoon').get();
       const hdmoonStats = hdmoonStatsSnapshot.data() as PlayerStats;
       // Global stats
       expect(hdmoonStats.totalWins).toBe(1);
@@ -98,7 +107,8 @@ describe('onGameRecordCreate', () => {
     })
 
     it('shinjiwon@ stats changed', async () => {
-      const shinjiwonStatsSnapshot = await firestore.collection('stats').doc('shinjiwon').get();
+      const shinjiwonStatsSnapshot = await testApp.firestore()
+      .collection('stats').doc('shinjiwon').get();
       const shinjiwonStats = shinjiwonStatsSnapshot.data() as PlayerStats;
       // Global stats
       expect(shinjiwonStats.totalWins).toBe(0);
@@ -123,7 +133,8 @@ describe('onGameRecordCreate', () => {
     });
 
     it('hyeonjilee@ stats changed', async () => {
-      const hyeonjileeStatsSnapshot = await firestore.collection('stats').doc('hyeonjilee').get();
+      const hyeonjileeStatsSnapshot = await testApp.firestore()
+      .collection('stats').doc('hyeonjilee').get();
       const hyeonjileeStats = hyeonjileeStatsSnapshot.data() as PlayerStats;
       // Global stats
       expect(hyeonjileeStats.totalWins).toBe(0);

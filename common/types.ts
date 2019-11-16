@@ -1,3 +1,5 @@
+import { firestore } from 'firebase';
+
 /** Player schema.
  *
  * Stored under `players/`.
@@ -9,7 +11,7 @@ export interface Player {
 
   // Whether the player has newly joined and kept level 1 or not.
   isNewbie: boolean;
-  lastLevelUpdate?: Date;
+  lastLevelUpdate?: firestore.Timestamp;
 }
 
 /**
@@ -26,7 +28,7 @@ export interface GameRecord {
   // Number of consecutive wins for current game.
   winStreaks?: number;
   // Game timestamp.
-  createdAt: Date;
+  createdAt: firestore.Timestamp;
   // Player who recorded this game.
   recordedBy?: string;
   // Flag to prevent event update (for old data migration)
@@ -84,7 +86,7 @@ export interface PlayerStats {
 export interface Event {
   type: 'promotion' | 'demotion';
   payload: PromotionEvent | DemotionEvent;
-  createdAt: Date;
+  createdAt: firestore.Timestamp;
 }
 
 export interface PromotionEvent {
