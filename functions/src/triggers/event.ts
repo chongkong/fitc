@@ -1,4 +1,4 @@
-import { firestore as fs } from 'firebase';
+import { firestore as fs } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
 import { Player, Event, PromotionEvent } from '../../../common/types';
