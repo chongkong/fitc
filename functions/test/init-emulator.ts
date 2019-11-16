@@ -27,11 +27,10 @@ export async function initEmulator() {
   addPlayer('hyeonjilee', 'Hyeonji Lee', 3);
   addPlayer('shinjiwon', 'Jiwon Shin', 2);
   addPlayer('anzor', 'Anzor Balkar', 4);
-  addPlayer('hdmoon', 'Hyundo Moon', 4);
+  addPlayer('hdmoon', 'Hyundo Moon', 2);
 
   addTable('default', 'Default table', ['jjong', 'hyeonjilee', 'shinjiwon', 'anzor', 'hdmoon']);
 
-  console.info('Committing for firestore emulator..');
   await batch.commit();
-  console.info('Firestore emulator initialized.');
+  console.info('Initial firestore emulator data committed.');
 };

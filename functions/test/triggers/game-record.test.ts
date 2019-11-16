@@ -5,7 +5,7 @@ import { test, createTestApp, jjongAuth, clearFirestoreData } from '../helper';
 import { initEmulator } from '../init-emulator';
 import * as functions from '../../src';
 import { app } from '../../src/firebase';
-import { PlayerStats, GameRecord } from '../../../common/types';
+import { PlayerStats, GameRecord, Event } from '../../../common/types';
 
 // Mock firestore to a local emulator.
 // Note that testApp doesn't support auth, and we have to manually mock
@@ -40,17 +40,11 @@ describe('onGameRecordCreate', () => {
       createdAt: fs.Timestamp.fromDate(new Date('2019-11-11T12:34:56')),
       recordedBy: 'jjong',
     };
-    const theRecordRef = app.firestore()
-      .collection('tables/default/records')
-      .doc(theRecord.createdAt.toMillis().toString());
 
     beforeAll(async (done) => {
       await initEmulator();
       await onGameRecordCreate({
-        data: () => theRecord,
-        ref: theRecordRef
-      }, {
-        auth: jjongAuth
+        data: () => theRecord
       });
       done();
     });
@@ -176,29 +170,31 @@ describe('onGameRecordCreate', () => {
   describe('[Case] 10 Consecutive Wins', () => {
     beforeAll(async (done) => {
       await initEmulator();
-      for (let winStreaks = 1; winStreaks <= 9; ++winStreaks) {
+      for (let winStreaks = 1; winStreaks <= 10; ++winStreaks) {
         const now = fs.Timestamp.now();
-        await app.firestore()
-        .doc(`tables/default/records/${now.toMillis()}`).set({
+        await app.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
           winners: ['jjong', 'hdmoon'], 
-          losers: ['shinjiwon', 'hyenojilee'],
+          losers: ['shinjiwon', 'hyeonjilee'],
           isTie: false,
           winStreaks,
           createdAt: now,
           recordedBy: 'jjong',
+          preventEvent: true,
         });
       }
+
+      // setTimeout(() => done(), 1000);
 
       const now = fs.Timestamp.now();
       await onGameRecordCreate({
         data: () => ({
           winners: ['jjong', 'hdmoon'], 
-          losers: ['shinjiwon', 'hyenojilee'],
+          losers: ['shinjiwon', 'hyeonjilee'],
+          winStreaks: 10,
           isTie: false,
-          createdAt: now
-        }),
-        ref: app.firestore()
-          .doc(`tables/default/records/${now.toMillis()}`)
+          createdAt: now,
+          recordedBy: 'jjong',
+        })
       });
 
       done();
@@ -212,7 +208,28 @@ describe('onGameRecordCreate', () => {
 
     it('Events created', async (done) => {
       const events = await app.firestore().collection('events').get();
-      console.log('Events:', events.docs.map(snap => snap.data()));
+      const eventsByLdap = events.docs.reduce((dict: {[key: string]: Event}, curr) => {
+        const event = curr.data() as Event;
+        dict[event.payload.ldap] = event;
+        return dict;
+      }, {});
+
+      expect(eventsByLdap['jjong'].type).toBe('promotion');
+      expect(eventsByLdap['jjong'].payload.levelFrom).toBe(2);
+      expect(eventsByLdap['jjong'].payload.levelTo).toBe(3);
+
+      expect(eventsByLdap['hdmoon'].type).toBe('promotion');
+      expect(eventsByLdap['hdmoon'].payload.levelFrom).toBe(2);
+      expect(eventsByLdap['hdmoon'].payload.levelTo).toBe(3);
+
+      expect(eventsByLdap['shinjiwon'].type).toBe('demotion');
+      expect(eventsByLdap['shinjiwon'].payload.levelFrom).toBe(2);
+      expect(eventsByLdap['shinjiwon'].payload.levelTo).toBe(1);
+
+      expect(eventsByLdap['hyeonjilee'].type).toBe('demotion');
+      expect(eventsByLdap['hyeonjilee'].payload.levelFrom).toBe(3);
+      expect(eventsByLdap['hyeonjilee'].payload.levelTo).toBe(2);
+
       done();
     })
   });

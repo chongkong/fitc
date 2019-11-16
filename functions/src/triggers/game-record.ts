@@ -34,8 +34,8 @@ export const onGameRecordCreate = functions.firestore
         deferred.push(
           checkEvent(w1),
           checkEvent(w2),
-          checkEvent(w1),
-          checkEvent(w2),
+          checkEvent(l1),
+          checkEvent(l2),
         );
       }
 
@@ -176,7 +176,8 @@ async function checkEvent(ldap: string) {
   const player = playerSnapshot.data() as Player;
   let numWins = 0;
   let numLoses = 0;
-  for (const result of await getRecentGamesAfterLevelUpdate(player)) {
+  const recentGames = await getRecentGamesAfterLevelUpdate(player);
+  for (const result of recentGames) {
     numWins += (result === 'W' ? 1 : 0);
     numLoses += (result === 'L' ? 1 : 0);
     if (numWins + numLoses < 10) {
