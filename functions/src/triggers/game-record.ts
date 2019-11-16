@@ -6,41 +6,37 @@ import { GameRecord, Player, PlayerStats } from '../../../common/types';
 import { app } from '../firebase';
 import { PROMO_THRESHOLD } from '../data';
 import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
-import { setEquals } from '../../../common/utils';
 
 
 export const onGameRecordCreate = functions.firestore
     .document('tables/default/records/{recordId}')
-    .onCreate(async (snapshot, context) => {
-      const rawRecord = snapshot.data() as GameRecord;
+    .onCreate((snapshot, context) => {
+      const record = snapshot.data() as GameRecord;
       const deferred: Promise<any>[] = [];
 
-      // Sanitize record
-      const record = await sanitizeRecord(rawRecord, context);
-      deferred.push(snapshot.ref.set(record));
+      if (record.isTie) {
+        return;
+      }
 
-      if (!record.isTie) {
-        // Record player stats
-        const {winners, losers, winStreaks} = record;
-        const [w1, w2] = winners;
-        const [l1, l2] = losers;
+      const {winners, losers, winStreaks} = record;
+      const [w1, w2] = winners;
+      const [l1, l2] = losers;
 
+      deferred.push(
+        updateWinStats(w1, w2, losers, winStreaks),
+        updateWinStats(w2, w1, losers, winStreaks),
+        updateLoseStats(l1, l2, winners),
+        updateLoseStats(l2, l1, winners),
+      );
+
+      // Check promotion / demotion event
+      if (!record.preventEvent) {
         deferred.push(
-          updateWinStats(w1, w2, losers, winStreaks),
-          updateWinStats(w2, w1, losers, winStreaks),
-          updateLoseStats(l1, l2, winners),
-          updateLoseStats(l2, l1, winners),
+          checkEvent(w1),
+          checkEvent(w2),
+          checkEvent(w1),
+          checkEvent(w2),
         );
-
-        // Check promotion / demotion event
-        if (!record.preventEvent) {
-          deferred.push(
-            checkEvent(w1),
-            checkEvent(w2),
-            checkEvent(w1),
-            checkEvent(w2),
-          );
-        }
       }
 
       return Promise.all(deferred)
@@ -49,67 +45,6 @@ export const onGameRecordCreate = functions.firestore
           return;
         });
     });
-
-async function sanitizeRecord(dirty: GameRecord, context: functions.EventContext) {
-  const sanitized: GameRecord = Object.assign({}, dirty);
-  const deferred = [];
-
-  // Check creaetdAt
-  if (!dirty.createdAt) {
-    sanitized.createdAt = fs.Timestamp.now();
-  }
-
-  // Check winStreaks
-  if (dirty.isTie) {
-    sanitized.winStreaks = 0;
-  } else {
-    deferred.push(
-      getPreviousRecord(dirty.createdAt).then(prev => {
-        if (prev && !prev.isTie
-            && isConsecutivePlay(prev, dirty)
-            && setEquals(prev.winners, dirty.winners)) {
-          sanitized.winStreaks = (prev.winStreaks || 0) + 1;
-        } else {
-          sanitized.winStreaks = 1;
-        }
-      })
-    );
-  }
-
-  // Check recordedBy
-  if (context.authType === 'ADMIN') {
-    sanitized.recordedBy = 'admin';
-  } else if (context.auth) {
-    deferred.push(
-      app.auth().getUser(context.auth.uid)
-        .then(user => {
-          if (user.email) {
-            const [ldap, domain] = user.email.split('@');
-            if (domain === 'google.com') {
-              sanitized.recordedBy = ldap;
-            }
-          }
-        })
-    );
-  }
-
-  await Promise.all(deferred);
-
-  return sanitized;
-}
-
-async function getPreviousRecord(before: fs.Timestamp) {
-  const prevRecords = await app.firestore().collection(`tables/default/records`)
-      .where('createdAt', '<', before)
-      .orderBy('createdAt', 'desc')
-      .limit(1)
-      .get();
-  return prevRecords.empty ? undefined : prevRecords.docs[0].data() as GameRecord;
-}
-
-function isConsecutivePlay(r1: GameRecord, r2: GameRecord) {
-  return r1.createdAt.toMillis() > r2.createdAt.toMillis() - 60 * 60 * 1000;
-}
 
 function updateRecentGames(recentGames: string, newGame: 'W'|'L', maxLength: number = 50): string {
   return (newGame + recentGames).substr(0, maxLength);
