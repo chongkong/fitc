@@ -36,15 +36,20 @@ describe('onGameRecordCreate', () => {
     beforeAll(async () => {
       await helper.clearFirestoreData();
       await createInitialData(app);
+      const now = admin.firestore.Timestamp.fromDate(new Date('2019-11-11T12:34:56'));
+      const data = {
+        winners: ['jjong', 'hdmoon'],
+        losers: ['shinjiwon', 'hyeonjilee'],
+        isTie: false,
+        winStreaks: 1,
+        createdAt: now,
+        recordedBy: 'jjong',
+      };
+      const ref = app.firestore().doc(`tables/default/records/${now.toMillis()}`);
+      await ref.set({ ...data, __preventTrigger: true });
       await onGameRecordCreate({
-        data: () => ({
-          winners: ['jjong', 'hdmoon'],
-          losers: ['shinjiwon', 'hyeonjilee'],
-          isTie: false,
-          winStreaks: 1,
-          createdAt: admin.firestore.Timestamp.fromDate(new Date('2019-11-11T12:34:56')),
-          recordedBy: 'jjong',
-        })
+        data: () => data,
+        ref
       });
     });
 
@@ -219,7 +224,7 @@ describe('onGameRecordCreate', () => {
 
       for (let winStreaks = 1; winStreaks <= 10; ++winStreaks) {
         const now = admin.firestore.Timestamp.now();
-        const baseData: GameRecord = {
+        const data: GameRecord = {
           winners: ['jjong', 'hdmoon'], 
           losers: ['shinjiwon', 'hyeonjilee'],
           isTie: false,
@@ -227,11 +232,11 @@ describe('onGameRecordCreate', () => {
           createdAt: now,
           recordedBy: 'jjong'
         };
-        await app.firestore()
-          .doc(`tables/default/records/${now.toMillis()}`)
-          .set({ ...baseData, __preventTrigger: true });
+        const ref = app.firestore().doc(`tables/default/records/${now.toMillis()}`);
+        await ref.set({ ...data, __preventTrigger: true });
         await onGameRecordCreate({
-          data: () => baseData
+          data: () => data,
+          ref
         });
       }
     });

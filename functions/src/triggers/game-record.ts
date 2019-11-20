@@ -3,36 +3,27 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
 import { GameRecord, Player, PlayerStats, Triggerable } from '../../../common/types';
+import { setEquals } from '../../../common/utils';
 import { app } from '../firebase';
 import { PROMO_THRESHOLD } from '../data';
 import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
-import { setEquals } from 'common/utils';
 
 
 export const onGameRecordCreate = functions.firestore
     .document('tables/default/records/{recordId}')
     .onCreate(snapshot => {
-      const draft = snapshot.data() as (Partial<GameRecord> & Triggerable);
+      const draft = snapshot.data() as (GameRecord & Triggerable);
       const deferred: Promise<any>[] = [];
 
       if (draft.__preventTrigger || draft.isTie) {
         return;
       }
 
-      const winStreaksPromise = getWinStreaks(draft, snapshot.createTime);
+      const winStreaksPromise = getWinStreaks(draft, draft.createdAt);
 
       deferred.push(
-        winStreaksPromise.then((winStreaks) => {
-          const record: GameRecord = {
-            winners: draft.winners,
-            losers: draft.losers,
-            isTie: draft.isTie,
-            winStreaks,
-            recordedBy: draft.recordedBy || '',
-            createdAt: snapshot.createTime,
-          };
-          return snapshot.ref.set(record);
-        })
+        winStreaksPromise.then(winStreaks => 
+          snapshot.ref.set({ ...draft, winStreaks }))
       )
 
       const {winners, losers} = draft;
@@ -62,7 +53,7 @@ export const onGameRecordCreate = functions.firestore
         .catch(error => console.error(error));
     });
 
-async function getWinStreaks(draft: Partial<GameRecord>, createdAt: admin.firestore.Timestamp) {
+async function getWinStreaks(draft: GameRecord, createdAt: admin.firestore.Timestamp) {
   if (draft.isTie) return 0;
   const prev = await getPreviousRecord(createdAt);
   if (prev && !prev.isTie 

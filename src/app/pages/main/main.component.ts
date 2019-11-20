@@ -172,14 +172,15 @@ export class MainComponent implements OnInit {
     }
 
     const now = firestore.Timestamp.now();
-    const record: Partial<GameRecord> = {
+    const record: GameRecord = {
       winners: this.winners,
       losers: this.losers,
       isTie: this.isTie,
+      winStreaks: 0,  // Placeholder value that will be resolved from firebase trigger.
       createdAt: now,
       recordedBy: this.myLdap
     };
-    this.recordCollection.doc(now.toMillis().toString()).set(record);
+    this.recordCollection.doc<GameRecord>(now.toMillis().toString()).set(record);
 
     // Remove losers for next challengers.
     this.losers = [];

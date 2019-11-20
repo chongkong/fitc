@@ -7,7 +7,7 @@ import { setEquals } from '../../../common/utils';
 
 
 export const createGameRecord = functions.https.onCall((
-  draft: Partial<GameRecord>, 
+  draft: GameRecord, 
   context: functions.https.CallableContext
 ) => {
   if (draft.winners.length !== 2) {
