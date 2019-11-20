@@ -1,36 +1,55 @@
 // Trigger on GameRecord document creation/modification.
-import { firestore as fs } from 'firebase-admin';
+import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
 import { GameRecord, Player, PlayerStats, Triggerable } from '../../../common/types';
 import { app } from '../firebase';
 import { PROMO_THRESHOLD } from '../data';
 import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
+import { setEquals } from 'common/utils';
 
 
 export const onGameRecordCreate = functions.firestore
     .document('tables/default/records/{recordId}')
     .onCreate(snapshot => {
-      const record = snapshot.data() as (GameRecord & Triggerable);
+      const draft = snapshot.data() as (Partial<GameRecord> & Triggerable);
       const deferred: Promise<any>[] = [];
 
-      if (record.__preventTrigger || record.isTie) {
+      if (draft.__preventTrigger || draft.isTie) {
         return;
       }
 
-      const {winners, losers, winStreaks} = record;
+      const winStreaksPromise = getWinStreaks(draft, snapshot.createTime);
+
+      deferred.push(
+        winStreaksPromise.then((winStreaks) => {
+          const record: GameRecord = {
+            winners: draft.winners,
+            losers: draft.losers,
+            isTie: draft.isTie,
+            winStreaks,
+            recordedBy: draft.recordedBy || '',
+            createdAt: snapshot.createTime,
+          };
+          return snapshot.ref.set(record);
+        })
+      )
+
+      const {winners, losers} = draft;
       const [w1, w2] = winners;
       const [l1, l2] = losers;
 
       deferred.push(
-        updateWinStats(w1, w2, losers, winStreaks),
-        updateWinStats(w2, w1, losers, winStreaks),
+        winStreaksPromise.then(winStreaks => 
+          updateWinStats(w1, w2, losers, winStreaks)),
+        winStreaksPromise.then(winStreaks => 
+          updateWinStats(w2, w1, losers, winStreaks)),
         updateLoseStats(l1, l2, winners),
         updateLoseStats(l2, l1, winners),
       );
 
       // Check promotion / demotion event
-      if (!record.__preventEvent) {
+      if (!draft.__preventEvent) {
         deferred.push(
           checkEvent(w1),
           checkEvent(w2),
@@ -43,6 +62,31 @@ export const onGameRecordCreate = functions.firestore
         .catch(error => console.error(error));
     });
 
+async function getWinStreaks(draft: Partial<GameRecord>, createdAt: admin.firestore.Timestamp) {
+  if (draft.isTie) return 0;
+  const prev = await getPreviousRecord(createdAt);
+  if (prev && !prev.isTie 
+      && isConsecutivePlay(prev.createdAt, createdAt) 
+      && setEquals(prev.winners, draft.winners)) {
+    return prev.winStreaks + 1;
+  } else {
+    return 1;
+  }
+}
+
+async function getPreviousRecord(before: admin.firestore.Timestamp) {
+  const prevRecords = await app.firestore().collection(`tables/default/records`)
+      .where('createdAt', '<', before)
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get();
+  return prevRecords.empty ? undefined : prevRecords.docs[0].data() as GameRecord;
+}
+
+function isConsecutivePlay(t1: admin.firestore.Timestamp, t2: admin.firestore.Timestamp) {
+  return t1.toMillis() > t2.toMillis() - 60 * 60 * 1000;
+}
+    
 function updateRecentGames(recentGames: string, newGame: 'W'|'L', maxLength: number = 50): string {
   return (newGame + recentGames).substr(0, maxLength);
 }
@@ -175,11 +219,11 @@ async function checkEvent(ldap: string) {
     if (numWins + numLoses < 10) {
       continue;
     } else if (numWins > PROMO_THRESHOLD[numWins + numLoses]) {
-      const now = fs.Timestamp.now();
+      const now = admin.firestore.Timestamp.now();
       return app.firestore().doc(`events/${now.toMillis()}-${ldap}-promotion`)
           .set(createPromotionEvent(ldap, player.level, now));
     } else if (player.level > 1 && numLoses > PROMO_THRESHOLD[numWins + numLoses]) {
-      const now = fs.Timestamp.now();
+      const now = admin.firestore.Timestamp.now();
       return app.firestore().doc(`events/${now.toMillis()}-${ldap}-demotion`)
           .set(createDemotionEvent(ldap, player.level, now));
     }

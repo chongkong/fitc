@@ -6,7 +6,6 @@ import { map, flatMap, first } from 'rxjs/operators';
 import { firestore } from 'firebase';
 
 import { Player, GameRecord, FoosballTable } from 'common/types';
-import { setEquals } from 'common/utils';
 
 /**
  * Sort by level DESC, name ASC.
@@ -166,27 +165,17 @@ export class MainComponent implements OnInit {
     return this.losers.includes(ldap);
   }
 
-  recordGame(lastRecord: GameRecord | undefined) {
+  recordGame() {
     // You must have chosen proper winners and losers before recording.
     if (this.winners.length !== 2 || this.losers.length !== 2) {
       return;
     }
 
-    // Check winStreaks from lastRecord.
-    let winStreaks = this.isTie ? 0 : 1;
-    if (!this.isTie && lastRecord && !lastRecord.isTie) {
-      let prevWinners = lastRecord.winners;
-      if (setEquals(prevWinners, this.winners)) {
-        winStreaks = lastRecord.winStreaks + 1;
-      }
-    }
-
     const now = firestore.Timestamp.now();
-    const record: GameRecord = {
+    const record: Partial<GameRecord> = {
       winners: this.winners,
       losers: this.losers,
       isTie: this.isTie,
-      winStreaks,
       createdAt: now,
       recordedBy: this.myLdap
     };

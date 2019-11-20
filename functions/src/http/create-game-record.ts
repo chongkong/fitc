@@ -1,13 +1,13 @@
 import * as functions from 'firebase-functions';
 import { firestore } from 'firebase';
 
-import { GameRecord, GameRecordDraft } from '../../../common/types';
+import { GameRecord } from '../../../common/types';
 import { app } from '../firebase';
 import { setEquals } from '../../../common/utils';
 
 
 export const createGameRecord = functions.https.onCall((
-  draft: GameRecordDraft, 
+  draft: Partial<GameRecord>, 
   context: functions.https.CallableContext
 ) => {
   if (draft.winners.length !== 2) {

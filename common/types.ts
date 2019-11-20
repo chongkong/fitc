@@ -33,12 +33,6 @@ export interface GameRecord {
   recordedBy: string;
 }
 
-export interface GameRecordDraft extends Partial<GameRecord> {
-  winners: string[];
-  losers: string[];
-  isTie: boolean;
-}
-
 /**
  * Foosball table schema.
  *
