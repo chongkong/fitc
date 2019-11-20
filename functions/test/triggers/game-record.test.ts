@@ -10,16 +10,8 @@ import { GameRecord } from '../../../common/types';
 // Note that testApp doesn't support auth, and we have to manually mock
 // the auth() service for each usage.
 jest.mock('../../src/firebase', () => {
-  const adminApp = helper.createFirebaseAdminApp();
-  return {
-    app: {
-      firestore: () => adminApp.firestore(),
-      auth: () => ({
-        getUser: () => Promise.resolve(helper.auth)
-      }),
-      delete: () => adminApp.delete()
-    }
-  }
+  const app = helper.createFirebaseAdminApp();
+  return { app };
 });
 
 const test = helper.createFirebaseFunctionsTest();
@@ -201,8 +193,8 @@ describe('onGameRecordCreate', () => {
       await createInitialData(app);
     });
 
-    it('No promise returned', () => {
-      const result = onGameRecordCreate({
+    it('No promise returned', async () => {
+      const result = await onGameRecordCreate({
         data: () => ({
           winners: ['jjong', 'hdmoon'],
           losers: ['shinjiwon', 'hyeonjilee'],
