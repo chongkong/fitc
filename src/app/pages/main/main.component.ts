@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Observable, combineLatest } from 'rxjs';
-import { map, flatMap } from 'rxjs/operators';
+import { map, flatMap, first } from 'rxjs/operators';
+import { firestore } from 'firebase';
 
 import { Player, GameRecord, FoosballTable } from 'common/types';
 import { setEquals } from 'common/utils';
@@ -100,6 +101,7 @@ export class MainComponent implements OnInit {
 
   addToRecentPlayers(ldap: string) {
     combineLatest(this.tableDoc.get(), this.playerCollection.get())
+        .pipe(first())
         .subscribe(([tableSnapshot, playersSnapshot]) => {
           const validLdaps = playersSnapshot.docs.map(player => player.data().ldap);
           if (!validLdaps.includes(ldap)) {
@@ -125,7 +127,7 @@ export class MainComponent implements OnInit {
         });
   }
 
-  private toggle(alpha: string[], beta: string[], value: string) {
+  private toggle(xs: string[], ys: string[], value: string) {
     const addTo = (arr: string[], val: string) => {
       if (!arr.includes(val)) {
         arr.push(val);
@@ -140,11 +142,11 @@ export class MainComponent implements OnInit {
       }
     }
 
-    if (alpha.includes(value)) {
-      removeFrom(alpha, value);
+    if (xs.includes(value)) {
+      removeFrom(xs, value);
     } else {
-      addTo(alpha, value);
-      removeFrom(beta, value);
+      addTo(xs, value);
+      removeFrom(ys, value);
     }
   }
 
@@ -179,7 +181,7 @@ export class MainComponent implements OnInit {
       }
     }
 
-    const now = new Date();
+    const now = firestore.Timestamp.now();
     const record: GameRecord = {
       winners: this.winners,
       losers: this.losers,
@@ -188,7 +190,7 @@ export class MainComponent implements OnInit {
       createdAt: now,
       recordedBy: this.myLdap
     };
-    this.recordCollection.doc(now.getTime().toString()).set(record);
+    this.recordCollection.doc(now.toMillis().toString()).set(record);
 
     // Remove losers for next challengers.
     this.losers = [];
