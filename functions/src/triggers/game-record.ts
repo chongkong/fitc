@@ -1,8 +1,8 @@
 // Trigger on GameRecord document creation/modification.
-import { firestore as fs } from 'firebase';
+import { firestore as fs } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
-import { GameRecord, Player, PlayerStats } from '../../../common/types';
+import { GameRecord, Player, PlayerStats, Triggerable } from '../../../common/types';
 import { app } from '../firebase';
 import { PROMO_THRESHOLD } from '../data';
 import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
@@ -10,11 +10,11 @@ import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from 
 
 export const onGameRecordCreate = functions.firestore
     .document('tables/default/records/{recordId}')
-    .onCreate((snapshot, context) => {
-      const record = snapshot.data() as GameRecord;
+    .onCreate(snapshot => {
+      const record = snapshot.data() as (GameRecord & Triggerable);
       const deferred: Promise<any>[] = [];
 
-      if (record.isTie) {
+      if (record.__preventTrigger || record.isTie) {
         return;
       }
 
@@ -30,7 +30,7 @@ export const onGameRecordCreate = functions.firestore
       );
 
       // Check promotion / demotion event
-      if (!record.preventEvent) {
+      if (!record.__preventEvent) {
         deferred.push(
           checkEvent(w1),
           checkEvent(w2),
@@ -40,10 +40,7 @@ export const onGameRecordCreate = functions.firestore
       }
 
       return Promise.all(deferred)
-        .catch(error => {
-          console.error(error);
-          return;
-        });
+        .catch(error => console.error(error));
     });
 
 function updateRecentGames(recentGames: string, newGame: 'W'|'L', maxLength: number = 50): string {
@@ -147,10 +144,9 @@ async function updateLoseStats(ldap: string, teammate: string, opponents: string
   return myStatsSnapshot.ref.set(myStats);
 }
 
-async function getRecentGamesAfterLevelUpdate(
-    player: Player, maxLength: number = 50): Promise<('W' | 'L')[]> {
-  const collection = app.firestore().collection(`tables/default/records`);
+async function getRecentGamesAfterLevelUpdate(player: Player, maxLength: number = 50): Promise<('W' | 'L')[]> {
   const { ldap, lastLevelUpdate } = player;
+  const collection = app.firestore().collection(`tables/default/records`);
   let queries = [
     collection.where('winners', 'array-contains', ldap),
     collection.where('losers', 'array-contains', ldap)
@@ -169,10 +165,6 @@ async function getRecentGamesAfterLevelUpdate(
 
 async function checkEvent(ldap: string) {
   const playerSnapshot = await app.firestore().doc(`players/${ldap}`).get();
-  if (!playerSnapshot.exists) {
-    console.warn(`Player ${ldap} doesn't exist!`);
-    return;
-  }
   const player = playerSnapshot.data() as Player;
   let numWins = 0;
   let numLoses = 0;

@@ -1,8 +1,8 @@
+import * as admin from 'firebase-admin';
 import { createNewPlayer, createNewPlayerStats, createNewTable } from '../src/factory';
-import { app } from '../src/firebase';
 
 
-export async function initEmulator() {
+export async function createInitialData(app: admin.app.App) {
   const batch = app.firestore().batch();
 
   function addPlayer(ldap: string, name: string, level: number) {

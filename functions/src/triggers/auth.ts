@@ -15,11 +15,11 @@ export const onUserCreate = functions.auth.user()
       if (!ALLOWED_DOMAINS.includes(domain))
         return;
 
-      const promises = [];
+      const deferred = [];
       
       // 1. Create Player entry.
       const playerDoc = app.firestore().doc(`players/${ldap}`);
-      promises.push(
+      deferred.push(
         playerDoc.get().then(snapshot => {
           return snapshot.exists ? undefined : playerDoc.set(
               createNewPlayer(user.displayName || ldap, ldap));
@@ -27,9 +27,10 @@ export const onUserCreate = functions.auth.user()
       );
 
       // 2. Create PlayerStats entry.
-      promises.push(
+      deferred.push(
         app.firestore().doc(`stats/${ldap}`).set(createNewPlayerStats())
       );
       
-      return Promise.all(promises);
+      return Promise.all(deferred)
+        .catch(error => console.error(error));
     });

@@ -31,8 +31,6 @@ export interface GameRecord {
   createdAt: firestore.Timestamp;
   // Player who recorded this game.
   recordedBy: string;
-  // Flag to prevent event update (for old data migration)
-  preventEvent?: boolean;
 }
 
 export interface GameRecordDraft extends Partial<GameRecord> {
@@ -105,4 +103,13 @@ export interface DemotionEvent {
   ldap: string;
   levelFrom: number;
   levelTo: number;
+}
+
+export interface Triggerable {
+  // Whether to prevent any kind of trigger, including publishing
+  // new events.
+  __preventTrigger?: boolean;
+
+  // Whether to prevent publishing new events.
+  __preventEvent?: boolean;
 }

@@ -15,7 +15,10 @@ export const onEventCreate = functions.firestore
           isNewbie: false,
           lastLevelUpdate: fs.Timestamp.now()
         };
-        return app.firestore().doc(`players/${promotion.ldap}`).update(updates);
+        return app.firestore()
+          .doc(`players/${promotion.ldap}`)
+          .update(updates)
+          .catch(error => console.error(error));
       } 
       else if (event.type === 'demotion') {
         const promotion = event.payload as PromotionEvent;
@@ -23,7 +26,10 @@ export const onEventCreate = functions.firestore
           level: promotion.levelTo,
           lastLevelUpdate: fs.Timestamp.now()
         };
-        return app.firestore().doc(`players/${promotion.ldap}`).update(updates);
+        return app.firestore()
+          .doc(`players/${promotion.ldap}`)
+          .update(updates)
+          .catch(error => console.error(error));
       }
       // Explicitly return to suppress Typescript error.
       return;

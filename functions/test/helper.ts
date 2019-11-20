@@ -1,28 +1,35 @@
+import * as firebase from '@firebase/testing';
+import * as admin from 'firebase-admin';
 import * as testFactory from 'firebase-functions-test';
-import * as testing from '@firebase/testing';
 
-export const projectId = 'foosball-seo';
+export namespace helper {
 
-export { testing };
-export async function clearFirestoreData() {
-  await testing.clearFirestoreData({ projectId });
-}
+  export const projectId = 'foosball-seo';
 
-// Higher nodejs version bug
-// https://github.com/firebase/firebase-functions/issues/437
-process.env.GCLOUD_PROJECT = projectId;
+  export const auth = {
+    uid: 'GpXfrqW6ntP15nNSxpevOitpfff2',
+    email: 'jjong@google.com',
+    displayName: 'Jongbin Park'
+  };
 
-export const test = testFactory({
-  projectId,
-  databaseURL: "http://localhost:8080",
-});
+  export function createFirebaseAuthedApp() { 
+    return firebase.initializeTestApp({ projectId, auth });
+  }
+  
+  export async function clearFirestoreData() {
+    await firebase.clearFirestoreData({ projectId });
+  }
 
-export const jjongAuth = {
-  uid: 'GpXfrqW6ntP15nNSxpevOitpfff2',
-  email: 'jjong@google.com',
-  displayName: 'Jongbin Park'
-};
+  export function createFirebaseAdminApp() {
+    const app = admin.initializeApp({ projectId });
+    app.firestore().settings({
+      host: 'localhost:8080',
+      ssl: false,
+    });
+    return app;
+  }
 
-export function createTestApp() { 
-  return testing.initializeTestApp({ projectId, auth: jjongAuth });
+  export function createFirebaseFunctionsTest() {
+    return testFactory({ projectId });
+  }
 }
