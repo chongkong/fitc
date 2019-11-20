@@ -31,7 +31,7 @@ import { AngularFireAuthGuardModule } from '@angular/fire/auth-guard';
     {
       provide: FirestoreSettingsToken,
       useValue: environment.production ? undefined : {
-        host: 'localhost:8081',
+        host: 'localhost:8080',
         ssl: false
       }
     }
