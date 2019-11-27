@@ -35,6 +35,136 @@ describe('Creates GameRecord', () => {
         totalLoses: 0,
         mostWinStreaks: 1,
         recentGames: 'W',
+        perSeason: {
+          '2019': {
+            totalWins: 1,
+            totalLoses: 0,
+          }
+        },
+        asTeammate: {
+          'hdmoon': {
+            totalWins: 1,
+            totalLoses: 0,
+            recentGames: 'W',
+          }
+        },
+        asOpponent: {
+          'shinjiwon': {
+            totalWins: 1,
+            totalLoses: 0,
+            recentGames: 'W',
+          },
+          'hyeonjilee': {
+            totalWins: 1,
+            totalLoses: 0,
+            recentGames: 'W',
+          },
+        }
+      });
+    });
+
+    test("hdmoon's PlayerStats created", async () => {
+      const stats = await helper.firestore().doc('stats/hdmoon').get();
+      expect(stats.data()).toMatchObject({
+        totalWins: 1,
+        totalLoses: 0,
+        mostWinStreaks: 1,
+        recentGames: 'W',
+        perSeason: {
+          '2019': {
+            totalWins: 1,
+            totalLoses: 0,
+          }
+        },
+        asTeammate: {
+          'jjong': {
+            totalWins: 1,
+            totalLoses: 0,
+            recentGames: 'W',
+          }
+        },
+        asOpponent: {
+          'shinjiwon': {
+            totalWins: 1,
+            totalLoses: 0,
+            recentGames: 'W',
+          },
+          'hyeonjilee': {
+            totalWins: 1,
+            totalLoses: 0,
+            recentGames: 'W',
+          },
+        }
+      });
+    });
+
+    test("shinjiwon's PlayerStats created", async () => {
+      const stats = await helper.firestore().doc('stats/shinjiwon').get();
+      expect(stats.data()).toMatchObject({
+        totalWins: 0,
+        totalLoses: 1,
+        mostWinStreaks: 0,
+        recentGames: 'L',
+        perSeason: {
+          '2019': {
+            totalWins: 0,
+            totalLoses: 1,
+          }
+        },
+        asTeammate: {
+          'hyeonjilee': {
+            totalWins: 0,
+            totalLoses: 1,
+            recentGames: 'L',
+          }
+        },
+        asOpponent: {
+          'jjong': {
+            totalWins: 0,
+            totalLoses: 1,
+            recentGames: 'L',
+          },
+          'hdmoon': {
+            totalWins: 0,
+            totalLoses: 1,
+            recentGames: 'L',
+          },
+        }
+      });
+    });
+
+    test("hyeonjilee's PlayerStats created", async () => {
+      const stats = await helper.firestore().doc('stats/hyeonjilee').get();
+      expect(stats.data()).toMatchObject({
+        totalWins: 0,
+        totalLoses: 1,
+        mostWinStreaks: 0,
+        recentGames: 'L',
+        perSeason: {
+          '2019': {
+            totalWins: 0,
+            totalLoses: 1,
+          }
+        },
+        asTeammate: {
+          'shinjiwon': {
+            totalWins: 0,
+            totalLoses: 1,
+            recentGames: 'L',
+          }
+        },
+        asOpponent: {
+          'jjong': {
+            totalWins: 0,
+            totalLoses: 1,
+            recentGames: 'L',
+          },
+          'hdmoon': {
+            totalWins: 0,
+            totalLoses: 1,
+            recentGames: 'L',
+          },
+        }
       });
     });
   });

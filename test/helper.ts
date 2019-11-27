@@ -64,7 +64,6 @@ export namespace helper {
     createTable('default', 'Default table', ['jjong', 'hyeonjilee', 'shinjiwon', 'anzor', 'hdmoon']);
 
     await batch.commit();
-    console.info((await firestore().collection('players').get()).docs.map(d => d.data()));
     console.info('Initial firestore emulator data committed.');
   };
 
