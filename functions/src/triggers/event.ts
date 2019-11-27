@@ -1,8 +1,7 @@
-import { firestore as fs } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
 import { Player, Event, PromotionEvent } from '../../../common/types';
-import { app } from '../firebase';
+import { firestore, Timestamp } from '../firebase';
 
 export const onEventCreate = functions.firestore
     .document('events/{eventId}')
@@ -13,9 +12,9 @@ export const onEventCreate = functions.firestore
         const updates: Partial<Player> = {
           level: promotion.levelTo,
           isNewbie: false,
-          lastLevelUpdate: fs.Timestamp.now()
+          lastLevelUpdate: Timestamp.now()
         };
-        return app.firestore()
+        return firestore()
           .doc(`players/${promotion.ldap}`)
           .update(updates)
           .catch(error => console.error(error));
@@ -24,9 +23,9 @@ export const onEventCreate = functions.firestore
         const promotion = event.payload as PromotionEvent;
         const updates: Partial<Player> = {
           level: promotion.levelTo,
-          lastLevelUpdate: fs.Timestamp.now()
+          lastLevelUpdate: Timestamp.now()
         };
-        return app.firestore()
+        return firestore()
           .doc(`players/${promotion.ldap}`)
           .update(updates)
           .catch(error => console.error(error));

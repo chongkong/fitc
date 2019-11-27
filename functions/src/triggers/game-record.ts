@@ -4,7 +4,7 @@ import * as functions from 'firebase-functions';
 
 import { GameRecord, Player, PlayerStats, Triggerable } from '../../../common/types';
 import { setEquals } from '../../../common/utils';
-import { app } from '../firebase';
+import { firestore } from '../firebase';
 import { PROMO_THRESHOLD } from '../data';
 import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
 
@@ -66,7 +66,7 @@ async function getWinStreaks(draft: GameRecord, createdAt: admin.firestore.Times
 }
 
 async function getPreviousRecord(before: admin.firestore.Timestamp) {
-  const prevRecords = await app.firestore().collection(`tables/default/records`)
+  const prevRecords = await firestore().collection(`tables/default/records`)
       .where('createdAt', '<', before)
       .orderBy('createdAt', 'desc')
       .limit(1)
@@ -83,7 +83,7 @@ function updateRecentGames(recentGames: string, newGame: 'W'|'L', maxLength: num
 }
 
 async function updateWinStats(ldap: string, teammate: string, opponents: string[], winStreaks: number = 0) {
-  const myStatsSnapshot = await app.firestore().doc(`stats/${ldap}`).get();
+  const myStatsSnapshot = await firestore().doc(`stats/${ldap}`).get();
   const myStats = myStatsSnapshot.exists
     ? myStatsSnapshot.data() as PlayerStats
     : createNewPlayerStats();
@@ -132,7 +132,7 @@ async function updateWinStats(ldap: string, teammate: string, opponents: string[
 }
 
 async function updateLoseStats(ldap: string, teammate: string, opponents: string[]) {
-  const myStatsSnapshot = await app.firestore().doc(`stats/${ldap}`).get();
+  const myStatsSnapshot = await firestore().doc(`stats/${ldap}`).get();
   const myStats = myStatsSnapshot.exists
     ? myStatsSnapshot.data() as PlayerStats
     : createNewPlayerStats();
@@ -181,7 +181,7 @@ async function updateLoseStats(ldap: string, teammate: string, opponents: string
 
 async function getRecentGamesAfterLevelUpdate(player: Player, maxLength: number = 50): Promise<('W' | 'L')[]> {
   const { ldap, lastLevelUpdate } = player;
-  const collection = app.firestore().collection(`tables/default/records`);
+  const collection = firestore().collection(`tables/default/records`);
   let queries = [
     collection.where('winners', 'array-contains', ldap),
     collection.where('losers', 'array-contains', ldap)
@@ -199,7 +199,7 @@ async function getRecentGamesAfterLevelUpdate(player: Player, maxLength: number 
 }
 
 async function checkEvent(ldap: string) {
-  const playerSnapshot = await app.firestore().doc(`players/${ldap}`).get();
+  const playerSnapshot = await firestore().doc(`players/${ldap}`).get();
   const player = playerSnapshot.data() as Player;
   let numWins = 0;
   let numLoses = 0;
@@ -211,11 +211,11 @@ async function checkEvent(ldap: string) {
       continue;
     } else if (numWins > PROMO_THRESHOLD[numWins + numLoses]) {
       const now = admin.firestore.Timestamp.now();
-      return app.firestore().doc(`events/${now.toMillis()}-${ldap}-promotion`)
+      return firestore().doc(`events/${now.toMillis()}-${ldap}-promotion`)
           .set(createPromotionEvent(ldap, player.level, now));
     } else if (player.level > 1 && numLoses > PROMO_THRESHOLD[numWins + numLoses]) {
       const now = admin.firestore.Timestamp.now();
-      return app.firestore().doc(`events/${now.toMillis()}-${ldap}-demotion`)
+      return firestore().doc(`events/${now.toMillis()}-${ldap}-demotion`)
           .set(createDemotionEvent(ldap, player.level, now));
     }
   }
