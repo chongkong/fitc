@@ -77,6 +77,17 @@ export interface PlayerStats {
 }
 
 /**
+ * Team stats schema.
+ * 
+ * Stored under `teamStats/`
+ */
+export interface TeamStats {
+  totalWins: number;
+  totalLoses: number;
+  recentGames: string;
+}
+
+/**
  * Event schema.
  *
  * Stored under `events/`

@@ -167,6 +167,25 @@ describe('Creates GameRecord', () => {
         }
       });
     });
+
+    test("hdmoon and jjong's TeamStats changed", async () => {
+      const stats = await helper.firestore().doc('teamStats/hdmoon,jjong').get();
+      expect(stats.data()).toMatchObject({
+        totalWins: 1,
+        totalLoses: 0,
+        recentGames: 'W'
+      });
+    });
+
+
+    test("hyeonjilee and shinjiwon's TeamStats changed", async () => {
+      const stats = await helper.firestore().doc('teamStats/hyeonjilee,shinjiwon').get();
+      expect(stats.data()).toMatchObject({
+        totalWins: 0,
+        totalLoses: 1,
+        recentGames: 'L'
+      });
+    });
   });
 
   describe('On draw', () => {

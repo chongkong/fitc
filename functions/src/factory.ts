@@ -1,5 +1,5 @@
 import { firestore } from 'firebase-admin';
-import { Player, PlayerStats, Event, FoosballTable } from '../../common/types';
+import { Player, PlayerStats, Event, FoosballTable, TeamStats } from '../../common/types';
 
 export function createNewTable(name: string, recentPlayers: string[]): FoosballTable {
   return {
@@ -27,6 +27,14 @@ export function createNewPlayerStats(): PlayerStats {
     perSeason: {},
     asOpponent: {},
     asTeammate: {},
+  };
+}
+
+export function createNewTeamStats(): TeamStats {
+  return {
+    totalWins: 0,
+    totalLoses: 0,
+    recentGames: '',
   };
 }
 

@@ -2,11 +2,11 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
-import { GameRecord, Player, PlayerStats, Triggerable } from '../../../common/types';
+import { GameRecord, Player, PlayerStats, Triggerable, TeamStats } from '../../../common/types';
 import { setEquals } from '../../../common/utils';
 import { firestore } from '../firebase';
 import { PROMO_THRESHOLD } from '../data';
-import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
+import { createNewPlayerStats, createPromotionEvent, createDemotionEvent, createNewTeamStats } from '../factory';
 
 
 export const onGameRecordCreate = functions.firestore
@@ -37,6 +37,8 @@ export const onGameRecordCreate = functions.firestore
           updateWinStats(w2, w1, losers, winStreaks)),
         updateLoseStats(l1, l2, winners),
         updateLoseStats(l2, l1, winners),
+        updateTeamStats(winners, true),
+        updateTeamStats(losers, false),
       );
 
       // Check promotion / demotion event
@@ -80,6 +82,15 @@ function isConsecutivePlay(t1: admin.firestore.Timestamp, t2: admin.firestore.Ti
     
 function updateRecentGames(recentGames: string, newGame: 'W'|'L', maxLength: number = 50): string {
   return (newGame + recentGames).substr(0, maxLength);
+}
+
+async function updateTeamStats(team: string[], win: boolean) {
+  const stats = await firestore().doc(`teamStats/${team.sort().join(',')}`).get();
+  const newStats = stats.exists ? stats.data() as TeamStats : createNewTeamStats();
+  newStats.recentGames = updateRecentGames(newStats.recentGames, win ? 'W' : 'L');
+  newStats.totalWins += win ? 1 : 0;
+  newStats.totalLoses += win ? 0 : 1;
+  return stats.ref.set(newStats);
 }
 
 async function updateWinStats(ldap: string, teammate: string, opponents: string[], winStreaks: number = 0) {
