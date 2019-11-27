@@ -1,7 +1,8 @@
 import * as functions from 'firebase-functions';
+import { Timestamp } from '@google-cloud/firestore';
 
 import { Player, Event, PromotionEvent } from '../../../common/types';
-import { firestore, Timestamp } from '../firebase';
+import { firestore } from '../firebase';
 
 export const onEventCreate = functions.firestore
     .document('events/{eventId}')

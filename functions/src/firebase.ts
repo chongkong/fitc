@@ -1,7 +1,5 @@
 import * as admin from 'firebase-admin';
 
-export { Timestamp } from '@google-cloud/firestore';
-
 const app = admin.initializeApp();
 
 export function firestore() {

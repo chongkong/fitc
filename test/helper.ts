@@ -1,5 +1,4 @@
 import * as testing from '@firebase/testing';
-export { Timestamp } from '@google-cloud/firestore';
 import * as admin from 'firebase-admin';
 import { createNewPlayer, createNewPlayerStats, createNewTable } from '../functions/src/factory';
 
