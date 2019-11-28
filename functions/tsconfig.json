@@ -8,12 +8,21 @@
     "strict": true,
     "target": "es2017",
     "lib": [
+      // Somehow, node_modules in parent directory is recognized by tsc
+      // and complain about not having DOM classes definitions. Temporary
+      // workaround.
+      "dom",
+      // I'd like to use Array.flatMap and so on.
       "es2019"
     ]
   },
   "compileOnSave": true,
   "include": [
     "src",
-    "../common"
+    "../common",
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "../test"
   ]
 }

@@ -1,4 +1,4 @@
-import { ClientSDK } from '../../common/client-sdk';
+import { ClientSDK } from '../client-sdk';
 import * as helper from '../helper';
 import { sleep } from '../utils';
 

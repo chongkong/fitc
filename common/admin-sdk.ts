@@ -1,14 +1,14 @@
-import { Timestamp as AdminTimestamp } from "@google-cloud/firestore";
+import { firestore } from "firebase-admin";
 
 export namespace AdminSDK {
 
   export namespace Timestamp {
     export function fromDate(dateArgs: any) {
-      return AdminTimestamp.fromDate(new Date(dateArgs));
+      return firestore.Timestamp.fromDate(new Date(dateArgs));
     }
 
     export function now() {
-      return AdminTimestamp.now();
+      return firestore.Timestamp.now();
     }
   }
 
