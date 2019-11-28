@@ -1,0 +1,167 @@
+{
+  "신지원": {
+    "ldap": "shinjiwon",
+    "level": 2,
+    "name": "Jiwon Shin"
+  },
+  "Anzor": {
+    "ldap": "anzor",
+    "level": 4,
+    "name": "Anzor Balkar"
+  },
+  "박주람": {
+    "ldap": "jurampark",
+    "level": 3,
+    "name": "Juram Park"
+  },
+  "김용록": {
+    "ldap": "yrkim",
+    "level": 5,
+    "name": "Yongrok Kim"
+  },
+  "Kevin": {
+    "ldap": "jungwonkim",
+    "level": 2,
+    "name": "Kevin Kim"
+  },
+  "신지민": {
+    "ldap": "shinmin",
+    "level": 3,
+    "name": "Jeemin Shin"
+  },
+  "박형철": {
+    "ldap": "hcpark",
+    "level": 2,
+    "name": "Hyungchul Park"
+  },
+  "한지호": {
+    "ldap": "jiho",
+    "level": 5,
+    "name": "Jiho Han"
+  },
+  "오영진": {
+    "ldap": "yeongjinoh",
+    "level": 1,
+    "name": "Yeongjin Oh"
+  },
+  "이현지": {
+    "ldap": "hyeonjilee",
+    "level": 3,
+    "name": "Hyeonji Lee"
+  },
+  "권순선": {
+    "ldap": "soonson",
+    "level": 2,
+    "name": "Soonson Kwon"
+  },
+  "김우진": {
+    "ldap": "woojinkim",
+    "level": 2,
+    "name": "Woojin Kim"
+  },
+  "이상일": {
+    "ldap": "gendoh",
+    "level": 3,
+    "name": "Sang-il Lee"
+  },
+  "곽민준": {
+    "ldap": "minjunkwakwak",
+    "level": 1,
+    "name": "Minjun Kwak"
+  },
+  "유원석": {
+    "ldap": "yoowonseok",
+    "level": 7,
+    "name": "Won-seok Yoo"
+  },
+  "박종빈": {
+    "ldap": "jjong",
+    "level": 2,
+    "name": "Jongbin Park"
+  },
+  "라예지": {
+    "ldap": "yejir",
+    "level": 1,
+    "name": "Diana Yeji Rha"
+  },
+  "Saken": {
+    "ldap": "saken",
+    "level": 1,
+    "name": "Saken Kenzhegulov"
+  },
+  "문현도": {
+    "ldap": "hdmoon",
+    "level": 2,
+    "name": "Hyundo Moon"
+  },
+  "정제건": {
+    "ldap": "jegeon",
+    "level": 4,
+    "name": "Jegeon Jung"
+  },
+  "박진석": {
+    "ldap": "jinpark",
+    "level": 3,
+    "name": "Jin Seok Park"
+  },
+  "민경민": {
+    "ldap": "kmmin",
+    "level": 2,
+    "name": "Kyungmin Min"
+  },
+  "박주원": {
+    "ldap": "juwonp",
+    "level": 2,
+    "name": "Juwon Park"
+  },
+  "황태현": {
+    "ldap": "taihyunh",
+    "level": 2,
+    "name": "Taihyun Hwang"
+  },
+  "조승현": {
+    "ldap": "bryanjo",
+    "level": 1,
+    "name": "Seunghyun Jo"
+  },
+  "강철": {
+    "ldap": "kcheol",
+    "level": 3,
+    "name": "Cheol Kang"
+  },
+  "이형욱": {
+    "ldap": "huklee",
+    "level": 1,
+    "name": "Hyeonguk Lee"
+  },
+  "정유진": {
+    "ldap": "yujinjeong",
+    "level": 1,
+    "name": "Yujin Jeong"
+  },
+  "장정식": {
+    "ldap": "jayjang",
+    "level": 5,
+    "name": "Jungshik Jang"
+  },
+  "강민": {
+    "ldap": "kangmin",
+    "level": 1,
+    "name": "Min Kang"
+  },
+  "Newt": {
+    "ldap": "newt",
+    "level": 2,
+    "name": "Newton Allen"
+  },
+  "오현석": {
+    "ldap": "hyeonseok",
+    "level": 2,
+    "name": "Hyeonseok Oh"
+  },
+  "박승호": {
+    "ldap": "separk",
+    "level": 1,
+    "name": "Seungho Park"
+  }
+}

@@ -2,7 +2,8 @@ CacheControl==0.12.5
 cachetools==3.1.1
 certifi==2019.9.11
 chardet==3.0.4
-firebase-admin==3.2.0
+fire==0.2.1
+firebase-admin==3.1.0
 google-api-core==1.14.3
 google-api-python-client==1.7.11
 google-auth==1.7.0
@@ -16,12 +17,17 @@ grpcio==1.25.0
 httplib2==0.14.0
 idna==2.8
 msgpack==0.6.2
+numpy==1.17.4
+pandas==0.25.3
 protobuf==3.10.0
 pyasn1==0.4.7
 pyasn1-modules==0.2.7
+python-dateutil==2.8.1
 pytz==2019.3
 requests==2.22.0
 rsa==4.0
 six==1.13.0
+termcolor==1.1.0
+tqdm==4.39.0
 uritemplate==3.0.0
 urllib3==1.25.7
