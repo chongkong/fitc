@@ -1,5 +1,5 @@
 import { Timestamp } from '@google-cloud/firestore';
-import { helper } from '../helper';
+import * as helper from '../helper';
 import { sleep } from '../utils';
 
 
@@ -8,11 +8,13 @@ afterAll(async () => {
 });
 
 describe('Creates GameRecord', () => {
+  const app = helper.getOrInitializeTestApp();
+
   describe('On first game', () => {
     beforeAll(async () => {
       await helper.createDummyData();
       const now = Timestamp.fromDate(new Date('2019-11-11T12:34:56'));
-      await helper.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
+      await app.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
         winners: ['jjong', 'hdmoon'],
         losers: ['shinjiwon', 'hyeonjilee'],
         isTie: false,
@@ -28,7 +30,7 @@ describe('Creates GameRecord', () => {
     });
 
     test("jjong's PlayerStats changed", async () => {
-      const stats = await helper.firestore().doc('stats/jjong').get();
+      const stats = await app.firestore().doc('stats/jjong').get();
       expect(stats.exists);
       expect(stats.data()).toMatchObject({
         totalWins: 1,
@@ -64,7 +66,7 @@ describe('Creates GameRecord', () => {
     });
 
     test("hdmoon's PlayerStats changed", async () => {
-      const stats = await helper.firestore().doc('stats/hdmoon').get();
+      const stats = await app.firestore().doc('stats/hdmoon').get();
       expect(stats.data()).toMatchObject({
         totalWins: 1,
         totalLoses: 0,
@@ -99,7 +101,7 @@ describe('Creates GameRecord', () => {
     });
 
     test("shinjiwon's PlayerStats changed", async () => {
-      const stats = await helper.firestore().doc('stats/shinjiwon').get();
+      const stats = await app.firestore().doc('stats/shinjiwon').get();
       expect(stats.data()).toMatchObject({
         totalWins: 0,
         totalLoses: 1,
@@ -134,7 +136,7 @@ describe('Creates GameRecord', () => {
     });
 
     test("hyeonjilee's PlayerStats changed", async () => {
-      const stats = await helper.firestore().doc('stats/hyeonjilee').get();
+      const stats = await app.firestore().doc('stats/hyeonjilee').get();
       expect(stats.data()).toMatchObject({
         totalWins: 0,
         totalLoses: 1,
@@ -169,7 +171,7 @@ describe('Creates GameRecord', () => {
     });
 
     test("hdmoon and jjong's TeamStats changed", async () => {
-      const stats = await helper.firestore().doc('teamStats/hdmoon,jjong').get();
+      const stats = await app.firestore().doc('teamStats/hdmoon,jjong').get();
       expect(stats.data()).toMatchObject({
         totalWins: 1,
         totalLoses: 0,
@@ -179,7 +181,7 @@ describe('Creates GameRecord', () => {
 
 
     test("hyeonjilee and shinjiwon's TeamStats changed", async () => {
-      const stats = await helper.firestore().doc('teamStats/hyeonjilee,shinjiwon').get();
+      const stats = await app.firestore().doc('teamStats/hyeonjilee,shinjiwon').get();
       expect(stats.data()).toMatchObject({
         totalWins: 0,
         totalLoses: 1,
@@ -192,7 +194,7 @@ describe('Creates GameRecord', () => {
     beforeAll(async () => {
       await helper.createDummyData();
       const now = Timestamp.now();
-      await helper.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
+      await app.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
         winners: ['jjong', 'hdmoon'],
         losers: ['shinjiwon', 'hyeonjilee'],
         isTie: true,
@@ -208,7 +210,7 @@ describe('Creates GameRecord', () => {
     });
 
     test('No PlayerStats changed', async () => {
-      const allStats = await helper.firestore().collection('stats').get();
+      const allStats = await app.firestore().collection('stats').get();
       allStats.docs.forEach(doc => {
         expect(doc.data()).toMatchObject({
           totalWins: 0,
@@ -225,7 +227,7 @@ describe('Creates GameRecord', () => {
       await helper.createDummyData();
       for (let winStreaks = 1; winStreaks <= 10; winStreaks++) {
         const now = Timestamp.now();
-        await helper.firestore().doc(`tables/default/records/${now.toMillis()}`).create({
+        await app.firestore().doc(`tables/default/records/${now.toMillis()}`).create({
           winners: ['jjong', 'hdmoon'],
           losers: ['shinjiwon', 'hyeonjilee'],
           isTie: false,
@@ -244,12 +246,12 @@ describe('Creates GameRecord', () => {
     });
 
     test('jjong got promoted', async () => {
-      const player = await helper.firestore().doc('players/jjong').get();
+      const player = await app.firestore().doc('players/jjong').get();
       expect(player.data()).toMatchObject({
         level: 3
       });
       
-      const events = await helper.firestore().collection('events').get();
+      const events = await app.firestore().collection('events').get();
       expect(events.docs.map(doc => doc.data())).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -265,12 +267,12 @@ describe('Creates GameRecord', () => {
     });
 
     test('hdmoon got promoted', async () => {
-      const player = await helper.firestore().doc('players/hdmoon').get();
+      const player = await app.firestore().doc('players/hdmoon').get();
       expect(player.data()).toMatchObject({
         level: 3
       });
       
-      const events = await helper.firestore().collection('events').get();
+      const events = await app.firestore().collection('events').get();
       expect(events.docs.map(doc => doc.data())).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -286,12 +288,12 @@ describe('Creates GameRecord', () => {
     });
 
     test('shinjiwon got demoted', async () => {
-      const player = await helper.firestore().doc('players/shinjiwon').get();
+      const player = await app.firestore().doc('players/shinjiwon').get();
       expect(player.data()).toMatchObject({
         level: 1
       });
       
-      const events = await helper.firestore().collection('events').get();
+      const events = await app.firestore().collection('events').get();
       expect(events.docs.map(doc => doc.data())).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -307,12 +309,12 @@ describe('Creates GameRecord', () => {
     });
 
     test('hyeonjilee got demoted', async () => {
-      const player = await helper.firestore().doc('players/hyeonjilee').get();
+      const player = await app.firestore().doc('players/hyeonjilee').get();
       expect(player.data()).toMatchObject({
         level: 2
       });
       
-      const events = await helper.firestore().collection('events').get();
+      const events = await app.firestore().collection('events').get();
       expect(events.docs.map(doc => doc.data())).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
