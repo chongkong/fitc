@@ -1,19 +1,24 @@
-import { Timestamp } from '@google-cloud/firestore';
+import { ClientSDK } from '../../common/client-sdk';
 import * as helper from '../helper';
 import { sleep } from '../utils';
 
 
-afterAll(async () => {
+beforeAll(async () => {
   await helper.clearFirestoreData();
 });
 
+afterAll(async () => {
+  await helper.clearFirestoreData();
+  await helper.cleanupTestApps();
+});
+
 describe('Creates GameRecord', () => {
-  const app = helper.getOrInitializeTestApp();
+  const app = helper.createTestApp();
 
   describe('On first game', () => {
     beforeAll(async () => {
       await helper.createDummyData();
-      const now = Timestamp.fromDate(new Date('2019-11-11T12:34:56'));
+      const now = ClientSDK.Timestamp.fromDate('2019-11-11T12:34:56');
       await app.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
         winners: ['jjong', 'hdmoon'],
         losers: ['shinjiwon', 'hyeonjilee'],
@@ -193,7 +198,7 @@ describe('Creates GameRecord', () => {
   describe('On draw', () => {
     beforeAll(async () => {
       await helper.createDummyData();
-      const now = Timestamp.now();
+      const now = ClientSDK.Timestamp.now();
       await app.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
         winners: ['jjong', 'hdmoon'],
         losers: ['shinjiwon', 'hyeonjilee'],
@@ -226,8 +231,8 @@ describe('Creates GameRecord', () => {
     beforeAll(async () => {
       await helper.createDummyData();
       for (let winStreaks = 1; winStreaks <= 10; winStreaks++) {
-        const now = Timestamp.now();
-        await app.firestore().doc(`tables/default/records/${now.toMillis()}`).create({
+        const now = ClientSDK.Timestamp.now();
+        await app.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
           winners: ['jjong', 'hdmoon'],
           losers: ['shinjiwon', 'hyeonjilee'],
           isTie: false,
