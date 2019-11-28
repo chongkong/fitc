@@ -2,7 +2,7 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
-import { GameRecord, Player, PlayerStats, Triggerable, TeamStats } from '../../../common/types';
+import { GameRecord, Player, PlayerStats, TeamStats } from '../../../common/types';
 import { setEquals } from '../../../common/utils';
 import { firestore } from '../firebase';
 import { PROMO_THRESHOLD } from '../data';
@@ -11,38 +11,47 @@ import { createNewPlayerStats, createPromotionEvent, createDemotionEvent, create
 
 export const onGameRecordCreate = functions.firestore
     .document('tables/default/records/{recordId}')
-    .onCreate(snapshot => {
-      const draft = snapshot.data() as (GameRecord & Triggerable);
-      const deferred: Promise<any>[] = [];
+    .onCreate((snapshot, context) => {
+      const draft = snapshot.data() as GameRecord;
 
-      if (draft.__preventTrigger || draft.isTie) {
+      // We currently don't have any further 
+      if (draft.isTie) {
         return;
       }
 
-      const winStreaksPromise = getWinStreaks(draft, draft.createdAt);
+      // Container for all DB writing tasks
+      const deferred: Promise<any>[] = [];
 
-      deferred.push(
-        winStreaksPromise.then(winStreaks => 
-          snapshot.ref.set({ ...draft, winStreaks }))
-      )
+      const winStreaksPromise = context.authType === 'ADMIN' 
+        ? Promise.resolve(draft.winStreaks)  // Admin should record correct winStreaks
+        : getWinStreaks(draft, draft.createdAt);  // Cannot believe user's recording..
+
+      if (context.authType !== 'ADMIN') {
+        deferred.push(
+          winStreaksPromise.then(winStreaks => 
+            snapshot.ref.set({ ...draft, winStreaks }))
+        )
+      }
 
       const {winners, losers} = draft;
       const [w1, w2] = winners;
       const [l1, l2] = losers;
 
-      deferred.push(
-        winStreaksPromise.then(winStreaks => 
-          updateWinStats(w1, w2, losers, winStreaks)),
-        winStreaksPromise.then(winStreaks => 
-          updateWinStats(w2, w1, losers, winStreaks)),
-        updateLoseStats(l1, l2, winners),
-        updateLoseStats(l2, l1, winners),
-        updateTeamStats(winners, true),
-        updateTeamStats(losers, false),
-      );
+      if (context.authType !== 'ADMIN') {
+        deferred.push(
+          winStreaksPromise.then(winStreaks => 
+            updateWinStats(w1, w2, losers, winStreaks)),
+          winStreaksPromise.then(winStreaks => 
+            updateWinStats(w2, w1, losers, winStreaks)),
+          updateLoseStats(l1, l2, winners),
+          updateLoseStats(l2, l1, winners),
+          updateTeamStats(winners, true),
+          updateTeamStats(losers, false),
+        );
+      }
 
-      // Check promotion / demotion event
-      if (!draft.__preventEvent) {
+      // Check promotion / demotion event. 
+      if (context.authType !== 'ADMIN' && draft.recordedBy !== 'IMPORTER_V0') {
         deferred.push(
           checkEvent(w1),
           checkEvent(w2),

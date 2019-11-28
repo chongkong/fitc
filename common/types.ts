@@ -109,12 +109,3 @@ export interface DemotionEvent {
   levelFrom: number;
   levelTo: number;
 }
-
-export interface Triggerable {
-  // Whether to prevent any kind of trigger, including publishing
-  // new events.
-  __preventTrigger?: boolean;
-
-  // Whether to prevent publishing new events.
-  __preventEvent?: boolean;
-}

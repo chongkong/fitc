@@ -156,8 +156,7 @@ def save_data(df: pd.DataFrame, emulate: bool, allow_level_update: bool):
       isTie=False,
       winStreaks=0,
       createdAt=row.Time.to_pydatetime(),
-      recordedBy='admin',
-      __preventEvent=not allow_level_update,  # Do not trigger promo/demo event on this.
+      recordedBy='IMPORTER_V0'
     ))
     if i % 100 == 0:
       batch.commit()
