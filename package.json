@@ -8,8 +8,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "test:integ": "jest --config=test/jest.integ.config.js --env=node --runInBand test/scenario",
-    "test:func": "jest --config=test/jest.unit.config.js --env=node functions/test"
+    "test:integ": "jest --config=jest.integ.config.js --env=node --runInBand",
+    "test:unit": "jest --config=jest.unit.config.js --env=node functions/test"
   },
   "private": true,
   "dependencies": {

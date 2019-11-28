@@ -2,7 +2,9 @@ module.exports = {
   transform: {
     "^.+\\.ts$": "ts-jest"
   },
-  testRegex: "\\.integ\\.test\\.ts$",
+  testMatch: [
+    '<rootDir>/**/*.integ.test.ts'
+  ],
   moduleFileExtensions: ["js", "json", "ts"],
   globals: {
     "ts-jest": {
