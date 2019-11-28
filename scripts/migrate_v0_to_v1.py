@@ -103,7 +103,7 @@ def make_firestore_client(emulate: bool):
   return firestore.client()
 
 
-def save_data(df: pd.DataFrame, emulate: bool):
+def save_data(df: pd.DataFrame, emulate: bool, allow_level_update: bool):
   db = make_firestore_client(emulate=emulate)
 
   # Creates foosball table entry
@@ -157,7 +157,7 @@ def save_data(df: pd.DataFrame, emulate: bool):
       winStreaks=0,
       createdAt=row.Time.to_pydatetime(),
       recordedBy='admin',
-      __preventEvent=True,  # Do not trigger promo/demo event on this.
+      __preventEvent=not allow_level_update,  # Do not trigger promo/demo event on this.
     ))
     if i % 100 == 0:
       batch.commit()
@@ -167,11 +167,11 @@ def save_data(df: pd.DataFrame, emulate: bool):
   batch.commit()
 
 
-def main(csv_filename: str, emulate: bool = True):
+def main(csv_filename: str, emulate: bool = True, allow_level_update = False):
   df = pd.read_csv(csv_filename)
   preprocess_data(df)
   print('Preprocessing done')
-  save_data(df, emulate)
+  save_data(df, emulate, allow_level_update)
 
 
 if __name__ == '__main__':
