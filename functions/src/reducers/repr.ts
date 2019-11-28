@@ -1,5 +1,5 @@
 import { GameRecord } from "../../../common/types";
-import { MAX_HISTORY } from "../constant";
+import { DEFAULT_HISTORY_SIZE } from "../constant";
 
 export type GameResultSymbol = 'W'|'L'|'D';
 
@@ -13,7 +13,7 @@ export function toSymbol(record: GameRecord, me: string): GameResultSymbol|undef
 export function updateResults(
   results: string,
   newResult: GameResultSymbol,
-  maxLength = MAX_HISTORY
+  maxLength = DEFAULT_HISTORY_SIZE
 ) {
   return (newResult + results).substring(0, maxLength);
 }

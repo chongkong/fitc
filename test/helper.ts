@@ -2,7 +2,7 @@ import * as testing from '@firebase/testing';
 import * as admin from 'firebase-admin';
 import { createNewPlayer, createNewPlayerStats, createNewTable } from '../functions/src/factory';
 
-const DEFAULT_PROJECT_ID = 'foosball-seo';
+const DEFAULT_PROJECT_ID = 'fitc-test';
 const appName = '[TEST]';
 
 /**
@@ -54,18 +54,18 @@ export async function createDummyData() {
     const player = createNewPlayer(name = name, ldap = ldap);
     player.level = level;
     player.isNewbie = level === 1;
-    batch.create(app.firestore().collection('players').doc(ldap), player);
+    batch.set(app.firestore().collection('players').doc(ldap), player);
     return createPlayerStats(ldap);
   }
 
   function createPlayerStats(ldap: string) {
     const playerStats = createNewPlayerStats();
-    batch.create(app.firestore().collection('stats').doc(ldap), playerStats);
+    batch.set(app.firestore().collection('stats').doc(ldap), playerStats);
   }
 
   function createTable(tableId: string, name: string, recentPlayers: string[]) {
     const table = createNewTable(name = name, recentPlayers = recentPlayers);
-    batch.create(app.firestore().collection('tables').doc(tableId), table);
+    batch.set(app.firestore().collection('tables').doc(tableId), table);
   }
 
   createPlayer('jjong', 'Jongbin Park', 2);

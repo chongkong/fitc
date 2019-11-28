@@ -5,7 +5,7 @@ import { toSymbol } from '../reducers';
 
 export async function listPlayerRecentGames(
   ldap: string,
-  rangeFrom?: Timestamp,
+  rangeAfter?: Timestamp,
   limit?: number
 ) {
   const records = firestore().collectionGroup('records');
@@ -13,8 +13,8 @@ export async function listPlayerRecentGames(
     records.where('winners', 'array-contains', ldap),
     records.where('losers', 'array-contains', ldap),
   ];
-  if (rangeFrom) {
-    queries = queries.map(q => q.where('createdAt', '>', rangeFrom));
+  if (rangeAfter) {
+    queries = queries.map(q => q.where('createdAt', '>', rangeAfter));
   }
   queries = queries.map(q => q.orderBy('createdAt', 'desc'));
   if (limit) {
@@ -30,9 +30,9 @@ export async function listPlayerRecentGames(
 
 export async function listPlayerRecentGamesAsSymbol(
   ldap: string,
-  rangeFrom?: Timestamp,
+  rangeAfter?: Timestamp,
   limit?: number
 ) {
-  const records = await listPlayerRecentGames(ldap, rangeFrom, limit);
+  const records = await listPlayerRecentGames(ldap, rangeAfter, limit);
   return records.map(record => toSymbol(record, ldap));
 }
