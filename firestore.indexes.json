@@ -2,7 +2,7 @@
   "indexes": [
     {
       "collectionGroup": "records",
-      "queryScope": "COLLECTION",
+      "queryScope": "COLLECTION_GROUP",
       "fields": [
         {
           "fieldPath": "winners",
@@ -16,7 +16,7 @@
     },
     {
       "collectionGroup": "records",
-      "queryScope": "COLLECTION",
+      "queryScope": "COLLECTION_GROUP",
       "fields": [
         {
           "fieldPath": "losers",
