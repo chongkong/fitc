@@ -78,7 +78,7 @@ export interface PlayerStats {
 
 /**
  * Team stats schema.
- * 
+ *
  * Stored under `teamStats/`
  */
 export interface TeamStats {
