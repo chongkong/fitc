@@ -2,12 +2,11 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
-import { GameRecord, Player, PlayerStats, Triggerable } from '../../../common/types';
+import { GameRecord, Player, PlayerStats, Triggerable, Event } from '../../../common/types';
 import { setEquals } from '../../../common/utils';
 import { app } from '../firebase';
 import { PROMO_THRESHOLD } from '../data';
 import { createNewPlayerStats, createPromotionEvent, createDemotionEvent } from '../factory';
-
 
 export const onGameRecordCreate = functions.firestore
     .document('tables/default/records/{recordId}')
@@ -211,13 +210,78 @@ async function checkEvent(ldap: string) {
       continue;
     } else if (numWins > PROMO_THRESHOLD[numWins + numLoses]) {
       const now = admin.firestore.Timestamp.now();
-      return app.firestore().doc(`events/${now.toMillis()}-${ldap}-promotion`)
+      return app.firestore().doc(`events/${now.toMillis()}-${ldap}`)
           .set(createPromotionEvent(ldap, player.level, now));
     } else if (player.level > 1 && numLoses > PROMO_THRESHOLD[numWins + numLoses]) {
       const now = admin.firestore.Timestamp.now();
-      return app.firestore().doc(`events/${now.toMillis()}-${ldap}-demotion`)
+      return app.firestore().doc(`events/${now.toMillis()}-${ldap}`)
           .set(createDemotionEvent(ldap, player.level, now));
     }
   }
   return;
+}
+
+export const onGameRecordDelete = functions.firestore
+    .document('tables/default/records/{recordId}')
+    .onDelete(snapshot => {
+      const removed = snapshot.data() as (GameRecord & Triggerable);
+      const deferred: Promise<any>[] = [];
+      const allPlayers = removed.winners.concat(removed.losers);
+      deferred.push(
+        ...allPlayers.map(ldap => cancelLatestFromPlayerStats(ldap, removed)),
+        ...allPlayers.map(ldap => cancelEventIfAny(ldap, removed.createdAt))
+      );
+      return Promise.all(deferred);
+    });
+
+async function cancelLatestFromPlayerStats(ldap : string, gameRecord: GameRecord){
+  const statsSnapshot = await app.firestore().doc(`stats/${ldap}`).get();
+  if (statsSnapshot.data() === undefined) {
+    return Promise.resolve(); 
+  }
+  const stats = statsSnapshot.data() as PlayerStats;
+
+  const lastGameResult = stats.recentGames.charAt(0);
+  stats.recentGames = stats.recentGames.substring(1);
+  if (lastGameResult === 'W') {
+    stats.totalWins -= 1;
+    stats.perSeason[gameRecord.createdAt.toDate().getFullYear()].totalWins -= 1;
+    gameRecord.losers.forEach(loser => {
+      stats.asOpponent[loser].totalWins -= 1;
+      stats.asOpponent[loser].recentGames = stats.asOpponent[loser].recentGames.substring(1);
+    })
+    gameRecord.winners.filter(winner => winner !== ldap).forEach(teammate => {
+      stats.asTeammate[teammate].totalWins -= 1;
+      stats.asTeammate[teammate].recentGames = stats.asTeammate[teammate].recentGames.substring(1);
+    })
+  } else {
+    stats.totalLoses -= 1;
+    stats.perSeason[gameRecord.createdAt.toDate().getFullYear()].totalLoses -= 1;
+    gameRecord.winners.forEach(winner => {
+      stats.asOpponent[winner].totalLoses -= 1;
+      stats.asOpponent[winner].recentGames = stats.asOpponent[winner].recentGames.substring(1);
+    })
+    gameRecord.losers.filter(loser => loser !== ldap).forEach(teammate => {
+      stats.asTeammate[teammate].totalLoses -= 1;
+      stats.asTeammate[teammate].recentGames = stats.asTeammate[teammate].recentGames.substring(1);
+    })
+  }
+
+  return statsSnapshot.ref.set(stats);
+}
+
+async function cancelEventIfAny(ldap: string, after: admin.firestore.Timestamp) {
+  const events = await app.firestore()
+    .collection('events')
+    .where('createdAt', '>=', after)
+    .where('payload.ldap', '==', ldap)
+    .get();
+  
+  return events.docs.map(eventSnap => {
+    const event = eventSnap.data() as Event;
+    if (event.type === 'promotion' || event.type === 'demotion'){
+      return eventSnap.ref.delete();
+    }
+    return Promise.resolve();
+  })
 }

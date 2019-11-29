@@ -1,4 +1,3 @@
-import { firestore as fs } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
 import { Player, Event, PromotionEvent } from '../../../common/types';
@@ -13,7 +12,7 @@ export const onEventCreate = functions.firestore
         const updates: Partial<Player> = {
           level: promotion.levelTo,
           isNewbie: false,
-          lastLevelUpdate: fs.Timestamp.now()
+          lastLevelUpdate: snapshot.createTime
         };
         return app.firestore()
           .doc(`players/${promotion.ldap}`)
@@ -24,7 +23,7 @@ export const onEventCreate = functions.firestore
         const promotion = event.payload as PromotionEvent;
         const updates: Partial<Player> = {
           level: promotion.levelTo,
-          lastLevelUpdate: fs.Timestamp.now()
+          lastLevelUpdate: snapshot.createTime
         };
         return app.firestore()
           .doc(`players/${promotion.ldap}`)
@@ -34,3 +33,38 @@ export const onEventCreate = functions.firestore
       // Explicitly return to suppress Typescript error.
       return;
     });
+
+export const onEventDelete = functions.firestore
+    .document('events/{eventId}')
+    .onDelete(snapshot => {
+      const event = snapshot.data() as Event;
+
+      if (event.type === 'promotion' || event.type === 'demotion') {
+        return getPreviousTimestamp(event.payload.ldap).then(prevTime => {
+          return app.firestore()
+            .doc(`players/${event.payload.ldap}`)
+            .update({
+              level: event.payload.levelFrom,
+              isNewbie: !prevTime,
+              lastLevelUpdate: prevTime
+            })
+        });
+      } 
+      // Explicitly return to suppress Typescript error.
+      return;
+    });
+async function getPreviousTimestamp(ldap : string) {
+  const previousEvent = await app.firestore()
+    .collection('events')
+    .where('payload.ldap', '==', ldap)
+    .orderBy('createdAt', "desc")
+    .limit(1)
+    .get();
+  if(previousEvent.empty){
+    return;
+  }
+  return previousEvent.docs[0].createTime;
+}
+
+    
+  
