@@ -1,106 +1,66 @@
-import { checkLevelUpdate } from './level-update-policy';
-import { Arrays } from '../../common/utils';
-import { listPlayerRecentGamesAsSymbol } from './dao';
+import { checkLevelUpdate } from "./level-update-policy";
+import { Arrays } from "../../common/utils";
 
-jest.mock('./dao');
-
-describe('checkLevelUpdate', () => {
-  const mockListPlayerRecentGamesAsSymbol = listPlayerRecentGamesAsSymbol as jest.Mock;
-
-  afterEach(() => {
-    mockListPlayerRecentGamesAsSymbol.mockReset();
+describe("checkLevelUpdate", () => {
+  test("Does not get demoted below 1", () => {
+    expect(
+      checkLevelUpdate({
+        recentGames: "L".repeat(50),
+        level: 1
+      })
+    ).toBe(0);
   });
 
-  test('Does not get demoted below 1', async () => {
-    mockListPlayerRecentGamesAsSymbol.mockReturnValueOnce(
-      Arrays.repeat('L', 50));
-
-    let maybeEvent = await checkLevelUpdate({
-      ldap: 'jjong',
-      name: 'Jongbin Park',
-      level: 1
-    });
-
-    console.info(maybeEvent);
-    expect(maybeEvent).toBeUndefined();
+  test("Does not get promoted above 10", () => {
+    expect(
+      checkLevelUpdate({
+        recentGames: "W".repeat(50),
+        level: 10
+      })
+    ).toBe(0);
   });
 
-  test('Does not get promoted above 10', async () => {
-    mockListPlayerRecentGamesAsSymbol.mockReturnValueOnce(
-      Arrays.repeat('W', 50));
+  test("No update if games played < 10", () => {
+    expect(
+      checkLevelUpdate({
+        recentGames: "W".repeat(9),
+        level: 5
+      })
+    ).toBe(0);
 
-    let maybeEvent = await checkLevelUpdate({
-      ldap: 'jjong',
-      name: 'Jongbin Park',
-      level: 10
-    });
-
-    expect(maybeEvent).toBeUndefined();
-  });
-
-  test('No update if games played < 10', async () => {
-    mockListPlayerRecentGamesAsSymbol.mockReturnValueOnce(
-      Arrays.repeat('W', 9));
-
-    let maybeEvent = await checkLevelUpdate({
-      ldap: 'jjong',
-      name: 'Jongbin Park',
-      level: 5
-    });
-
-    expect(maybeEvent).toBeUndefined();
+    expect(
+      checkLevelUpdate({
+        recentGames: "L".repeat(9),
+        level: 5
+      })
+    ).toBe(0);
   });
 
   test.each([
     [12, 15],
-    [15, 20],
-  ])('Promoted if more than %d games out of %d win', (wins, total) => {
-    Arrays.range(wins, total + 1).forEach(async wins => {
-      mockListPlayerRecentGamesAsSymbol.mockReturnValueOnce(
-        Arrays.repeat('W', wins).concat(
-          Arrays.repeat('L', total - wins)));
-      
-      let maybeEvent = await checkLevelUpdate({
-        ldap: 'jjong',
-        name: 'Jongbin Park',
-        level: 5
-      });
-
-      expect(maybeEvent).toMatchObject({
-        type: 'promotion',
-        payload: {
-          ldap: 'jjong',
-          levelFrom: 5,
-          levelTo: 6
-        }
-      });
+    [15, 20]
+  ])("Promoted if more than %d games out of %d win", (wins, total) => {
+    Arrays.range(wins, total + 1).forEach(wins => {
+      expect(
+        checkLevelUpdate({
+          recentGames: "W".repeat(wins) + "L".repeat(total - wins),
+          level: 5
+        })
+      ).toBe(+1);
     });
   });
 
   test.each([
     [12, 15],
-    [15, 20],
-  ])('Demoted if more than %d games out of %d lost', (loses, total) => {
-    Arrays.range(loses, total + 1).forEach(async loses => {
-      mockListPlayerRecentGamesAsSymbol.mockReturnValueOnce(
-        Arrays.repeat('L', loses).concat(
-          Arrays.repeat('W', total - loses)));
-      
-      let maybeEvent = await checkLevelUpdate({
-        ldap: 'jjong',
-        name: 'Jongbin Park',
-        level: 5
-      });
-
-      expect(maybeEvent).toMatchObject({
-        type: 'demotion',
-        payload: {
-          ldap: 'jjong',
-          levelFrom: 5,
-          levelTo: 4
-        }
-      });
+    [15, 20]
+  ])("Demoted if more than %d games out of %d lost", (loses, total) => {
+    Arrays.range(loses, total + 1).forEach(loses => {
+      expect(
+        checkLevelUpdate({
+          recentGames: "L".repeat(loses) + "W".repeat(total - loses),
+          level: 5
+        })
+      ).toBe(-1);
     });
   });
-
 });

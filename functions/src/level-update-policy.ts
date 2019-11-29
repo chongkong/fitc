@@ -1,9 +1,4 @@
-import { Timestamp } from '@google-cloud/firestore';
-
-import { Player } from '../../common/types';
-import { DEFAULT_HISTORY_SIZE } from './constant';
-import { listPlayerRecentGamesAsSymbol } from './dao';
-import { createPromotionEvent, createDemotionEvent } from './factory';
+import { DEFAULT_HISTORY_SIZE } from "./constant";
 
 // Promotion qualification is analyzed from recent PROMO_WINDOW_SIZE games.
 const PROMO_WINDOW_SIZE = DEFAULT_HISTORY_SIZE;
@@ -18,6 +13,7 @@ const MIN_DEMOTE_LEVEL = 1;
 const MIN_GAMES = 10;
 
 // Promotion thresholds generated from promo_threshold_gen.py.
+// prettier-ignore
 const PROMO_THRESHOLDS = [
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
    9,  9, 10, 11, 11, 12, 13, 13, 14, 15,
@@ -27,30 +23,34 @@ const PROMO_THRESHOLDS = [
   34
 ];
 
-export async function checkLevelUpdate(player: Player) {
-  const recentGames = await listPlayerRecentGamesAsSymbol(
-    player.ldap, player.lastLevelUpdate, PROMO_WINDOW_SIZE);
+export function checkLevelUpdate({
+  recentGames,
+  level
+}: {
+  recentGames: string;
+  level: number;
+}) {
   if (recentGames.length < MIN_GAMES) {
-    return;
+    return 0;
   }
 
-  let numWins = 0;
-  let numLoses = 0;
-  let numGames = 0;
+  let wins = 0;
+  let loses = 0;
+  let total = 0;
   for (const result of recentGames) {
-    numWins += (result === 'W' ? 1 : 0);
-    numLoses += (result === 'L' ? 1 : 0);
-    numGames += 1;
+    wins += Number(result === "W");
+    loses += Number(result === "L");
+    total += 1;
 
-    if (numGames < MIN_GAMES) {
+    if (total < MIN_GAMES) {
       continue;
-    } else if (numWins > PROMO_THRESHOLDS[numGames] && player.level < MAX_LEVEL) {
-      return createPromotionEvent(player.ldap, player.level, Timestamp.now());
-    } else if (numLoses > PROMO_THRESHOLDS[numGames] && player.level > MIN_DEMOTE_LEVEL) {
-      return createDemotionEvent(player.ldap, player.level, Timestamp.now());
+    } else if (wins > PROMO_THRESHOLDS[total] && level < MAX_LEVEL) {
+      return +1;
+    } else if (loses > PROMO_THRESHOLDS[total] && level > MIN_DEMOTE_LEVEL) {
+      return -1;
     }
   }
 
   // No promotion and demotion.
-  return;
+  return 0;
 }
