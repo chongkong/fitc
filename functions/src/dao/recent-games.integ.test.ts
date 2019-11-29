@@ -171,3 +171,59 @@ describe('listPlayerRecentGames', () => {
   });
 
 });
+
+
+describe('listPlayerRecentGamesAsSymbol', () => {
+  const app = helper.getOrInitializeAdminApp();
+
+  beforeEach(async () => {
+    await helper.createDummyData();
+  })
+
+  afterEach(async () => {
+    await helper.clearFirestoreData();
+  })
+
+  test('Check return values', async () => {
+    // Game 1: Win
+    await app.firestore().doc('tables/default/records/1').set({
+      winners: ['jjong', 'hdmoon'],
+      losers: ['shinjiwon', 'anzor'],
+      isTie: false,
+      winStreaks: 1,
+      createdAt: AdminSDK.Timestamp.fromDate('2019-01-01T00:00:00'),
+      recordedBy: 'jjong'
+    });
+    // Game 2: Lose
+    await app.firestore().doc('tables/default/records/2').set({
+      winners: ['shinjiwon', 'anzor'],
+      losers: ['jjong', 'hdmoon'],
+      isTie: false,
+      winStreaks: 1,
+      createdAt: AdminSDK.Timestamp.fromDate('2019-01-01T00:01:00'),
+      recordedBy: 'jjong'
+    });
+    // Game 3: Draw
+    await app.firestore().doc('tables/default/records/3').set({
+      winners: ['shinjiwon', 'anzor'],
+      losers: ['jjong', 'hdmoon'],
+      isTie: true,
+      winStreaks: 1,
+      createdAt: AdminSDK.Timestamp.fromDate('2019-01-01T00:02:00'),
+      recordedBy: 'jjong'
+    });
+    // Game 4: Not participated
+    await app.firestore().doc('tables/default/records/4').set({
+      winners: ['shinjiwon', 'anzor'],
+      losers: ['hyeonjilee', 'hdmoon'],
+      isTie: false,
+      winStreaks: 1,
+      createdAt: AdminSDK.Timestamp.fromDate('2019-01-01T00:03:00'),
+      recordedBy: 'jjong'
+    });
+    
+    const recentGames = await listPlayerRecentGamesAsSymbol('jjong');
+
+    expect(recentGames).toStrictEqual(['D', 'L', 'W']);
+  })
+});
