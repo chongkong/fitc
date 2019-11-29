@@ -1,13 +1,15 @@
 import { Timestamp } from '@google-cloud/firestore';
-import { firestore } from '../firebase';
 import { GameRecord } from '../../../common/types';
-import { toSymbol } from '../reducers';
+import { firestore } from '../firebase';
 
-export async function listPlayerRecentGames(
+export async function listPlayerRecentGames({
+  ldap, rangeAfter, limit, resultOnly
+}: {
   ldap: string,
   rangeAfter?: Timestamp,
-  limit?: number
-) {
+  limit?: number,
+  resultOnly?: boolean
+}) {
   const records = firestore().collectionGroup('records');
   let queries = [
     records.where('winners', 'array-contains', ldap),
@@ -20,19 +22,29 @@ export async function listPlayerRecentGames(
   if (limit) {
     queries = queries.map(q => q.limit(limit));
   }
+  if (resultOnly) {
+    queries = queries.map(q => q.select('createdAt', 'isTie'));
+  }
 
   const results = await Promise.all(queries.map(q => q.get()));
-  return results
-    .flatMap(snapshot => snapshot.docs.map(doc => doc.data() as GameRecord))
-    .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis())
-    .slice(0, limit);
+
+  if (resultOnly) {
+    return results
+      .flatMap((snapshot, index) => snapshot.docs.map(doc => {
+        const data = doc.data() as Partial<GameRecord>;
+        const result = data.isTie ? 'D' 
+          : (index === 0) ? 'W' 
+          : 'L';
+        return Object.assign(data, { result });
+      }))
+      .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+      .map(data => data.result)
+      .slice(0, limit);
+  } else { 
+    return results
+      .flatMap(snapshot => snapshot.docs.map(doc => doc.data() as GameRecord))
+      .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+      .slice(0, limit);
+  }
 }
 
-export async function listPlayerRecentGamesAsSymbol(
-  ldap: string,
-  rangeAfter?: Timestamp,
-  limit?: number
-) {
-  const records = await listPlayerRecentGames(ldap, rangeAfter, limit);
-  return records.map(record => toSymbol(record, ldap));
-}
