@@ -37,8 +37,7 @@ def init_firestore():
     batch.set(db.collection('players').document(ldap), {
       'name': name,
       'ldap': ldap,
-      'level': level,
-      'isNewbie': level == 1,
+      'level': level
     })
     add_player_stats(ldap=ldap)
   

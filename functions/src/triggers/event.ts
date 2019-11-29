@@ -12,7 +12,6 @@ export const onEventCreate = functions.firestore
         const promotion = event.payload as PromotionEvent;
         const updates: Partial<Player> = {
           level: promotion.levelTo,
-          isNewbie: false,
           lastLevelUpdate: Timestamp.now()
         };
         return firestore()

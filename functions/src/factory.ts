@@ -12,8 +12,7 @@ export function createNewPlayer(name: string, ldap: string): Player {
   return {
     name,
     ldap,
-    level: 1,
-    isNewbie: true
+    level: 1
   }
 }
 

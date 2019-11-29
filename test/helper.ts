@@ -53,7 +53,6 @@ export async function createDummyData() {
   function createPlayer(ldap: string, name: string, level: number) {
     const player = createNewPlayer(name = name, ldap = ldap);
     player.level = level;
-    player.isNewbie = level === 1;
     batch.set(app.firestore().collection('players').doc(ldap), player);
     return createPlayerStats(ldap);
   }

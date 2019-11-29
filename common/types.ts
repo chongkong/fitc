@@ -9,8 +9,6 @@ export interface Player {
   ldap: string;
   level: number;
 
-  // Whether the player has newly joined and kept level 1 or not.
-  isNewbie: boolean;
   lastLevelUpdate?: firestore.Timestamp;
 }
 

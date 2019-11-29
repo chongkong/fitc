@@ -93,8 +93,7 @@ export class MainComponent implements OnInit {
     return this.afs.doc<Player>(`players/${ldap}`).set({
       name: user.displayName,
       ldap,
-      level: 1,
-      isNewbie: true,
+      level: 1
     });
   }
 

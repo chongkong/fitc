@@ -18,8 +18,7 @@ describe('checkLevelUpdate', () => {
     let maybeEvent = await checkLevelUpdate({
       ldap: 'jjong',
       name: 'Jongbin Park',
-      level: 1,
-      isNewbie: true,
+      level: 1
     });
 
     console.info(maybeEvent);
@@ -33,8 +32,7 @@ describe('checkLevelUpdate', () => {
     let maybeEvent = await checkLevelUpdate({
       ldap: 'jjong',
       name: 'Jongbin Park',
-      level: 10,
-      isNewbie: true,
+      level: 10
     });
 
     expect(maybeEvent).toBeUndefined();
@@ -47,8 +45,7 @@ describe('checkLevelUpdate', () => {
     let maybeEvent = await checkLevelUpdate({
       ldap: 'jjong',
       name: 'Jongbin Park',
-      level: 5,
-      isNewbie: true,
+      level: 5
     });
 
     expect(maybeEvent).toBeUndefined();
@@ -66,8 +63,7 @@ describe('checkLevelUpdate', () => {
       let maybeEvent = await checkLevelUpdate({
         ldap: 'jjong',
         name: 'Jongbin Park',
-        level: 5,
-        isNewbie: true,
+        level: 5
       });
 
       expect(maybeEvent).toMatchObject({
@@ -93,8 +89,7 @@ describe('checkLevelUpdate', () => {
       let maybeEvent = await checkLevelUpdate({
         ldap: 'jjong',
         name: 'Jongbin Park',
-        level: 5,
-        isNewbie: true,
+        level: 5
       });
 
       expect(maybeEvent).toMatchObject({
