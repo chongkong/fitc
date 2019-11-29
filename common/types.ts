@@ -92,17 +92,16 @@ export interface TeamStats {
  */
 export interface Event {
   type: 'promotion' | 'demotion';
-  payload: PromotionEvent | DemotionEvent;
   createdAt: firestore.Timestamp;
 }
 
-export interface PromotionEvent {
+export interface PromotionEvent extends Event {
   ldap: string;
   levelFrom: number;
   levelTo: number;
 }
 
-export interface DemotionEvent {
+export interface DemotionEvent extends Event {
   ldap: string;
   levelFrom: number;
   levelTo: number;
