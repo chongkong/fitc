@@ -5,7 +5,6 @@ export function setEquals<T>(a1: T[], a2: T[]) {
 }
 
 export namespace Arrays {
-
   export function range(from: number, to?: number, stride?: number) {
     const arr = [];
     if (to === undefined) {
@@ -23,7 +22,7 @@ export namespace Arrays {
 
   export function repeat(item: any, count: number) {
     if (count < 0) {
-      throw new Error('Invalid argument');
+      throw new Error("Invalid argument");
     }
     const arr = [];
     for (let i = 0; i < count; i++) {
@@ -31,5 +30,4 @@ export namespace Arrays {
     }
     return arr;
   }
-
 }
