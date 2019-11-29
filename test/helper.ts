@@ -60,7 +60,7 @@ export async function createDummyData() {
 
   function createPlayerStats(ldap: string) {
     const playerStats = createNewPlayerStats();
-    batch.set(app.firestore().collection('stats').doc(ldap), playerStats);
+    batch.set(app.firestore().collection('playerStats').doc(ldap), playerStats);
   }
 
   function createTable(tableId: string, name: string, recentPlayers: string[]) {

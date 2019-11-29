@@ -10,7 +10,7 @@ import { createNewPlayerStats, createPromotionEvent, createDemotionEvent, create
 
 
 export const onGameRecordCreate = functions.firestore
-    .document('tables/default/records/{recordId}')
+    .document('tables/{tableId}/records/{recordId}')
     .onCreate((snapshot, context) => {
       const draft = snapshot.data() as GameRecord;
 
@@ -88,7 +88,7 @@ async function getPreviousRecord(before: admin.firestore.Timestamp) {
 function isConsecutivePlay(t1: admin.firestore.Timestamp, t2: admin.firestore.Timestamp) {
   return t1.toMillis() > t2.toMillis() - 60 * 60 * 1000;
 }
-    
+
 function updateRecentGames(recentGames: string, newGame: 'W'|'L', maxLength: number = 50): string {
   return (newGame + recentGames).substr(0, maxLength);
 }
@@ -103,7 +103,7 @@ async function updateTeamStats(team: string[], win: boolean) {
 }
 
 async function updateWinStats(ldap: string, teammate: string, opponents: string[], winStreaks: number = 0) {
-  const myStatsSnapshot = await firestore().doc(`stats/${ldap}`).get();
+  const myStatsSnapshot = await firestore().doc(`playerStats/${ldap}`).get();
   const myStats = myStatsSnapshot.exists
     ? myStatsSnapshot.data() as PlayerStats
     : createNewPlayerStats();
@@ -152,7 +152,7 @@ async function updateWinStats(ldap: string, teammate: string, opponents: string[
 }
 
 async function updateLoseStats(ldap: string, teammate: string, opponents: string[]) {
-  const myStatsSnapshot = await firestore().doc(`stats/${ldap}`).get();
+  const myStatsSnapshot = await firestore().doc(`playerStats/${ldap}`).get();
   const myStats = myStatsSnapshot.exists
     ? myStatsSnapshot.data() as PlayerStats
     : createNewPlayerStats();

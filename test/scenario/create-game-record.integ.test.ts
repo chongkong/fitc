@@ -215,7 +215,7 @@ describe('Creates GameRecord', () => {
     });
 
     test('No PlayerStats changed', async () => {
-      const allStats = await app.firestore().collection('stats').get();
+      const allStats = await app.firestore().collection('playerStats').get();
       allStats.docs.forEach(doc => {
         expect(doc.data()).toMatchObject({
           totalWins: 0,

@@ -28,7 +28,7 @@ export const onUserCreate = functions.auth.user()
 
       // 2. Create PlayerStats entry.
       deferred.push(
-        firestore().doc(`stats/${ldap}`).set(createNewPlayerStats())
+        firestore().doc(`playerStats/${ldap}`).set(createNewPlayerStats())
       );
       
       return Promise.all(deferred)

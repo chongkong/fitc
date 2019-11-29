@@ -22,7 +22,7 @@ def init_firestore():
 
   def add_player_stats(ldap):
     print('Add playerStats {}'.format(ldap))
-    batch.set(db.collection('stats').document(ldap), {
+    batch.set(db.collection('playerStats').document(ldap), {
       'totalWins': 0,
       'totalLoses': 0,
       'mostWinStreaks': 0,
