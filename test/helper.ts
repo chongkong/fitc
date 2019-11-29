@@ -1,9 +1,9 @@
-import * as testing from '@firebase/testing';
-import * as admin from 'firebase-admin';
-import { createNewPlayer, createNewPlayerStats, createNewTable } from '../functions/src/factory';
+import * as testing from "@firebase/testing";
+import * as admin from "firebase-admin";
+import { Player, PlayerStats, FoosballTable } from "../common/types";
 
-const DEFAULT_PROJECT_ID = 'fitc-test';
-const appName = '[TEST]';
+const DEFAULT_PROJECT_ID = "fitc-test";
+const appName = "[TEST]";
 
 /**
  * This creates a firebase-admin (server SDK) app. This is different from
@@ -17,8 +17,8 @@ export function getOrInitializeAdminApp(projectId = DEFAULT_PROJECT_ID) {
   } catch {
     const app = admin.initializeApp({ projectId }, appName);
     app.firestore().settings({
-      host: 'localhost:8080',
-      ssl: false,
+      host: "localhost:8080",
+      ssl: false
     });
     return app;
   }
@@ -35,48 +35,47 @@ export function createTestApp(projectId = DEFAULT_PROJECT_ID) {
   return testing.initializeTestApp({
     projectId,
     auth: {
-      uid: 'GpXfrqW6ntP15nNSxpevOitpfff2',
-      email: 'jjong@google.com',
-      displayName: 'Jongbin Park'      
+      uid: "GpXfrqW6ntP15nNSxpevOitpfff2",
+      email: "jjong@google.com",
+      displayName: "Jongbin Park"
     }
   });
 }
 
 export async function cleanupTestApps() {
-  await Promise.all(testing.apps().map(app => app.delete()))
+  await Promise.all(testing.apps().map(app => app.delete()));
 }
 
 export async function createDummyData() {
   const app = getOrInitializeAdminApp();
   const batch = app.firestore().batch();
 
-  function createPlayer(ldap: string, name: string, level: number) {
-    const player = createNewPlayer(name = name, ldap = ldap);
-    player.level = level;
-    batch.set(app.firestore().collection('players').doc(ldap), player);
-    return createPlayerStats(ldap);
-  }
+  const fitcDevelopers = [
+    { ldap: "jjong", name: "Jongbin Park", level: 2 },
+    { ldap: "hyeonjilee", name: "Hyeonji Lee", level: 3 },
+    { ldap: "shinjiwon", name: "Jiwon Shin", level: 2 },
+    { ldap: "anzor", name: "Anzor Balkar", level: 4 },
+    { ldap: "hdmoon", name: "Hyundo Moon", level: 2 }
+  ];
 
-  function createPlayerStats(ldap: string) {
-    const playerStats = createNewPlayerStats();
-    batch.set(app.firestore().collection('playerStats').doc(ldap), playerStats);
-  }
+  fitcDevelopers.forEach(({ ldap, name, level }) => {
+    batch.set(
+      app.firestore().doc(Player.path(ldap)),
+      Player.create({ ldap, name, level })
+    );
+    batch.set(app.firestore().doc(PlayerStats.path(ldap)), PlayerStats.empty());
+  });
 
-  function createTable(tableId: string, name: string, recentPlayers: string[]) {
-    const table = createNewTable(name = name, recentPlayers = recentPlayers);
-    batch.set(app.firestore().collection('tables').doc(tableId), table);
-  }
-
-  createPlayer('jjong', 'Jongbin Park', 2);
-  createPlayer('hyeonjilee', 'Hyeonji Lee', 3);
-  createPlayer('shinjiwon', 'Jiwon Shin', 2);
-  createPlayer('anzor', 'Anzor Balkar', 4);
-  createPlayer('hdmoon', 'Hyundo Moon', 2);
-
-  createTable('default', 'Default table', ['jjong', 'hyeonjilee', 'shinjiwon', 'anzor', 'hdmoon']);
+  batch.set(
+    app.firestore().doc(FoosballTable.path("default")),
+    FoosballTable.create({
+      name: "For Test",
+      recentPlayers: fitcDevelopers.map(player => player.name)
+    })
+  );
 
   await batch.commit();
-};
+}
 
 export function clearFirestoreData(projectId = DEFAULT_PROJECT_ID) {
   return testing.clearFirestoreData({ projectId });

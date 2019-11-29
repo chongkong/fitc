@@ -83,6 +83,7 @@ export interface FoosballTable {
 
 export namespace FoosballTable {
   export const path = (tableId: string) => `tables/${tableId}`;
+  export const create = (arg: FoosballTable) => arg;
 }
 
 /**
