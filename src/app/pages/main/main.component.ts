@@ -52,7 +52,7 @@ export class MainComponent implements OnInit {
   ldapInput: string = '';
   winners: string[] = [];
   losers: string[] = [];
-  isTie: boolean = false;
+  isDraw: boolean = false;
 
   constructor(
       public afAuth: AngularFireAuth,
@@ -175,7 +175,7 @@ export class MainComponent implements OnInit {
     const record: GameRecord = {
       winners: this.winners,
       losers: this.losers,
-      isTie: this.isTie,
+      isDraw: this.isDraw,
       winStreaks: 0,  // Placeholder value that will be resolved from firebase trigger.
       createdAt: now,
       recordedBy: this.myLdap

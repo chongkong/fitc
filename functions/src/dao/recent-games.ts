@@ -23,7 +23,7 @@ export async function listPlayerRecentGames({
     queries = queries.map(q => q.limit(limit));
   }
   if (resultOnly) {
-    queries = queries.map(q => q.select('createdAt', 'isTie'));
+    queries = queries.map(q => q.select('createdAt', 'isDraw'));
   }
 
   const results = await Promise.all(queries.map(q => q.get()));
@@ -32,7 +32,7 @@ export async function listPlayerRecentGames({
     return results
       .flatMap((snapshot, index) => snapshot.docs.map(doc => {
         const data = doc.data() as Partial<GameRecord>;
-        const result = data.isTie ? 'D' 
+        const result = data.isDraw ? 'D' 
           : (index === 0) ? 'W' 
           : 'L';
         return Object.assign(data, { result });

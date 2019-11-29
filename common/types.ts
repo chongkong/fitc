@@ -24,7 +24,7 @@ export interface GameRecord {
   losers: string[];
   // If game is tie, we use `winners` and `losers` only to resolve
   // player team, without regarding as winning or losing.
-  isTie: boolean;
+  isDraw: boolean;
   // Number of consecutive wins for current game.
   winStreaks: number;
   // Game timestamp.

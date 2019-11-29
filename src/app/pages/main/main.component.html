@@ -10,17 +10,17 @@
         [{{player.level}}] {{player.name}}
         <a (click)="toggleWinner(player.ldap)" 
             [style.color]="isWinner(player.ldap) ? 'blue' : 'black'">
-          {{ isTie ? '[Team1]' : '[Win]' }}
+          {{ isDraw ? '[Team1]' : '[Win]' }}
         </a>
         <a (click)="toggleLoser(player.ldap)" 
             [style.color]="isLoser(player.ldap) ? 'red' : 'black'">
-          {{ isTie ? '[Team2]' : '[Lose]' }}
+          {{ isDraw ? '[Team2]' : '[Lose]' }}
         </a>
         <a (click)="removeFromRecentPlayers(player.ldap)">[Del]</a>
       </li>
     </ul>
     <div>
-      IsTie <input type="checkbox" [(ngModel)]="isTie">
+      isDraw <input type="checkbox" [(ngModel)]="isDraw">
     </div>
     <input type="text" [(ngModel)]="ldapInput">
     <button (click)="addToRecentPlayers(ldapInput)">
@@ -38,7 +38,7 @@
       <li *ngFor="let record of records | async">
         Winners: {{ record.winners[0] }}, {{ record.winners[1] }} <br>
         Losers: {{ record.losers[0] }}, {{ record.losers[1] }} <br>
-        isTie: {{ record.isTie }} <br>
+        isDraw: {{ record.isDraw }} <br>
         winStreaks: {{ record.winStreaks }} <br>
         createdAt: {{ record.createdAt }}
       </li>

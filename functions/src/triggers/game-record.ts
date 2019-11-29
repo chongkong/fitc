@@ -15,7 +15,7 @@ export const onGameRecordCreate = functions.firestore
       const draft = snapshot.data() as GameRecord;
 
       // We currently don't have any further 
-      if (draft.isTie) {
+      if (draft.isDraw) {
         return;
       }
 
@@ -65,9 +65,9 @@ export const onGameRecordCreate = functions.firestore
     });
 
 async function getWinStreaks(draft: GameRecord, createdAt: admin.firestore.Timestamp) {
-  if (draft.isTie) return 0;
+  if (draft.isDraw) return 0;
   const prev = await getPreviousRecord(createdAt);
-  if (prev && !prev.isTie 
+  if (prev && !prev.isDraw 
       && isConsecutivePlay(prev.createdAt, createdAt) 
       && setEquals(prev.winners, draft.winners)) {
     return prev.winStreaks + 1;

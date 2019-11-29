@@ -153,7 +153,7 @@ def save_data(df: pd.DataFrame, emulate: bool, allow_level_update: bool):
     batch.set(db.document('tables/default/records/{}'.format(timestamp_millis)), dict(
       winners=[row.w1, row.w2],
       losers=[row.l1, row.l2],
-      isTie=False,
+      isDraw=False,
       winStreaks=0,
       createdAt=row.Time.to_pydatetime(),
       recordedBy='IMPORTER_V0'

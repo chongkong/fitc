@@ -22,7 +22,7 @@ describe('Creates GameRecord', () => {
       await app.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
         winners: ['jjong', 'hdmoon'],
         losers: ['shinjiwon', 'hyeonjilee'],
-        isTie: false,
+        isDraw: false,
         winStreaks: 1,
         createdAt: now,
         recordedBy: 'jjong'
@@ -202,7 +202,7 @@ describe('Creates GameRecord', () => {
       await app.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
         winners: ['jjong', 'hdmoon'],
         losers: ['shinjiwon', 'hyeonjilee'],
-        isTie: true,
+        isDraw: true,
         winStreaks: 1,
         createdAt: now,
         recordedBy: 'jjong'
@@ -235,7 +235,7 @@ describe('Creates GameRecord', () => {
         await app.firestore().doc(`tables/default/records/${now.toMillis()}`).set({
           winners: ['jjong', 'hdmoon'],
           losers: ['shinjiwon', 'hyeonjilee'],
-          isTie: false,
+          isDraw: false,
           winStreaks,
           createdAt: now,
           recordedBy: 'jjong'

@@ -22,7 +22,7 @@ describe('listPlayerRecentGames', () => {
     const record: GameRecord = {
       winners: ['jjong', 'hyeonjilee'],
       losers: ['shinjiwon', 'hdmoon'],
-      isTie: false,
+      isDraw: false,
       winStreaks: 1,
       recordedBy: 'jjong',
       createdAt: AdminSDK.Timestamp.fromDate('2019-01-01T00:00:00')
@@ -63,7 +63,7 @@ describe('listPlayerRecentGames', () => {
     const drawRecord: GameRecord = {
       winners: ['jjong', 'hyeonjilee'],
       losers: ['shinjiwon', 'hdmoon'],
-      isTie: true,
+      isDraw: true,
       winStreaks: 0,
       recordedBy: 'jjong',
       createdAt: AdminSDK.Timestamp.fromDate('2019-01-01T00:00:00')
@@ -95,7 +95,7 @@ describe('listPlayerRecentGames', () => {
     const baseRecord: Partial<GameRecord> = {
       winners: ['jjong', 'hyeonjilee'],
       losers: ['shinjiwon', 'hdmoon'],
-      isTie: false,
+      isDraw: false,
       winStreaks: 1,
       recordedBy: 'jjong'
     };
@@ -125,7 +125,7 @@ describe('listPlayerRecentGames', () => {
 
   describe('Given three records', () => {
     const baseRecord: Partial<GameRecord> = {
-      isTie: false,
+      isDraw: false,
       winStreaks: 1,
       recordedBy: 'jjong'
     };
@@ -145,7 +145,7 @@ describe('listPlayerRecentGames', () => {
     const r3 = Object.assign({}, baseRecord, {
       winners: ['shinjiwon', 'anzor'],
       losers: ['jjong', 'hdmoon'],
-      isTie: true,
+      isDraw: true,
       createdAt: AdminSDK.Timestamp.fromDate('2019-01-01T00:02:00'),
     });
     // no jjong
