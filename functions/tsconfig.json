@@ -18,11 +18,6 @@
   },
   "compileOnSave": true,
   "include": [
-    "src",
-    "../common",
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "../test"
+    "src/index.ts",
   ]
 }
