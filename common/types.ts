@@ -1,4 +1,4 @@
-import { firestore } from "firebase";
+import { Timestamp } from "./platform/base";
 
 /** Player schema.
  *
@@ -8,20 +8,6 @@ export interface Player {
   name: string;
   ldap: string;
   level: number;
-}
-
-export namespace Player {
-  export const path = (ldap: string) => `players/${ldap}`;
-
-  export const create = ({
-    name,
-    ldap,
-    level = 1
-  }: {
-    name: string;
-    ldap: string;
-    level: number;
-  }): Player => ({ name, ldap, level });
 }
 
 /**
@@ -38,37 +24,9 @@ export interface GameRecord {
   // Number of consecutive wins for current game.
   winStreaks: number;
   // Game timestamp.
-  createdAt: firestore.Timestamp;
+  createdAt: Timestamp;
   // Player who recorded this game.
   recordedBy: string;
-}
-
-export namespace GameRecord {
-  export const path = (tableId: string, timestamp: firestore.Timestamp) =>
-    `tables/${tableId}/records/${timestamp.toMillis()}`;
-
-  export const create = ({
-    winners,
-    losers,
-    isDraw = false,
-    winStreaks = 0,
-    createdAt,
-    recordedBy
-  }: {
-    winners: string[];
-    losers: string[];
-    isDraw: boolean;
-    winStreaks?: number;
-    createdAt: firestore.Timestamp;
-    recordedBy: string;
-  }): GameRecord => ({
-    winners,
-    losers,
-    isDraw,
-    winStreaks,
-    createdAt: createdAt || firestore.Timestamp.now(),
-    recordedBy
-  });
 }
 
 /**
@@ -79,11 +37,6 @@ export namespace GameRecord {
 export interface FoosballTable {
   name: string;
   recentPlayers: string[];
-}
-
-export namespace FoosballTable {
-  export const path = (tableId: string) => `tables/${tableId}`;
-  export const create = (arg: FoosballTable) => arg;
 }
 
 /**
@@ -98,53 +51,21 @@ export interface PlayerStats {
   recentGames: string;
 }
 
-export namespace PlayerStats {
-  export const path = (ldap: string) => `playerStats/${ldap}`;
-
-  export const empty = (): PlayerStats => ({
-    totalWins: 0,
-    totalLoses: 0,
-    mostWinStreaks: 0,
-    recentGames: ""
-  });
-}
-
 /**
- * Stored under `playerStats/{ldap}/season`
+ * Stored under `playerStats/{ldap}/seasons`
  */
 export interface SeasonStats {
   totalWins: number;
   totalLoses: number;
 }
 
-export namespace SeasonStats {
-  export const path = (ldap: string, season: number | string) =>
-    `playerStats/${ldap}/season/${season}`;
-
-  export const empty = (): SeasonStats => ({
-    totalWins: 0,
-    totalLoses: 0
-  });
-}
-
 /**
- * Stored under `playerStats/{ldap}/versus`
+ * Stored under `playerStats/{ldap}/rivals`
  */
-export interface OpponentStats {
+export interface RivalStats {
   totalWins: number;
   totalLoses: number;
   recentGames: string;
-}
-
-export namespace OpponentStats {
-  export const path = (ldap: string, opponentLdap: string) =>
-    `playerStats/${ldap}/versus/${opponentLdap}`;
-
-  export const empty = (): OpponentStats => ({
-    totalWins: 0,
-    totalLoses: 0,
-    recentGames: ""
-  });
 }
 
 /**
@@ -159,78 +80,26 @@ export interface TeamStats {
   recentGames: string;
 }
 
-export namespace TeamStats {
-  export const path = (...ldaps: string[]) =>
-    `teamStats/${ldaps.sort().join(",")}`;
-
-  export const empty = (): TeamStats => ({
-    totalWins: 0,
-    totalLoses: 0,
-    mostWinStreaks: 0,
-    recentGames: ""
-  });
-}
-
 /**
  * Event schema.
  *
  * Stored under `events/`
  */
-export interface Event {
+interface BaseEvent {
   type: "promotion" | "demotion";
-  createdAt: firestore.Timestamp;
+  createdAt: Timestamp;
 }
 
-export interface PromotionEvent extends Event {
+export interface PromotionEvent extends BaseEvent {
   ldap: string;
   levelFrom: number;
   levelTo: number;
 }
 
-export namespace PromotionEvent {
-  export const path = (timestamp: firestore.Timestamp, ldap: string) =>
-    `events/${timestamp.toMillis()}-promotion-${ldap}`;
-
-  export const create = ({
-    ldap,
-    levelFrom,
-    levelTo
-  }: {
-    ldap: string;
-    levelFrom: number;
-    levelTo?: number;
-  }): PromotionEvent => ({
-    type: "promotion",
-    ldap,
-    levelFrom,
-    levelTo: levelTo || levelFrom + 1,
-    createdAt: firestore.Timestamp.now()
-  });
-}
-
-export interface DemotionEvent extends Event {
+export interface DemotionEvent extends BaseEvent {
   ldap: string;
   levelFrom: number;
   levelTo: number;
 }
 
-export namespace DemotionEvent {
-  export const path = (timestamp: firestore.Timestamp, ldap: string) =>
-    `events/${timestamp.toMillis()}-demotion-${ldap}`;
-
-  export const create = ({
-    ldap,
-    levelFrom,
-    levelTo
-  }: {
-    ldap: string;
-    levelFrom: number;
-    levelTo?: number;
-  }): DemotionEvent => ({
-    type: "demotion",
-    ldap,
-    levelFrom,
-    levelTo: levelTo || levelFrom - 1,
-    createdAt: firestore.Timestamp.now()
-  });
-}
+export type Event = PromotionEvent | DemotionEvent;

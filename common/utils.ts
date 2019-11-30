@@ -1,3 +1,8 @@
+// Utility type for enforcing Required on provided keys,
+// and Partial on keys not provided.
+export type RequirePartial<T, K extends keyof T> = Required<Pick<T, K>> &
+  Partial<Omit<T, K>>;
+
 export function setEquals<T>(a1: T[], a2: T[]) {
   const s1 = new Set(a1);
   const s2 = new Set(a2);
