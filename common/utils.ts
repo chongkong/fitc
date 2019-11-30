@@ -46,13 +46,13 @@ export namespace Arrays {
   ): [T, U, V, W][];
   export function cartesian<T, U, V, W>(as: T[], bs?: U[], cs?: V[], ds?: W[]) {
     return ds
-      ? as.flatMap(a =>
-          bs.flatMap(b => cs.flatMap(c => ds.map(d => [a, b, c, d])))
+      ? as!.flatMap(a =>
+          bs!.flatMap(b => cs!.flatMap(c => ds.map(d => [a, b, c, d])))
         )
       : cs
-      ? as.flatMap(a => bs.flatMap(b => cs.map(c => [a, b, c])))
+      ? as!.flatMap(a => bs!.flatMap(b => cs.map(c => [a, b, c])))
       : bs
-      ? as.flatMap(a => bs.map(b => [a, b]))
+      ? as!.flatMap(a => bs.map(b => [a, b]))
       : as;
   }
 }

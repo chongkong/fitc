@@ -28,12 +28,6 @@ import { checkLevelUpdate } from "../level-update-policy";
 export const onGameRecordCreate = functions.firestore
   .document("tables/{tableId}/records/{recordId}")
   .onCreate(async (snapshot, context) => {
-    // We don't want to produce any side effect on ADMIN mode.
-    if (context.authType === "ADMIN") {
-      console.error(context.authType, context.auth);
-      return;
-    }
-
     const { tableId } = context.params;
     const record = snapshot.data() as GameRecord;
     const batch = firestore().batch();
@@ -115,9 +109,7 @@ async function updatePlayerState({
   const oldState = state.exists
     ? (state.data() as PlayerState)
     : PlayerState.initial();
-  const newState = reducePlayerState(oldState, { result });
-  batch.set(state.ref, newState);
-
+  let newState = reducePlayerState(oldState, { result });
   const { recentGames } = newState;
   const { level } = player.data() as Player;
   const delta = checkLevelUpdate({ recentGames, level });
@@ -131,6 +123,7 @@ async function updatePlayerState({
         levelTo: level + delta
       })
     );
+    newState = reducePlayerState(newState, { promoted: true });
   } else if (delta < 0) {
     batch.create(
       firestore().doc(Path.demotionEvent(createdAt, ldap)),
@@ -140,7 +133,9 @@ async function updatePlayerState({
         levelTo: level + delta
       })
     );
+    newState = reducePlayerState(newState, { demoted: true });
   }
+  batch.set(state.ref, newState);
 }
 
 async function updatePlayerStats({
