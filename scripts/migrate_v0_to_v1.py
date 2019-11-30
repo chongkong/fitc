@@ -1,4 +1,7 @@
+import collections
+import datetime
 import functools
+import itertools
 import json
 import os
 import sys
@@ -15,163 +18,258 @@ from tqdm import tqdm
 
 @functools.lru_cache(maxsize=1)
 def get_v0_user_mapping() -> Dict[str, Any]:
-  with open('./user_mapping_v0.json', 'r') as f:
-    return json.load(f)
+    with open('./user_mapping_v0.json', 'r') as f:
+        return json.load(f)
 
 
-def ldap_of(name):
-  user_mapping = get_v0_user_mapping()
-  return user_mapping[name]['ldap']
+def ldap_from_name(name):
+    user_mapping = get_v0_user_mapping()
+    return user_mapping[name]['ldap']
 
 
 def preprocess_data(df: pd.DataFrame):
-  # Check available columns.
-  if set(df.columns) != set([
-    'Time',
-    'Winner',
-    'Blue Player1',
-    'Blue Player2',
-    'Red Player1',
-    'Red Player2'
-  ]):
-    print('Invalid csv columns: ', df.columns)
-    exit(1)
+    # Check available columns.
+    if set(df.columns) != set([
+        'Time', 'Winner', 'Blue Player1', 'Blue Player2', 'Red Player1',
+        'Red Player2'
+    ]):
+        print('Invalid csv columns: ', df.columns)
+        exit(1)
 
-  # Check time and map it
+    # Check time and map it
 
-  time_col = df['Time']
-  time_col = time_col.map(lambda x: x.replace('한국 표준시', 'KST'))
-  time_col = time_col.map(lambda x: x.replace('Korean Standard Time', 'KST'))
-  time_col = time_col.map(parser.parse)
-  df['Time'] = time_col
+    time_col = df['Time']
+    time_col = time_col.map(lambda x: x.replace('한국 표준시', 'KST'))
+    time_col = time_col.map(lambda x: x.replace('Korean Standard Time', 'KST'))
+    time_col = time_col.map(parser.parse)
+    df['Time'] = time_col
 
-  # Check Winner column
+    # Check Winner column
 
-  assert set(df.Winner) == {'BLUE', 'RED'}
+    assert set(df.Winner) == {'BLUE', 'RED'}
 
-  # Check players columns
+    # Check players columns
 
-  user_mapping = get_v0_user_mapping()
-  unknown_names = [
-    name_appeared
-    for name_appeared in set(
-      list(df['Blue Player1']) + 
-      list(df['Blue Player2']) +
-      list(df['Red Player1']) + 
-      list(df['Red Player2'])
-    )
-    if name_appeared not in user_mapping
-  ]
-  if unknown_names:
-    if 'y' != input(
-      'Some of the names are not recognized.\n' + 
-      ', '.join(unknown_names) + '\n' +
-      'Do you want to continue? [y/n]'):
-      exit(1)
+    user_mapping = get_v0_user_mapping()
+    names_from_dataset = set(
+        list(df['Blue Player1']) + list(df['Blue Player2']) +
+        list(df['Red Player1']) + list(df['Red Player2']))
+    unknown_names = [
+        name for name in names_from_dataset if name not in user_mapping
+    ]
+    if unknown_names:
+        if 'y' != input('Some of the names are not recognized.\n' +
+                        ', '.join(unknown_names) + '\n' +
+                        'Do you want to continue? [y/n]'):
+            exit(1)
 
-    # Drop rows containing unknown name
-    for name in unknown_names:
-      df.drop(df[df['Blue Player1'] == name].index, inplace=True)
-      df.drop(df[df['Blue Player2'] == name].index, inplace=True)
-      df.drop(df[df['Red Player1'] == name].index, inplace=True)
-      df.drop(df[df['Red Player2'] == name].index, inplace=True)
+        # Drop rows containing unknown name
+        for name in unknown_names:
+            df.drop(df[df['Blue Player1'] == name].index, inplace=True)
+            df.drop(df[df['Blue Player2'] == name].index, inplace=True)
+            df.drop(df[df['Red Player1'] == name].index, inplace=True)
+            df.drop(df[df['Red Player2'] == name].index, inplace=True)
 
-  # Make winners and losers columns
+    # Make winners and losers columns
 
-  df.loc[df.Winner == 'BLUE', 'w1'] = df['Blue Player1'].map(ldap_of)
-  df.loc[df.Winner == 'BLUE', 'w2'] = df['Blue Player2'].map(ldap_of)
-  df.loc[df.Winner == 'BLUE', 'l1'] = df['Red Player1'].map(ldap_of)
-  df.loc[df.Winner == 'BLUE', 'l2'] = df['Red Player2'].map(ldap_of)
+    df.loc[df.Winner == 'BLUE', 'w1'] = df['Blue Player1'].map(ldap_from_name)
+    df.loc[df.Winner == 'BLUE', 'w2'] = df['Blue Player2'].map(ldap_from_name)
+    df.loc[df.Winner == 'BLUE', 'l1'] = df['Red Player1'].map(ldap_from_name)
+    df.loc[df.Winner == 'BLUE', 'l2'] = df['Red Player2'].map(ldap_from_name)
 
-  df.loc[df.Winner == 'RED', 'w1'] = df['Red Player1'].map(ldap_of)
-  df.loc[df.Winner == 'RED', 'w2'] = df['Red Player2'].map(ldap_of)
-  df.loc[df.Winner == 'RED', 'l1'] = df['Blue Player1'].map(ldap_of)
-  df.loc[df.Winner == 'RED', 'l2'] = df['Blue Player2'].map(ldap_of)
+    df.loc[df.Winner == 'RED', 'w1'] = df['Red Player1'].map(ldap_from_name)
+    df.loc[df.Winner == 'RED', 'w2'] = df['Red Player2'].map(ldap_from_name)
+    df.loc[df.Winner == 'RED', 'l1'] = df['Blue Player1'].map(ldap_from_name)
+    df.loc[df.Winner == 'RED', 'l2'] = df['Blue Player2'].map(ldap_from_name)
 
-  df.drop('Winner', axis=1, inplace=True)
-  df.drop('Blue Player1', axis=1, inplace=True)
-  df.drop('Blue Player2', axis=1, inplace=True)
-  df.drop('Red Player1', axis=1, inplace=True)
-  df.drop('Red Player2', axis=1, inplace=True)
+    df.drop('Winner', axis=1, inplace=True)
+    df.drop('Blue Player1', axis=1, inplace=True)
+    df.drop('Blue Player2', axis=1, inplace=True)
+    df.drop('Red Player1', axis=1, inplace=True)
+    df.drop('Red Player2', axis=1, inplace=True)
 
 
 def make_firestore_client(emulate: bool):
-  if emulate:
-    os.environ['FIRESTORE_EMULATOR_HOST'] = 'localhost:8080'
-  firebase_admin.initialize_app(
-    credential=credentials.Certificate('../serviceAccountKey.json'))
-  return firestore.client()
+    if emulate:
+        os.environ['FIRESTORE_EMULATOR_HOST'] = 'localhost:8080'
+    firebase_admin.initialize_app(
+        credential=credentials.Certificate('../serviceAccountKey.json'))
+    return firestore.client()
 
 
-def save_data(df: pd.DataFrame, emulate: bool, allow_level_update: bool):
-  db = make_firestore_client(emulate=emulate)
+class StatsRecorder(object):
+    def __init__(self):
+        self._player_stats = collections.defaultdict(self._empty_player_stats)
+        self._season_stats = collections.defaultdict(self._empty_season_stats)
+        self._rival_stats = collections.defaultdict(self._empty_rival_stats)
+        self._team_stats = collections.defaultdict(self._empty_team_stats)
 
-  # Creates foosball table entry
+    def __len__(self):
+        return len(self._player_stats) + len(self._season_stats) + len(
+            self._rival_stats) + len(self._team_stats)
 
-  db.document('tables/default').create({
-    'name': 'GFC-24F',
-    'recentPlayers': []
-  })
+    @staticmethod
+    def _get_season(dt: datetime.datetime):
+        return str(dt.year)
 
-  # Creates players
+    def _add_win(self, stats, win_streaks):
+        stats['totalWins'] += 1
+        if 'recentGames' in stats:
+            stats['recentGames'] = ('W' + stats['recentGames'])[:100]
+        if 'mostWinStreaks' in stats:
+            stats['mostWinStreaks'] = max(stats['mostWinStreaks'], win_streaks)
 
-  batch = db.batch()
+    def _add_lose(self, stats):
+        stats['totalLoses'] += 1
+        if 'recentGames' in stats:
+            stats['recentGames'] = ('L' + stats['recentGames'])[:100]
 
-  user_mapping = get_v0_user_mapping()
-  all_player_ldaps = set([
-    player_doc.to_dict()['ldap']
-    for player_doc in db.collection('players').stream()
-  ])
+    @staticmethod
+    def _empty_player_stats():
+        return dict(totalWins=0,
+                    totalLoses=0,
+                    mostWinStreaks=0,
+                    recentGames='')
 
-  num_registered_players = 0
-  for player_data in tqdm(user_mapping.values(), total=len(user_mapping), desc='Players'):
-    ldap = player_data['ldap']
-    if ldap in all_player_ldaps:
-      continue
-    num_registered_players += 1
-    batch.set(db.document('players/{}'.format(ldap)), dict(
-      **player_data,
-      is_newbie=(player_data['level'] == 1)
-    ))
-    batch.set(db.document('stats/{}'.format(ldap)), dict(
-      totalWins=0,
-      totalLoses=0,
-      mostWinStreaks=0,
-      recentGames='',
-      perSeason={},
-      asOpponent={},
-      asTeammate={}
-    ))
+    @staticmethod
+    def _empty_season_stats():
+        return dict(totalWins=0, totalLoses=0)
 
-  print('About to write {} Players'.format(num_registered_players))
-  batch.commit()
-  print('Player registered')
+    @staticmethod
+    def _empty_rival_stats():
+        return dict(totalWins=0, totalLoses=0, recentGames='')
 
-  batch = db.batch()
-  for i, row in tqdm(df.iterrows(), total=len(df), desc='GameRecords'):
-    timestamp_millis = row.Time.value // 10**6
-    batch.set(db.document('tables/default/records/{}'.format(timestamp_millis)), dict(
-      winners=[row.w1, row.w2],
-      losers=[row.l1, row.l2],
-      isDraw=False,
-      winStreaks=0,
-      createdAt=row.Time.to_pydatetime(),
-      recordedBy='IMPORTER_V0'
-    ))
-    if i % 100 == 0:
-      batch.commit()
-      batch = db.batch()
+    @staticmethod
+    def _empty_team_stats():
+        return dict(totalWins=0,
+                    totalLoses=0,
+                    mostWinStreaks=0,
+                    recentGames='')
 
-  # Commit final batch
-  batch.commit()
+    def add_record(self, winners, losers, win_streaks, created_at):
+        season = self._get_season(created_at)
+        for winner in winners:
+            self._add_win(self._player_stats[winner], win_streaks)
+            self._add_win(self._season_stats[(winner, season)], win_streaks)
+        for loser in losers:
+            self._add_lose(self._player_stats[loser])
+            self._add_lose(self._season_stats[(loser, season)])
+        for winner, loser in itertools.product(winners, losers):
+            self._add_win(self._rival_stats[(winner, loser)], win_streaks)
+            self._add_lose(self._rival_stats[(loser, winner)])
+        self._add_win(self._team_stats[tuple(sorted(winners))], win_streaks)
+        self._add_lose(self._team_stats[tuple(sorted(losers))])
+
+    def list_stats(self):
+        for ldap, player_stats in self._player_stats.items():
+            yield 'playerStats/{}'.format(ldap), player_stats
+        for args, season_stats in self._season_stats.items():
+            yield 'playerStats/{}/seasons/{}'.format(*args), season_stats
+        for args, rival_stats in self._rival_stats.items():
+            yield 'playerStats/{}/rivals/{}'.format(*args), rival_stats
+        for teammates, team_stats in self._team_stats.items():
+            yield 'teamStats/{}'.format(','.join(teammates)), team_stats
 
 
-def main(csv_filename: str, emulate: bool = True, allow_level_update = False):
-  df = pd.read_csv(csv_filename)
-  preprocess_data(df)
-  print('Preprocessing done')
-  save_data(df, emulate, allow_level_update)
+def save_data(df: pd.DataFrame, emulate: bool):
+    db = make_firestore_client(emulate=emulate)
+
+    # Creates foosball table entry
+
+    db.document('tables/default').set({'name': 'GFC-24F', 'recentPlayers': []})
+
+    # Creates players
+
+    batch = db.batch()
+
+    user_mapping = get_v0_user_mapping()
+    all_player_ldaps = set([
+        player_doc.to_dict()['ldap']
+        for player_doc in db.collection('players').stream()
+    ])
+
+    num_registered_players = 0
+    for player_data in tqdm(user_mapping.values(),
+                            total=len(user_mapping),
+                            desc='Players'):
+        ldap = player_data['ldap']
+        if ldap in all_player_ldaps:
+            continue
+        num_registered_players += 1
+        batch.set(db.document('players/{}'.format(ldap)), player_data)
+
+    batch.commit()
+    print('Finished writing {} Players'.format(num_registered_players))
+
+    batch = db.batch()
+    stats_recorder = StatsRecorder()
+
+    counter = collections.Counter()
+
+    prev_winners = set([])
+    prev_win_streaks = 0
+    prev_timestamp = 0
+    for i, row in tqdm(df.iterrows(), total=len(df), desc='GameRecords'):
+        timestamp_millis = row.Time.value // 10**6
+        # Check for winStreaks.
+        if (timestamp_millis - prev_timestamp < 60 * 60 * 1000
+                and prev_winners == {row.w1, row.w2}):
+            win_streaks = prev_win_streaks + 1
+            prev_win_streaks = win_streaks
+        else:
+            win_streaks = 1
+            prev_win_streaks = 1
+        prev_winners = {row.w1, row.w2}
+        prev_timestamp = timestamp_millis
+
+        counter.update([win_streaks])
+
+        batch.set(
+            db.document('tables/default/records/{}'.format(timestamp_millis)),
+            dict(winners=[row.w1, row.w2],
+                 losers=[row.l1, row.l2],
+                 isDraw=False,
+                 winStreaks=win_streaks,
+                 createdAt=row.Time.to_pydatetime(),
+                 recordedBy='IMPORTER_V0'))
+        stats_recorder.add_record(winners=[row.w1, row.w2],
+                                  losers=[row.l1, row.l2],
+                                  win_streaks=win_streaks,
+                                  created_at=row.Time.to_pydatetime())
+        if i % 100 == 0:
+            batch.commit()
+            batch = db.batch()
+
+    batch.commit()
+    print(counter)
+    print('Finished writing {} GameRecords'.format(len(df)))
+
+    batch = db.batch()
+    for i, (path, data) in tqdm(enumerate(stats_recorder.list_stats()),
+                                total=len(stats_recorder),
+                                desc='Stats'):
+        batch.set(db.document(path), data)
+        if i % 100 == 0:
+            batch.commit()
+            batch = db.batch()
+
+    batch.commit()
+    print('Finished writing {} Stats'.format(len(stats_recorder)))
+
+
+def main(csv_filename: str, emulate: bool = True):
+    if not emulate:
+        if input("You're about to run migration script against prod server."
+                 "This script must be invoked after disabling firebase"
+                 "functions first. Did you turn off the firebase function"
+                 "and aware of the consecutive impact of running this? [y/n]") != 'y':
+            return
+
+    df = pd.read_csv(csv_filename)
+    preprocess_data(df)
+    print('Preprocessing done')
+    save_data(df, emulate)
 
 
 if __name__ == '__main__':
-  fire.Fire(main)
+    fire.Fire(main)
