@@ -35,4 +35,24 @@ export namespace Arrays {
     }
     return arr;
   }
+
+  export function cartesian<T, U>(as: T[], bs: U[]): [T, U][];
+  export function cartesian<T, U, V>(as: T[], bs: U[], cs: V[]): [T, U, V][];
+  export function cartesian<T, U, V, W>(
+    as: T[],
+    bs: U[],
+    cs: V[],
+    ds: W[]
+  ): [T, U, V, W][];
+  export function cartesian<T, U, V, W>(as: T[], bs?: U[], cs?: V[], ds?: W[]) {
+    return ds
+      ? as.flatMap(a =>
+          bs.flatMap(b => cs.flatMap(c => ds.map(d => [a, b, c, d])))
+        )
+      : cs
+      ? as.flatMap(a => bs.flatMap(b => cs.map(c => [a, b, c])))
+      : bs
+      ? as.flatMap(a => bs.map(b => [a, b]))
+      : as;
+  }
 }

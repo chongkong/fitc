@@ -33,8 +33,8 @@ export namespace Path {
     `events/${timestamp.toMillis()}-demotion-${ldap}`;
 
   export const tableStatesCollection = "tableStates";
-  export const tableState = (ldap: string) => `tableStats/${ldap}`;
+  export const tableState = (ldap: string) => `tableStates/${ldap}`;
 
   export const playerStatesCollection = "playerStates";
-  export const playerState = (ldap: string) => `playerStats/${ldap}`;
+  export const playerState = (ldap: string) => `playerStates/${ldap}`;
 }

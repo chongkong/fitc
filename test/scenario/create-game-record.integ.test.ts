@@ -10,6 +10,7 @@ import {
 } from "../../common/types";
 import { sandbox } from "../../common/platform/sandbox";
 import { Path } from "../../common/path";
+import { Arrays } from "../../common/utils";
 
 beforeAll(async () => {
   await helper.clearFirestoreData();
@@ -36,7 +37,7 @@ describe("Creates GameRecord", () => {
         createdAt: now,
         recordedBy: "jjong"
       });
-      await utils.sleep(1000); // Wait until function trigger finishes.
+      await utils.sleep(100); // Wait until function trigger finishes.
     });
 
     afterAll(async () => {
@@ -76,6 +77,7 @@ describe("Creates GameRecord", () => {
     });
 
     test("hdmoon's PlayerStats changed", async () => {
+      debugger;
       expect(await db.getDoc<PlayerStats>(Path.playerStats("hdmoon"))).toEqual({
         totalWins: 1,
         totalLoses: 0,
@@ -210,25 +212,60 @@ describe("Creates GameRecord", () => {
         createdAt: now,
         recordedBy: "jjong"
       });
-      await utils.sleep(1000); // Wait until function trigger finishes.
+      await utils.sleep(100); // Wait until function trigger finishes.
     });
 
     afterAll(async () => {
       await helper.clearFirestoreData();
     });
 
-    test("PlayerStats has updated recentGames", async () => {
-      const allStats = await db.listDocs<PlayerStats>(
-        Path.playerStatsCollection
-      );
-      allStats.forEach(stats => {
-        expect(stats).toMatchObject({
-          totalWins: 0,
-          totalLoses: 0,
-          recentGames: "D",
-          mostWinStreaks: 0
-        });
+    test("PlayerStats.recentGames updated", async () => {
+      expect(
+        await db.getDoc<PlayerStats>(Path.playerStats("jjong"))
+      ).toMatchObject({
+        recentGames: "D"
       });
+      expect(
+        await db.getDoc<PlayerStats>(Path.playerStats("hdmoon"))
+      ).toMatchObject({
+        recentGames: "D"
+      });
+      expect(
+        await db.getDoc<PlayerStats>(Path.playerStats("shinjiwon"))
+      ).toMatchObject({
+        recentGames: "D"
+      });
+      expect(
+        await db.getDoc<PlayerStats>(Path.playerStats("hyeonjilee"))
+      ).toMatchObject({
+        recentGames: "D"
+      });
+    });
+
+    test("RivalStats.recentGames updated", async () => {
+      const rivals = Arrays.cartesian(
+        ["jjong", "hdmoon"],
+        ["hyeonjilee", "shinjiwon"]
+      );
+      await Promise.all(
+        rivals.flatMap(([a, b]) => [
+          db.getDoc<RivalStats>(Path.rivalStats(a, b)).then(stats => {
+            expect(stats).toMatchObject({ recentGames: "D" });
+          }),
+          db.getDoc<RivalStats>(Path.rivalStats(b, a)).then(stats => {
+            expect(stats).toMatchObject({ recentGames: "D" });
+          })
+        ])
+      );
+    });
+
+    test("TeamStats.recentGames updated", async () => {
+      expect(
+        await db.getDoc<TeamStats>(Path.teamStats("jjong", "hdmoon"))
+      ).toMatchObject({ recentGames: "D" });
+      expect(
+        await db.getDoc<TeamStats>(Path.teamStats("shinjiwon", "hyeonjilee"))
+      ).toMatchObject({ recentGames: "D" });
     });
   });
 
@@ -245,10 +282,10 @@ describe("Creates GameRecord", () => {
           createdAt: now,
           recordedBy: "jjong"
         });
-        // Wait until functions trigger.
-        await utils.sleep(100);
+        await utils.sleep(50);
       }
-      await utils.sleep(2000);
+      // Wait until functions trigger.
+      await utils.sleep(100);
     });
 
     afterAll(async () => {
