@@ -1,11 +1,11 @@
 import * as testing from "@firebase/testing";
 import * as admin from "firebase-admin";
-import { Player, PlayerStats, FoosballTable } from "../common/types";
+import { Path } from "../common/path";
+import { factory } from "../common/platform/admin";
 
 const random = Math.random()
   .toString(36)
   .slice(2);
-const DEFAULT_PROJECT_ID = "foosball-seo";
 const APP_NAME = `[TEST-${random}]`;
 
 /**
@@ -14,11 +14,11 @@ const APP_NAME = `[TEST-${random}]`;
  * Timestamp in '@google-cloud/firestore' module.
  * This app is authorized as admin thus free from security checks.
  */
-export function getOrInitializeAdminApp(projectId = DEFAULT_PROJECT_ID) {
+export function getOrInitializeAdminApp() {
   try {
     return admin.app(APP_NAME);
   } catch {
-    const app = admin.initializeApp({ projectId }, APP_NAME);
+    const app = admin.initializeApp({ projectId: "foosball-seo" }, APP_NAME);
     app.firestore().settings({
       host: "localhost:8080",
       ssl: false
@@ -34,9 +34,9 @@ export function getOrInitializeAdminApp(projectId = DEFAULT_PROJECT_ID) {
  * This app is authorized as jjong and cannot perform reads and writes for
  * unauthorized paths.
  */
-export function initializeTestApp(projectId = DEFAULT_PROJECT_ID) {
+export function initializeTestApp() {
   return testing.initializeTestApp({
-    projectId,
+    projectId: "foosball-seo",
     auth: {
       uid: "GpXfrqW6ntP15nNSxpevOitpfff2",
       email: "jjong@google.com",
@@ -63,15 +63,18 @@ export async function createDummyData() {
 
   fitcDevelopers.forEach(({ ldap, name, level }) => {
     batch.set(
-      app.firestore().doc(Player.path(ldap)),
-      Player.create({ ldap, name, level })
+      app.firestore().doc(Path.player(ldap)),
+      factory.createPlayer({ ldap, name, level })
     );
-    batch.set(app.firestore().doc(PlayerStats.path(ldap)), PlayerStats.empty());
+    batch.set(
+      app.firestore().doc(Path.playerStats(ldap)),
+      factory.emptyPlayerStats()
+    );
   });
 
   batch.set(
-    app.firestore().doc(FoosballTable.path("default")),
-    FoosballTable.create({
+    app.firestore().doc(Path.table("default")),
+    factory.createTable({
       name: "For Test",
       recentPlayers: fitcDevelopers.map(player => player.name)
     })
@@ -80,6 +83,6 @@ export async function createDummyData() {
   await batch.commit();
 }
 
-export function clearFirestoreData(projectId = DEFAULT_PROJECT_ID) {
-  return testing.clearFirestoreData({ projectId });
+export function clearFirestoreData() {
+  return testing.clearFirestoreData({ projectId: "foosball-seo" });
 }

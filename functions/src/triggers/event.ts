@@ -1,6 +1,11 @@
 import * as functions from "firebase-functions";
 
-import { Player, DemotionEvent, PromotionEvent } from "../../../common/types";
+import {
+  Player,
+  Event,
+  DemotionEvent,
+  PromotionEvent
+} from "../../../common/types";
 import { Path } from "../../../common/path";
 import { firestore } from "../firebase";
 

@@ -8,7 +8,7 @@ import {
   TeamStats,
   Player
 } from "../../common/types";
-import { web } from "../../common/platform/web";
+import { sandbox } from "../../common/platform/sandbox";
 import { Path } from "../../common/path";
 
 beforeAll(async () => {
@@ -27,7 +27,7 @@ describe("Creates GameRecord", () => {
   describe("On first game", () => {
     beforeAll(async () => {
       await helper.createDummyData();
-      const now = web.timestampFromDate("2019-11-11T12:34:56");
+      const now = sandbox.timestampFromDate("2019-11-11T12:34:56");
       await db.setDoc<GameRecord>(Path.gameRecord("default", now), {
         winners: ["jjong", "hdmoon"],
         losers: ["shinjiwon", "hyeonjilee"],
@@ -46,7 +46,7 @@ describe("Creates GameRecord", () => {
     test("jjong's PlayerStats changed", async () => {
       expect(await db.getDoc<PlayerStats>(Path.playerStats("jjong"))).toEqual({
         totalWins: 1,
-        totalLose: 0,
+        totalLoses: 0,
         mostWinStreaks: 1,
         recentGames: "W"
       });
@@ -55,7 +55,7 @@ describe("Creates GameRecord", () => {
         await db.getDoc<SeasonStats>(Path.seasonStats("jjong", 2019))
       ).toEqual({
         totalWins: 1,
-        totalLose: 0
+        totalLoses: 0
       });
 
       expect(
@@ -78,7 +78,7 @@ describe("Creates GameRecord", () => {
     test("hdmoon's PlayerStats changed", async () => {
       expect(await db.getDoc<PlayerStats>(Path.playerStats("hdmoon"))).toEqual({
         totalWins: 1,
-        totalLose: 0,
+        totalLoses: 0,
         mostWinStreaks: 1,
         recentGames: "W"
       });
@@ -87,7 +87,7 @@ describe("Creates GameRecord", () => {
         await db.getDoc<SeasonStats>(Path.seasonStats("hdmoon", 2019))
       ).toEqual({
         totalWins: 1,
-        totalLose: 0
+        totalLoses: 0
       });
 
       expect(
@@ -112,7 +112,7 @@ describe("Creates GameRecord", () => {
         await db.getDoc<PlayerStats>(Path.playerStats("shinjiwon"))
       ).toEqual({
         totalWins: 0,
-        totalLose: 1,
+        totalLoses: 1,
         mostWinStreaks: 0,
         recentGames: "L"
       });
@@ -121,7 +121,7 @@ describe("Creates GameRecord", () => {
         await db.getDoc<SeasonStats>(Path.seasonStats("shinjiwon", 2019))
       ).toEqual({
         totalWins: 0,
-        totalLose: 1
+        totalLoses: 1
       });
 
       expect(
@@ -146,7 +146,7 @@ describe("Creates GameRecord", () => {
         await db.getDoc<PlayerStats>(Path.playerStats("hyeonjilee"))
       ).toEqual({
         totalWins: 0,
-        totalLose: 1,
+        totalLoses: 1,
         mostWinStreaks: 0,
         recentGames: "L"
       });
@@ -155,7 +155,7 @@ describe("Creates GameRecord", () => {
         await db.getDoc<SeasonStats>(Path.seasonStats("hyeonjilee", 2019))
       ).toEqual({
         totalWins: 0,
-        totalLose: 1
+        totalLoses: 1
       });
 
       expect(
@@ -201,7 +201,7 @@ describe("Creates GameRecord", () => {
   describe("On draw", () => {
     beforeAll(async () => {
       await helper.createDummyData();
-      const now = web.now();
+      const now = sandbox.now();
       await db.setDoc<GameRecord>(Path.gameRecord("default", now), {
         winners: ["jjong", "hdmoon"],
         losers: ["shinjiwon", "hyeonjilee"],
@@ -217,13 +217,15 @@ describe("Creates GameRecord", () => {
       await helper.clearFirestoreData();
     });
 
-    test("No PlayerStats changed", async () => {
-      const allStats = await db.listDocs<PlayerStats>(Path.playersCollection);
+    test("PlayerStats has updated recentGames", async () => {
+      const allStats = await db.listDocs<PlayerStats>(
+        Path.playerStatsCollection
+      );
       allStats.forEach(stats => {
         expect(stats).toMatchObject({
           totalWins: 0,
           totalLoses: 0,
-          recentGames: "",
+          recentGames: "D",
           mostWinStreaks: 0
         });
       });
@@ -234,7 +236,7 @@ describe("Creates GameRecord", () => {
     beforeAll(async () => {
       await helper.createDummyData();
       for (let winStreaks = 1; winStreaks <= 10; winStreaks++) {
-        const now = web.now();
+        const now = sandbox.now();
         db.setDoc<GameRecord>(Path.gameRecord("default", now), {
           winners: ["jjong", "hdmoon"],
           losers: ["shinjiwon", "hyeonjilee"],
@@ -262,9 +264,7 @@ describe("Creates GameRecord", () => {
         expect.arrayContaining([
           expect.objectContaining({
             type: "promotion",
-            payload: expect.objectContaining({
-              ldap: "jjong"
-            })
+            ldap: "jjong"
           })
         ])
       );
@@ -279,9 +279,7 @@ describe("Creates GameRecord", () => {
         expect.arrayContaining([
           expect.objectContaining({
             type: "promotion",
-            payload: expect.objectContaining({
-              ldap: "hdmoon"
-            })
+            ldap: "hdmoon"
           })
         ])
       );
@@ -296,9 +294,7 @@ describe("Creates GameRecord", () => {
         expect.arrayContaining([
           expect.objectContaining({
             type: "demotion",
-            payload: expect.objectContaining({
-              ldap: "shinjiwon"
-            })
+            ldap: "shinjiwon"
           })
         ])
       );
@@ -313,9 +309,7 @@ describe("Creates GameRecord", () => {
         expect.arrayContaining([
           expect.objectContaining({
             type: "demotion",
-            payload: expect.objectContaining({
-              ldap: "hyeonjilee"
-            })
+            ldap: "hyeonjilee"
           })
         ])
       );
