@@ -1,11 +1,10 @@
-import { firestore } from "firebase-admin";
-
 import { GameRecord } from "../../../common/types";
 import { setEquals } from "../../../common/utils";
+import { Timestamp } from "../../../common/platform/base";
 import { CONSECUTIVE_PLAY_THRESHOLD_MILLIS } from "../constant";
 import { TableState } from "../internal-types";
 
-function isConsecutivePlay(t1: firestore.Timestamp, t2: firestore.Timestamp) {
+function isConsecutivePlay(t1: Timestamp, t2: Timestamp) {
   return t2.toMillis() - t1.toMillis() < CONSECUTIVE_PLAY_THRESHOLD_MILLIS;
 }
 

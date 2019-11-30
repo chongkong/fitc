@@ -2,8 +2,11 @@ import * as testing from "@firebase/testing";
 import * as admin from "firebase-admin";
 import { Player, PlayerStats, FoosballTable } from "../common/types";
 
-const DEFAULT_PROJECT_ID = "fitc-test";
-const appName = "[TEST]";
+const random = Math.random()
+  .toString(36)
+  .slice(2);
+const DEFAULT_PROJECT_ID = "foosball-seo";
+const APP_NAME = `[TEST-${random}]`;
 
 /**
  * This creates a firebase-admin (server SDK) app. This is different from
@@ -13,9 +16,9 @@ const appName = "[TEST]";
  */
 export function getOrInitializeAdminApp(projectId = DEFAULT_PROJECT_ID) {
   try {
-    return admin.app(appName);
+    return admin.app(APP_NAME);
   } catch {
-    const app = admin.initializeApp({ projectId }, appName);
+    const app = admin.initializeApp({ projectId }, APP_NAME);
     app.firestore().settings({
       host: "localhost:8080",
       ssl: false
@@ -27,11 +30,11 @@ export function getOrInitializeAdminApp(projectId = DEFAULT_PROJECT_ID) {
 /**
  * This creates a firebase (client SDK) app. This is different from server
  * SDK app (some signatures are different) and must be used with Timestamp
- * in '@firebase/firestore' module.
+ * in '@firebase/testing' module.
  * This app is authorized as jjong and cannot perform reads and writes for
  * unauthorized paths.
  */
-export function createTestApp(projectId = DEFAULT_PROJECT_ID) {
+export function initializeTestApp(projectId = DEFAULT_PROJECT_ID) {
   return testing.initializeTestApp({
     projectId,
     auth: {

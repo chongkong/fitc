@@ -1,10 +1,10 @@
 import {
   PlayerStats,
-  OpponentStats,
+  RivalStats,
   SeasonStats,
   TeamStats
 } from "../../../common/types";
-import { reduceGameResult } from "./repr";
+import { reduceGameResult } from "./game-results";
 
 export const reducePlayerStats = (
   playerStats: PlayerStats,
@@ -16,13 +16,13 @@ export const reducePlayerStats = (
   recentGames: reduceGameResult(playerStats.recentGames, result)
 });
 
-export const reduceOpponentStats = (
-  opponentStats: OpponentStats,
+export const reduceRivalStats = (
+  rivalStats: RivalStats,
   { result }: { result: "W" | "L" | "D" }
-): OpponentStats => ({
-  totalWins: Number(result === "W") + opponentStats.totalWins,
-  totalLoses: Number(result === "L") + opponentStats.totalLoses,
-  recentGames: reduceGameResult(opponentStats.recentGames, result)
+): RivalStats => ({
+  totalWins: Number(result === "W") + rivalStats.totalWins,
+  totalLoses: Number(result === "L") + rivalStats.totalLoses,
+  recentGames: reduceGameResult(rivalStats.recentGames, result)
 });
 
 export const reduceSeasonStats = (

@@ -7,17 +7,18 @@ import {
   Player,
   PlayerStats,
   TeamStats,
-  OpponentStats,
-  SeasonStats,
-  PromotionEvent,
-  DemotionEvent
+  RivalStats,
+  SeasonStats
 } from "../../../common/types";
+import { Path } from "../../../common/path";
+import { factory } from "../../../common/platform/admin";
+import { Timestamp } from "../../../common/platform/base";
 import { firestore } from "../firebase";
 import { TableState, PlayerState } from "../internal-types";
 import {
   reducePlayerStats,
   reduceTableState,
-  reduceOpponentStats,
+  reduceRivalStats,
   reduceSeasonStats,
   reducePlayerState,
   reduceTeamStats
@@ -29,6 +30,7 @@ export const onGameRecordCreate = functions.firestore
   .onCreate(async (snapshot, context) => {
     // We don't want to produce any side effect on ADMIN mode.
     if (context.authType === "ADMIN") {
+      console.error(context.authType, context.auth);
       return;
     }
 
@@ -89,7 +91,7 @@ async function updatePlayer(context: {
   ldap: string;
   opponents: string[];
   result: "W" | "L" | "D";
-  createdAt: admin.firestore.Timestamp;
+  createdAt: Timestamp;
   winStreaks: number;
 }) {
   await Promise.all([updatePlayerState(context), updatePlayerStats(context)]);
@@ -104,11 +106,11 @@ async function updatePlayerState({
   batch: admin.firestore.WriteBatch;
   ldap: string;
   result: "W" | "L" | "D";
-  createdAt: admin.firestore.Timestamp;
+  createdAt: Timestamp;
 }) {
   const [player, state] = await firestore().getAll(
-    firestore().doc(Player.path(ldap)),
-    firestore().doc(PlayerState.path(ldap))
+    firestore().doc(Path.player(ldap)),
+    firestore().doc(Path.playerState(ldap))
   );
   const oldState = state.exists
     ? (state.data() as PlayerState)
@@ -122,8 +124,8 @@ async function updatePlayerState({
 
   if (delta > 0) {
     batch.create(
-      firestore().doc(PromotionEvent.path(createdAt, ldap)),
-      PromotionEvent.create({
+      firestore().doc(Path.promotionEvent(createdAt, ldap)),
+      factory.createPromotionEvent({
         ldap,
         levelFrom: level,
         levelTo: level + delta
@@ -131,8 +133,8 @@ async function updatePlayerState({
     );
   } else if (delta < 0) {
     batch.create(
-      firestore().doc(DemotionEvent.path(createdAt, ldap)),
-      DemotionEvent.create({
+      firestore().doc(Path.demotionEvent(createdAt, ldap)),
+      factory.createDemotionEvent({
         ldap,
         levelFrom: level,
         levelTo: level + delta
@@ -153,14 +155,14 @@ async function updatePlayerStats({
   ldap: string;
   opponents: string[];
   result: "W" | "L" | "D";
-  createdAt: admin.firestore.Timestamp;
+  createdAt: Timestamp;
   winStreaks: number;
 }) {
-  const [playerStats, seasonStats, ...opponentStats] = await firestore().getAll(
-    firestore().doc(PlayerStats.path(ldap)),
-    firestore().doc(SeasonStats.path(ldap, createdAt.toDate().getFullYear())),
+  const [playerStats, seasonStats, ...rivalStats] = await firestore().getAll(
+    firestore().doc(Path.playerStats(ldap)),
+    firestore().doc(Path.seasonStats(ldap, createdAt.toDate().getFullYear())),
     ...opponents.map(opponentLdap =>
-      firestore().doc(OpponentStats.path(ldap, opponentLdap))
+      firestore().doc(Path.rivalStats(ldap, opponentLdap))
     )
   );
 
@@ -170,7 +172,7 @@ async function updatePlayerStats({
     reducePlayerStats(
       playerStats.exists
         ? (playerStats.data() as PlayerStats)
-        : PlayerStats.empty(),
+        : factory.emptyPlayerStats(),
       { result, winStreaks }
     )
   );
@@ -181,17 +183,17 @@ async function updatePlayerStats({
     reduceSeasonStats(
       seasonStats.exists
         ? (seasonStats.data() as SeasonStats)
-        : SeasonStats.empty(),
+        : factory.emptySeasonStats(),
       { result }
     )
   );
 
-  // Update OpponentStats.
-  opponentStats.forEach(stats => {
+  // Update RivalStats.
+  rivalStats.forEach(stats => {
     batch.set(
       stats.ref,
-      reduceOpponentStats(
-        stats.exists ? (stats.data() as OpponentStats) : OpponentStats.empty(),
+      reduceRivalStats(
+        stats.exists ? (stats.data() as RivalStats) : factory.emptyRivalStats(),
         { result }
       )
     );
@@ -202,23 +204,24 @@ async function updateTeamStats({
   batch,
   ldaps,
   result,
-  createdAt,
   winStreaks
 }: {
   batch: admin.firestore.WriteBatch;
   ldaps: string[];
   result: "W" | "L" | "D";
-  createdAt: admin.firestore.Timestamp;
+  createdAt: Timestamp;
   winStreaks: number;
 }) {
   const teamStats = await firestore()
-    .doc(TeamStats.path(...ldaps))
+    .doc(Path.teamStats(...ldaps))
     .get();
 
   batch.set(
     teamStats.ref,
     reduceTeamStats(
-      teamStats.exists ? (teamStats.data() as TeamStats) : TeamStats.empty(),
+      teamStats.exists
+        ? (teamStats.data() as TeamStats)
+        : factory.emptyTeamStats(),
       { result, winStreaks }
     )
   );
