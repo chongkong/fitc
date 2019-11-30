@@ -1,4 +1,5 @@
 import cmd
+import datetime
 import os
 import json
 import string
@@ -46,11 +47,16 @@ def is_root(path):
     return path == ""
 
 
-def canonical_path(path):
+def canonical_path(raw_path):
     # Mechanical cleanup
-    path = path.strip(" ")
+    path = raw_path.strip()
     # Ignore abspath and trailing slash
-    path = path.strip("/")
+    if path.startswith('/'):
+        path = path[1:]
+    if path.endswith('/') and path != '/':
+        path = path[:-1]
+    if path == '':
+        return path
     # Resolve '.' and '..'
     segments = []
     for s in path.split("/"):
@@ -59,6 +65,8 @@ def canonical_path(path):
         elif s == "..":
             if segments:
                 segments.pop()
+        elif s == "":
+            raise ValueError('Invalid path "{}"'.format(raw_path))
         else:
             segments.append(s)
     path = "/".join(segments)
@@ -71,23 +79,28 @@ ALLOWED_CHARS = set(string.digits + string.ascii_letters +
 
 def compose(pwd, relpath):
     """Compose a new path from pwd to given relative path."""
-    if relpath.startswith("/"):
-        # User wants to use absolute path
-        return canonical_path(relpath)
-    else:
-        return canonical_path(join(pwd, relpath))
+    return canonical_path(join(pwd, relpath))
 
 
 def join(*segments):
     segments = list(segments)
-    valid_segments = [s for s in segments if s != ""]
-    if segments[-1] == "":
-        valid_segments.append("")
-    return "/".join(valid_segments)
+    path_builder = []
+    for s in segments:
+        if s.startswith('/'):
+            path_builder.clear()
+            path_builder.append(s)
+        else:
+            if path_builder and not path_builder[-1].endswith('/'):
+                path_builder.append('/')
+            if s != '':
+                path_builder.append(s)
+    return ''.join(path_builder)
 
 
 def split(path):
     splits = path.split("/")
+    if len(splits) == 2 and path.startswith('/'):
+        return '/', splits[-1]
     return "/".join(splits[:-1]), splits[-1]
 
 
@@ -112,7 +125,7 @@ class FirestoreShell(cmd.Cmd):
     def prompt(self):
         return ''.join([
             Style.BRIGHT, Fore.YELLOW, '[', Fore.CYAN, self.pwd, Fore.YELLOW,
-            '] ⚡️ ', Style.RESET_ALL
+            '] 🔥 ', Style.RESET_ALL
         ])
 
     def doc(self, path):
@@ -160,13 +173,25 @@ class FirestoreShell(cmd.Cmd):
             if self._collection_exists(parent_path):
                 valid_bases = self.docs(parent_path)
         candidates = [
-            base for base in valid_bases if base.startswith(segment_base)
+            base for base in valid_bases
+            if base.lower().startswith(segment_base.lower())
         ]
         return [join(segment_dir, base) for base in candidates]
 
+    @staticmethod
+    def _json_serialize(python_obj):
+        if hasattr(python_obj, 'rfc3339'):
+            return python_obj.rfc3339()
+        if isinstance(python_obj, datetime.datetime):
+            return python_obj.strftime('<datetime %Y-%m-%dT%H:%M:%S>')
+        if hasattr(python_obj, '__dict__'):
+            return python_obj.__dict__
+        return repr(python_obj)
+
     def _print_json(self, dict_or_text):
         if isinstance(dict_or_text, dict):
-            dict_or_text = json.dumps(dict_or_text, indent=2)
+            dict_or_text = json.dumps(
+                dict_or_text, indent=2, default=self._json_serialize)
         print(
             pygments.highlight(dict_or_text, lexers.get_lexer_by_name('json'),
                                self._formatter))
