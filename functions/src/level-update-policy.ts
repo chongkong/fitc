@@ -1,8 +1,3 @@
-import { DEFAULT_HISTORY_SIZE } from "./constant";
-
-// Promotion qualification is analyzed from recent PROMO_WINDOW_SIZE games.
-const PROMO_WINDOW_SIZE = DEFAULT_HISTORY_SIZE;
-
 // Player cannot be promoted over MAX_LEVEL.
 const MAX_LEVEL = 10;
 
@@ -20,7 +15,12 @@ const PROMO_THRESHOLDS = [
   15, 16, 17, 17, 18, 19, 19, 20, 20, 21,
   22, 22, 23, 24, 24, 25, 25, 26, 27, 27,
   28, 29, 29, 30, 30, 31, 32, 32, 33, 34,
-  34
+  34, 35, 35, 36, 37, 37, 38, 38, 39, 40,
+  40, 41, 41, 42, 43, 43, 44, 44, 45, 46,
+  46, 47, 47, 48, 49, 49, 50, 51, 51, 52,
+  52, 53, 54, 54, 55, 55, 56, 57, 57, 58,
+  58, 59, 60, 60, 61, 61, 62, 62, 63, 64,
+  64
 ];
 
 export function checkLevelUpdate({
@@ -41,6 +41,11 @@ export function checkLevelUpdate({
     wins += Number(result === "W");
     loses += Number(result === "L");
     total += 1;
+
+    // Don't lookup more than our thresholds.
+    if (total > PROMO_THRESHOLDS.length) {
+      return 0;
+    }
 
     if (total < MIN_GAMES) {
       continue;
