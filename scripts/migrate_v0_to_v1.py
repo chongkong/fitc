@@ -92,9 +92,11 @@ def preprocess_data(df: pd.DataFrame):
 def make_firestore_client(emulate: bool):
     if emulate:
         os.environ['FIRESTORE_EMULATOR_HOST'] = 'localhost:8080'
-    firebase_admin.initialize_app(
-        credential=credentials.Certificate('../serviceAccountKey.json'))
-    return firestore.client()
+    app = firebase_admin.initialize_app(
+        credential=credentials.Certificate(
+            os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                         "serviceAccountKey.json")))
+    return firestore.client(app)
 
 
 class StatsRecorder(object):
@@ -204,8 +206,6 @@ def save_data(df: pd.DataFrame, emulate: bool):
     batch = db.batch()
     stats_recorder = StatsRecorder()
 
-    counter = collections.Counter()
-
     prev_winners = set([])
     prev_win_streaks = 0
     prev_timestamp = 0
@@ -221,8 +221,6 @@ def save_data(df: pd.DataFrame, emulate: bool):
             prev_win_streaks = 1
         prev_winners = {row.w1, row.w2}
         prev_timestamp = timestamp_millis
-
-        counter.update([win_streaks])
 
         batch.set(
             db.document('tables/default/records/{}'.format(timestamp_millis)),
@@ -241,7 +239,6 @@ def save_data(df: pd.DataFrame, emulate: bool):
             batch = db.batch()
 
     batch.commit()
-    print(counter)
     print('Finished writing {} GameRecords'.format(len(df)))
 
     batch = db.batch()

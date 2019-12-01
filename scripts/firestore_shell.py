@@ -24,7 +24,9 @@ def make_firestore_client(emulate: bool) -> client.Client:
     if emulate:
         os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:8080"
     app = firebase_admin.initialize_app(
-        credential=credentials.Certificate("../serviceAccountKey.json"))
+        credential=credentials.Certificate(
+            os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                         "serviceAccountKey.json")))
     return firestore.client(app)
 
 
