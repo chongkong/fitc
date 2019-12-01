@@ -50,3 +50,7 @@ serviceAccountKey.json
 
 # Python development
 .python-version
+
+# Firebase emulators
+firebase-debug.log
+firestore-debug.log
