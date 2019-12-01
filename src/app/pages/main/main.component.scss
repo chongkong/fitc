@@ -1,0 +1,18 @@
+.row {
+    padding: 8px 16px 8px 16px;
+
+    &.record-row {
+        align-items: center;
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+.mat-list .mat-list-item {
+    height: auto;
+
+    &.recent-game-item {
+        padding: 4px 0 4px 0;
+        border-bottom: 1px solid #e6e6e6;
+    }
+}

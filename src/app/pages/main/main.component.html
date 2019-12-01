@@ -1,47 +1,44 @@
 <div>
-  <div *ngIf="me | async as me">
+  <!-- User greeting -->
+  <div *ngIf="me | async as me" class="row">
     Hello, {{me.name}}.
   </div>
-
-  <div *ngIf="recentPlayers | async as recentPlayers">
-    Recent players
-    <ul>
-      <li *ngFor="let player of recentPlayers">
+  <!-- Recent players -->
+  <mat-list *ngIf="recentPlayers | async as recentPlayers">
+      <h3 mat-subheader>Recent players</h3>
+      <mat-list-item *ngFor="let player of recentPlayers">
         [{{player.level}}] {{player.name}}
-        <a (click)="toggleWinner(player.ldap)" 
-            [style.color]="isWinner(player.ldap) ? 'blue' : 'black'">
-          {{ isDraw ? '[Team1]' : '[Win]' }}
-        </a>
-        <a (click)="toggleLoser(player.ldap)" 
-            [style.color]="isLoser(player.ldap) ? 'red' : 'black'">
-          {{ isDraw ? '[Team2]' : '[Lose]' }}
-        </a>
-        <a (click)="removeFromRecentPlayers(player.ldap)">[Del]</a>
-      </li>
-    </ul>
-    <div>
-      isDraw <input type="checkbox" [(ngModel)]="isDraw">
+        <button mat-button (click)="toggleWinner(player.ldap)" 
+                [style.color]="isWinner(player.ldap) ? 'blue' : 'black'">
+          {{ isDraw ? 'Team1' : 'Win' }}
+        </button>
+        <button mat-button (click)="toggleLoser(player.ldap)" 
+                [style.color]="isLoser(player.ldap) ? 'red' : 'black'">
+          {{ isDraw ? 'Team2' : 'Lose' }}
+        </button>
+        <button mat-button (click)="removeFromRecentPlayers(player.ldap)">Delete</button>
+      </mat-list-item>
+    </mat-list>
+    <div class="row">
+        <mat-form-field>
+            <input matInput placeholder="ldap" [(ngModel)]="ldapInput">
+          </mat-form-field>
+          <button mat-button (click)="addToRecentPlayers(ldapInput)">Add</button>
     </div>
-    <input type="text" placeholder="ldap" [(ngModel)]="ldapInput">
-    <button (click)="addToRecentPlayers(ldapInput)">
-      Add
-    </button>
-    <button (click)="recordGame()">
-      Record Game
-    </button>
-    <!-- End of hacky workaround -->
-  </div>
-
-  <div>
-    Recent games
-    <ul>
-      <li *ngFor="let record of records | async">
-        Winners: {{ record.winners[0] }}, {{ record.winners[1] }} <br>
-        Losers: {{ record.losers[0] }}, {{ record.losers[1] }} <br>
-        isDraw: {{ record.isDraw }} <br>
-        winStreaks: {{ record.winStreaks }} <br>
-        createdAt: {{ record.createdAt }}
-      </li>
-    </ul>
-  </div>
+    <!-- Record game -->
+    <div class="row record-row">
+      <mat-checkbox [(ngModel)]="isDraw">isDraw</mat-checkbox>
+      <button mat-button (click)="recordGame()">Record Game</button>
+    </div>
+    <!-- Recent games -->
+    <mat-list>
+      <h3 mat-subheader>Recent games</h3>
+      <mat-list-item *ngFor="let record of records | async" class="recent-game-item">
+          Winners: {{ record.winners[0] }}, {{ record.winners[1] }}<br>
+          Losers: {{ record.losers[0] }}, {{ record.losers[1] }}<br>
+          isDraw: {{ record.isDraw }}<br>
+          winStreaks: {{ record.winStreaks }}<br>
+          createdAt: {{ record.createdAt }}<br>
+      </mat-list-item>
+    </mat-list>
 </div>
