@@ -48,3 +48,5 @@ Thumbs.db
 # Secrets
 serviceAccountKey.json
 
+# Python development
+.python-version
