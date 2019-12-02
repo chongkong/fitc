@@ -10659,6 +10659,7 @@ INFO: Detected non-HTTP/2 connection.
 [debug] [2019-12-02T20:04:24.930Z] Dec 02, 2019 8:04:24 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
 
+<<<<<<< HEAD
 [debug] [2019-12-02T20:05:24.946Z] Dec 02, 2019 8:05:24 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
 
@@ -10779,3 +10780,5 @@ WARNING: expected an unsecured JWT, the emulator does not validate JWTs and IS N
 [debug] [2019-12-02T20:17:40.714Z] Dec 02, 2019 8:17:40 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
 
+=======
+>>>>>>> 6673f6cec54f57b1f8c7d1463b33fc060648aa77
