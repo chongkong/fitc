@@ -7,6 +7,17 @@
   justify-content: center;
 }
 
+.content-container {
+  background: #e6e6e6;
+  bottom: 56px;
+  left: 0;
+  overflow-y: scroll;
+  right: 0;
+  padding: 16px;
+  position: fixed;
+  top: 56px;
+}
+
 .bottom-nav {
   @include bottom-nav($background-color:#fbfcfb, $active-color: #FFFFFF, $inactive-color: #E0E0E0, $hide-inactive-labels: true);
   box-shadow: none;

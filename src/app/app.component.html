@@ -1,5 +1,7 @@
 <mat-toolbar>{{ title | async }}</mat-toolbar>
-<router-outlet></router-outlet>
+<div class="content-container">
+  <router-outlet></router-outlet>
+</div>
 <nav class="bottom-nav">
   <a *ngFor="let tabItem of TAB_ITEMS"
       class="bottom-nav__action"

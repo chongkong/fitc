@@ -1,15 +1,21 @@
-:host {
-    bottom: 56px;
-    overflow-y: scroll;
-    position: fixed;
-    top: 56px;
-}
+.mat-list {
+    background: #e6e6e6;
+    padding-top: 0;
 
-.mat-list .mat-list-item {
-    height: auto;
+    .mat-list-item {
+        background: #fbfcfb;
+        border-radius: 4px;
+        height: auto;
+        margin: 8px;
+        padding: 16px;
+        width: auto;
     
-    &.recent-game-item {
-        border-bottom: 1px solid #e6e6e6;
-        padding: 4px 0 4px 0;
+        ::ng-deep .mat-list-item-content {
+            padding: 0;
+        }    
+        // &.recent-game-item {
+        //     border-bottom: 1px solid #e6e6e6;
+        //     padding: 4px 0 4px 0;
+        // }
     }
 }
