@@ -1,41 +1,39 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { AngularFireModule } from '@angular/fire';
-import { AngularFirestoreModule, FirestoreSettingsToken } from '@angular/fire/firestore';
-import { AngularFireAuthModule } from '@angular/fire/auth';
-import { FormsModule } from '@angular/forms';
+import { NgModule } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
+import { AngularFireModule } from "@angular/fire";
+import { FirestoreSettingsToken } from "@angular/fire/firestore";
+import { AngularFireAuthGuardModule } from "@angular/fire/auth-guard";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import { AppRoutingModule } from 'src/app/app-routing.module';
-import { AppComponent } from 'src/app/app.component';
-import { environment } from 'src/environments/environment';
-import { MainComponent } from './pages/main/main.component';
-import { LoginComponent } from './pages/login/login.component';
-import { AngularFireAuthGuardModule } from '@angular/fire/auth-guard';
+import { AppRoutingModule } from "src/app/app-routing.module";
+import { AppComponent } from "src/app/app.component";
+import { environment } from "src/environments/environment";
+
+import { LoginModule } from "./pages/login/login.module";
+import { MainModule } from "./pages/main/main.module";
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    MainComponent,
-    LoginComponent
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,
-    AngularFireAuthModule,
     AngularFireAuthGuardModule,
-    FormsModule,
+    LoginModule,
+    MainModule,
+    BrowserAnimationsModule
   ],
   providers: [
     {
       provide: FirestoreSettingsToken,
-      useValue: environment.production ? undefined : {
-        host: 'localhost:8080',
-        ssl: false
-      }
+      useValue: environment.production
+        ? undefined
+        : {
+            host: "localhost:8080",
+            ssl: false
+          }
     }
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
