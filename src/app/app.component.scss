@@ -1,0 +1,36 @@
+@import '~material-bottom-nav';
+
+.mat-toolbar {
+  background: #4b536e;
+  color: white;
+  display: flex;
+  justify-content: center;
+}
+
+.bottom-nav {
+  @include bottom-nav($background-color:#fbfcfb, $active-color: #FFFFFF, $inactive-color: #E0E0E0, $hide-inactive-labels: true);
+  box-shadow: none;
+
+  >a {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    
+    &.active {
+      color: #4b536e;
+    }
+  }
+
+  .mat-icon {
+    font-size: 24px;
+  }
+
+  span {
+    font-size: 14px;
+  }
+}
+
+  
