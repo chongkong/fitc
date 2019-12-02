@@ -5,11 +5,10 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "test:integ": "jest --config=jest.integ.config.js --env=node --runInBand",
-    "test:unit": "jest --config=jest.unit.config.js --env=node"
+    "test:fe": "ng test",
+    "test:be": "jest --config=jest.config.js"
   },
   "private": true,
   "dependencies": {

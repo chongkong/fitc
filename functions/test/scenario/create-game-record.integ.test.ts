@@ -7,11 +7,11 @@ import {
   RivalStats,
   TeamStats,
   Player
-} from "../../common/types";
-import { sandbox } from "../../common/platform/sandbox";
-import { Path } from "../../common/path";
-import { Arrays } from "../../common/utils";
-import { PlayerState } from "functions/src/internal-types";
+} from "../../../common/types";
+import { sandbox } from "../../../common/platform/sandbox";
+import { Path } from "../../../common/path";
+import { Arrays } from "../../../common/utils";
+import { PlayerState } from "../../src/internal-types";
 
 beforeAll(async () => {
   await helper.clearFirestoreData();
@@ -79,7 +79,6 @@ describe("Creates GameRecord", () => {
     });
 
     test("hdmoon's PlayerStats changed", async () => {
-      debugger;
       expect(await db.getDoc<PlayerStats>(Path.playerStats("hdmoon"))).toEqual({
         totalWins: 1,
         totalLoses: 0,
