@@ -1,0 +1,15 @@
+:host {
+    bottom: 56px;
+    overflow-y: scroll;
+    position: fixed;
+    top: 56px;
+}
+
+.mat-list .mat-list-item {
+    height: auto;
+    
+    &.recent-game-item {
+        border-bottom: 1px solid #e6e6e6;
+        padding: 4px 0 4px 0;
+    }
+}

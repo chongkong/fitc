@@ -1,0 +1,13 @@
+<!-- Recent games -->
+<mat-list>
+  <mat-list-item
+    *ngFor="let record of records | async"
+    class="recent-game-item"
+  >
+    Winners: {{ record.winners[0] }}, {{ record.winners[1] }}<br />
+    Losers: {{ record.losers[0] }}, {{ record.losers[1] }}<br />
+    isDraw: {{ record.isDraw }}<br />
+    winStreaks: {{ record.winStreaks }}<br />
+    createdAt: {{ record.createdAt }}<br />
+  </mat-list-item>
+</mat-list>
