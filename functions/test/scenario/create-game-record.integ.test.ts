@@ -8,7 +8,7 @@ import {
   TeamStats,
   Player
 } from "../../../common/types";
-import { sandbox } from "../../../common/platform/sandbox";
+import { web } from "../../../common/platform/web";
 import { Path } from "../../../common/path";
 import { Arrays } from "../../../common/utils";
 import { PlayerState } from "../../../common/types";
@@ -29,7 +29,7 @@ describe("Creates GameRecord", () => {
   describe("On first game", () => {
     beforeAll(async () => {
       await helper.createDummyData();
-      const now = sandbox.timestampFromDate("2019-11-11T12:34:56");
+      const now = web.timestampFromDate("2019-11-11T12:34:56");
       await db.setDoc<GameRecord>(Path.gameRecord("default", now), {
         winners: ["jjong", "hdmoon"],
         losers: ["shinjiwon", "hyeonjilee"],
@@ -204,7 +204,7 @@ describe("Creates GameRecord", () => {
   describe("On draw", () => {
     beforeAll(async () => {
       await helper.createDummyData();
-      const now = sandbox.now();
+      const now = web.now();
       await db.setDoc<GameRecord>(Path.gameRecord("default", now), {
         winners: ["jjong", "hdmoon"],
         losers: ["shinjiwon", "hyeonjilee"],
@@ -274,7 +274,7 @@ describe("Creates GameRecord", () => {
     beforeAll(async () => {
       await helper.createDummyData();
       for (let winStreaks = 1; winStreaks <= 10; winStreaks++) {
-        const now = sandbox.now();
+        const now = web.now();
         db.setDoc<GameRecord>(Path.gameRecord("default", now), {
           winners: ["jjong", "hdmoon"],
           losers: ["shinjiwon", "hyeonjilee"],

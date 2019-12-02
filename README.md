@@ -98,30 +98,48 @@ Our backend is a Firebase trigger implemented in NodeJS, inside `functions/` dir
 
 ### Firebase functions
 
-Before running firebase emulator, all functions should be compiled first (which
-is not done automatically)
+Firebase functions can define a trigger on the changes of documents. Each
+trigger functions are defined in
+`functions/triggers/{documentSchema}.{create|update|delete}.ts`. To run firebase
+functions locally, you need to use a local firebase emulator. Before running it,
+all functions should be compiled in advance (which is not done automatically)
+with `npm run build` command. This will call typescript compiler to generate
+codes in `functions/lib`.
 
 ```shell
 $ cd functions
 $ npm run build
 ```
 
-TBD
+After running firebase emulator, the best way to run a simulation is through
+writing an integration test. Integration tests are scenario driven, and located
+under `functions/test/scenario`. Be aware that you need to use a `web` platform
+(defined in `common/platforms/web`) in order to create a `Timestamp` object, not
+a `admin` (for firebase function implementation). This is because
+`@firebase/testing` package that is used for integration test are based on
+firebase client SDK (`firebase`) not a server SDK (`firebase-admin`), and the
+`Timestamp` implementation differs between SDKs (and not compatible). This is
+the whole reason we have two platforms defined in `common/platforms`.
 
 ### Tests
 
-We're using [Jest](https://jestjs.io/). Test configuration files are
-`jest.integ.config.js` and `jest.unit.test.js`.
+We're using [Jest](https://jestjs.io/). Each project directory (`common/`,
+`functions/`) contains `jest.config.*.js` file to define tests. All tests are
+referenced from root `jest.config.js` file.
 
-* Run Unit tests with `npm run test:unit`.
-* Integration test with `npm run test:integ`. Unlike unittests, integration test
-  requires local firebase emulator running, and run sequentially. (Firestore
-  does not support multiple database) Integration tests look for side effects
-  triggered by Firebase functions, but emulator doesn't provide a mechanism to
-  wait until all triggers done. Therefore we're currently doing enough `sleep()`
-  to wait for triggers done, but the numbers are arbitrary and would not be
-  enough in a future.
+If you want to run the whole testcase, run `npm run test:be`. To run a single
+test suite, run `npm run test:be -- --projects=path/to/jest.config.js`.
+
+**WARNING**
+
+Integration test requires local firebase emulator running, and run sequentially.
+(Firestore does not support multiple database) Integration tests look for side
+effects triggered by Firebase functions, but emulator doesn't provide a
+mechanism to wait until all triggers done. Therefore we're currently doing
+enough `sleep()` to wait for triggers done, but the numbers are arbitrary and
+would not be enough in a future.
 
 ### Deployment
 
-TBD
+Run `firebase deploy --only functions`. It will automatically build the current
+functions source and deploy it.
