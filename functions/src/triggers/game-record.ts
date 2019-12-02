@@ -23,7 +23,7 @@ import {
   reducePlayerState,
   reduceTeamStats
 } from "../reducers";
-import { checkLevelUpdate } from "../level-update-policy";
+import { checkLevelUpdate } from "../../../common/level-update-policy";
 
 export const onGameRecordCreate = functions.firestore
   .document("tables/{tableId}/records/{recordId}")
