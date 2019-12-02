@@ -11,7 +11,7 @@ import {
 import { sandbox } from "../../../common/platform/sandbox";
 import { Path } from "../../../common/path";
 import { Arrays } from "../../../common/utils";
-import { PlayerState } from "../../src/internal-types";
+import { PlayerState } from "../../../common/types";
 
 beforeAll(async () => {
   await helper.clearFirestoreData();

@@ -8,7 +8,9 @@ import {
   RivalStats,
   TeamStats,
   PromotionEvent,
-  DemotionEvent
+  DemotionEvent,
+  PlayerState,
+  TableState
 } from "./types";
 import { RequirePartial } from "./utils";
 
@@ -94,4 +96,10 @@ export class Factory {
     levelTo: levelTo || levelFrom - 1,
     createdAt: this.platform.now()
   });
+
+  initialPlayerState = (): PlayerState => ({
+    recentGames: ""
+  });
+
+  initialTableState = (): TableState => ({});
 }

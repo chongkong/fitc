@@ -14,7 +14,7 @@ import { Path } from "../../../common/path";
 import { factory } from "../../../common/platform/admin";
 import { Timestamp } from "../../../common/platform/base";
 import { firestore } from "../firebase";
-import { TableState, PlayerState } from "../internal-types";
+import { TableState, PlayerState } from "../../../common/types";
 import {
   reducePlayerStats,
   reduceTableState,
@@ -35,13 +35,13 @@ export const onGameRecordCreate = functions.firestore
     // Refresh TableState to retrieve winStreaks.
 
     const stateSnapshot = await firestore()
-      .doc(TableState.path(tableId))
+      .doc(Path.tableState(tableId))
       .get();
     const oldState = stateSnapshot.exists
       ? (stateSnapshot.data() as TableState)
-      : TableState.initial();
+      : factory.initialTableState();
     const newState = reduceTableState(oldState, record);
-    batch.set(firestore().doc(TableState.path(tableId)), newState);
+    batch.set(firestore().doc(Path.tableState(tableId)), newState);
 
     // Update Player-wise data.
 
@@ -108,7 +108,7 @@ async function updatePlayerState({
   );
   const oldState = state.exists
     ? (state.data() as PlayerState)
-    : PlayerState.initial();
+    : factory.initialPlayerState();
   let newState = reducePlayerState(oldState, { result });
   const { recentGames } = newState;
   const { level } = player.data() as Player;

@@ -2,7 +2,7 @@ import { GameRecord } from "../../../common/types";
 import { setEquals } from "../../../common/utils";
 import { Timestamp } from "../../../common/platform/base";
 import { CONSECUTIVE_PLAY_THRESHOLD_MILLIS } from "../constant";
-import { TableState } from "../internal-types";
+import { TableState } from "../../../common/types";
 
 function isConsecutivePlay(t1: Timestamp, t2: Timestamp) {
   return t2.toMillis() - t1.toMillis() < CONSECUTIVE_PLAY_THRESHOLD_MILLIS;
