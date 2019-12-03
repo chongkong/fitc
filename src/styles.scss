@@ -29,21 +29,27 @@ $fitc-theme: mat-light-theme($fitc-primary, $fitc-accent, $fitc-warn);
 /* You can add global styles to this file, and also import other style files */
 
 // Colors
-$white: #eeeeee;
-// Blue
+$white: #ffffff;
+$red: #e53935;
+$dark-red: #d32f2f;
+$blue: #1976d2;
+$dark-blue: #1565c0;
+
 $fitc-color-default-blue: #546e7a;
 $fitc-color-light-blue: #819ca9;
 $fitc-color-dark-blue: #29434e;
-// Grey
+
 $fitc-color-light-grey: #fbfcfb;
 $fitc-color-default-grey: #e3e4e5;
 $fitc-color-dark-grey: #e1e2e1;
+$fitc-color-darkest-grey: #a3a3a6;
 
 // Paddings
 $fitc-padding-xs: 4px;
 $fitc-padding-sm: calc(#{$fitc-padding-xs} * 2);
-$fitc-padding-md: calc(#{$fitc-padding-xs} * 3);
-$fitc-padding-lg: calc(#{$fitc-padding-xs} * 4);
+$fitc-padding-md: calc(#{$fitc-padding-xs} * 4);
+$fitc-padding-lg: calc(#{$fitc-padding-xs} * 6);
+$fitc-padding-xlg: calc(#{$fitc-padding-xs} * 8);
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: "Google Sans", "Helvetica Neue", sans-serif; }

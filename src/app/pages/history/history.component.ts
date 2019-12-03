@@ -3,9 +3,11 @@ import {
   AngularFirestore,
   AngularFirestoreDocument
 } from "@angular/fire/firestore";
-import { Observable } from "rxjs";
+import { Observable, combineLatest } from "rxjs";
 
-import { Player, GameRecord, FoosballTable } from "common/types";
+import { GameRecord, Event } from "common/types";
+import { Path } from "common/path";
+import { map } from "rxjs/operators";
 
 @Component({
   selector: "app-history",
@@ -15,21 +17,35 @@ import { Player, GameRecord, FoosballTable } from "common/types";
 export class HistoryComponent {
   // Observables from firestore.
 
-  records: Observable<GameRecord[]>;
-
-  // Document & collection reference from firestore.
-
-  tableDoc: AngularFirestoreDocument<FoosballTable>;
+  historyItems: Observable<(GameRecord | Event)[]>;
+  asEvent = (event: Event): Event => event;
 
   constructor(public afs: AngularFirestore) {
-    // Setup recentPlayers
-    this.tableDoc = afs.doc<FoosballTable>("tables/default");
-
-    // Setup records
-    this.records = this.tableDoc
-      .collection<GameRecord>("records", ref =>
+    // Get records observable
+    const records = afs
+      .collection<GameRecord>(Path.gameRecordCollection("default"), ref =>
         ref.orderBy("createdAt", "desc").limit(50)
       )
       .valueChanges();
+
+    // Get events observable
+    const events = afs
+      .collection<Event>(Path.eventsCollection, ref =>
+        ref.orderBy("createdAt", "desc").limit(50)
+      )
+      .valueChanges();
+
+    this.historyItems = combineLatest(records, events).pipe(
+      map(([records, events]) =>
+        []
+          .concat(records)
+          .concat(events)
+          .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+      )
+    );
+  }
+
+  isEvent(historyItem: GameRecord | Event): boolean {
+    return (historyItem as Event).ldap !== undefined;
   }
 }
