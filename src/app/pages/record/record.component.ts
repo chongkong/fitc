@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Inject } from "@angular/core";
 import { AngularFireAuth } from "@angular/fire/auth";
 import {
   AngularFirestore,
@@ -6,7 +6,7 @@ import {
   AngularFirestoreDocument
 } from "@angular/fire/firestore";
 import { Observable, combineLatest } from "rxjs";
-import { map, flatMap, first } from "rxjs/operators";
+import { map, flatMap, first, last } from "rxjs/operators";
 import { firestore } from "firebase";
 
 import { Player, GameRecord, FoosballTable } from "common/types";
@@ -32,17 +32,17 @@ function groupByLdap(players: Player[]) {
 }
 
 @Component({
-  selector: "app-main",
-  templateUrl: "./main.component.html",
-  styleUrls: ["./main.component.scss"]
+  selector: "app-record",
+  templateUrl: "./record.component.html",
+  styleUrls: ["./record.component.scss"]
 })
-export class MainComponent implements OnInit {
+export class RecordComponent implements OnInit {
   // Observables from firestore.
 
   me: Observable<Player>;
-  recentPlayers: Observable<Player[]>;
   records: Observable<GameRecord[]>;
   lastRecord: Observable<GameRecord | undefined>;
+  recentPlayers: Player[];
 
   // Document & collection reference from firestore.
 
@@ -77,9 +77,9 @@ export class MainComponent implements OnInit {
       .collection<Player>("players")
       .valueChanges()
       .pipe(map(groupByLdap));
-    this.recentPlayers = combineLatest(recentPlayersLdap, playersByLdap).pipe(
-      map(([ldaps, players]) => ldaps.map(ldap => players[ldap]))
-    );
+    combineLatest(recentPlayersLdap, playersByLdap)
+      .pipe(map(([ldaps, players]) => ldaps.map(ldap => players[ldap])))
+      .subscribe(recentPlayers => (this.recentPlayers = recentPlayers));
 
     // Setup records
     this.records = this.tableDoc
