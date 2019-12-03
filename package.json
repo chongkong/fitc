@@ -23,7 +23,13 @@
     "@angular/platform-browser": "^8.2.14",
     "@angular/platform-browser-dynamic": "^8.2.14",
     "@angular/router": "^8.2.14",
+    "@fortawesome/angular-fontawesome": "^0.5.0",
+    "@fortawesome/fontawesome-pro": "^5.11.2",
+    "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@swimlane/ngx-charts": "^12.1.0",
     "firebase": "^7.5.0",
+    "material-bottom-nav": "^1.0.6",
+    "ngx-timeago": "^1.0.2",
     "rxjs": "^6.5.3",
     "tslib": "^1.10.0",
     "zone.js": "^0.9.1"
