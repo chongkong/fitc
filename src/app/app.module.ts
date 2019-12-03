@@ -14,7 +14,7 @@ import { environment } from "src/environments/environment";
 import { LoginModule } from "./pages/login/login.module";
 import { RecordModule } from "./pages/record/record.module";
 import { HistoryModule } from "./pages/history/history.module";
-import { ProfileModule } from "./profile/profile.module";
+import { ProfileModule } from "./pages/profile/profile.module";
 
 @NgModule({
   declarations: [AppComponent],
