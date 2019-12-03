@@ -1,21 +1,16 @@
+@import "../../../styles.scss";
+
 .mat-list {
-    background: #e6e6e6;
     padding-top: 0;
 
     .mat-list-item {
-        background: #fbfcfb;
-        border-radius: 4px;
+        border-bottom: 1px solid $fitc-color-light-grey;
         height: auto;
-        margin: 8px;
-        padding: 16px;
+        padding: 16px 32px 16px 32px;
         width: auto;
     
         ::ng-deep .mat-list-item-content {
             padding: 0;
-        }    
-        // &.recent-game-item {
-        //     border-bottom: 1px solid #e6e6e6;
-        //     padding: 4px 0 4px 0;
-        // }
+        }
     }
 }
