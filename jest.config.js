@@ -4,4 +4,4 @@ module.exports = {
     "functions/jest.integ.config.js",
     "functions/jest.unit.config.js"
   ]
-}
+};

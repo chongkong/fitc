@@ -61,13 +61,13 @@ export async function createDummyData() {
     { ldap: "hdmoon", name: "Hyundo Moon", level: 2 }
   ];
 
-  fitcDevelopers.forEach(({ ldap, name, level }) => {
+  fitcDevelopers.forEach(playerData => {
     batch.set(
-      app.firestore().doc(Path.player(ldap)),
-      factory.createPlayer({ ldap, name, level })
+      app.firestore().doc(Path.player(playerData.ldap)),
+      factory.createPlayer(playerData)
     );
     batch.set(
-      app.firestore().doc(Path.playerStats(ldap)),
+      app.firestore().doc(Path.playerStats(playerData.ldap)),
       factory.emptyPlayerStats()
     );
   });
