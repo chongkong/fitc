@@ -1,5 +1,5 @@
 import { reduceGameResult } from "./game-results";
-import { PlayerState } from "../internal-types";
+import { PlayerState } from "../../../common/types";
 
 export const reducePlayerState = (
   state: PlayerState,

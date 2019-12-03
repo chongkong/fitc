@@ -7,10 +7,11 @@ import {
   RivalStats,
   TeamStats,
   Player
-} from "../../common/types";
-import { sandbox } from "../../common/platform/sandbox";
-import { Path } from "../../common/path";
-import { Arrays } from "../../common/utils";
+} from "../../../common/types";
+import { web } from "../../../common/platform/web";
+import { Path } from "../../../common/path";
+import { Arrays } from "../../../common/utils";
+import { PlayerState } from "../../../common/types";
 
 beforeAll(async () => {
   await helper.clearFirestoreData();
@@ -28,7 +29,7 @@ describe("Creates GameRecord", () => {
   describe("On first game", () => {
     beforeAll(async () => {
       await helper.createDummyData();
-      const now = sandbox.timestampFromDate("2019-11-11T12:34:56");
+      const now = web.timestampFromDate("2019-11-11T12:34:56");
       await db.setDoc<GameRecord>(Path.gameRecord("default", now), {
         winners: ["jjong", "hdmoon"],
         losers: ["shinjiwon", "hyeonjilee"],
@@ -37,7 +38,8 @@ describe("Creates GameRecord", () => {
         createdAt: now,
         recordedBy: "jjong"
       });
-      await utils.sleep(100); // Wait until function trigger finishes.
+      // Wait until function trigger finishes. Initiating first trigger takes time.
+      await utils.sleep(2000);
     });
 
     afterAll(async () => {
@@ -77,7 +79,6 @@ describe("Creates GameRecord", () => {
     });
 
     test("hdmoon's PlayerStats changed", async () => {
-      debugger;
       expect(await db.getDoc<PlayerStats>(Path.playerStats("hdmoon"))).toEqual({
         totalWins: 1,
         totalLoses: 0,
@@ -203,7 +204,7 @@ describe("Creates GameRecord", () => {
   describe("On draw", () => {
     beforeAll(async () => {
       await helper.createDummyData();
-      const now = sandbox.now();
+      const now = web.now();
       await db.setDoc<GameRecord>(Path.gameRecord("default", now), {
         winners: ["jjong", "hdmoon"],
         losers: ["shinjiwon", "hyeonjilee"],
@@ -212,7 +213,7 @@ describe("Creates GameRecord", () => {
         createdAt: now,
         recordedBy: "jjong"
       });
-      await utils.sleep(100); // Wait until function trigger finishes.
+      await utils.sleep(500); // Wait until function trigger finishes.
     });
 
     afterAll(async () => {
@@ -273,7 +274,7 @@ describe("Creates GameRecord", () => {
     beforeAll(async () => {
       await helper.createDummyData();
       for (let winStreaks = 1; winStreaks <= 10; winStreaks++) {
-        const now = sandbox.now();
+        const now = web.now();
         db.setDoc<GameRecord>(Path.gameRecord("default", now), {
           winners: ["jjong", "hdmoon"],
           losers: ["shinjiwon", "hyeonjilee"],
@@ -282,74 +283,75 @@ describe("Creates GameRecord", () => {
           createdAt: now,
           recordedBy: "jjong"
         });
-        await utils.sleep(50);
+        await utils.sleep(100);
       }
       // Wait until functions trigger.
-      await utils.sleep(100);
+      await utils.sleep(500);
     });
 
     afterAll(async () => {
       await helper.clearFirestoreData();
     });
 
-    test("jjong got promoted", async () => {
-      expect(await db.getDoc<Player>(Path.player("jjong"))).toMatchObject({
-        level: 3
-      });
-
+    test("Promotion and demotion events added", async () => {
       expect(await db.listDocs(Path.eventsCollection)).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             type: "promotion",
             ldap: "jjong"
-          })
-        ])
-      );
-    });
-
-    test("hdmoon got promoted", async () => {
-      expect(await db.getDoc<Player>(Path.player("hdmoon"))).toMatchObject({
-        level: 3
-      });
-
-      expect(await db.listDocs(Path.eventsCollection)).toEqual(
-        expect.arrayContaining([
+          }),
           expect.objectContaining({
             type: "promotion",
             ldap: "hdmoon"
-          })
-        ])
-      );
-    });
-
-    test("shinjiwon got demoted", async () => {
-      expect(await db.getDoc<Player>(Path.player("shinjiwon"))).toMatchObject({
-        level: 1
-      });
-
-      expect(await db.listDocs(Path.eventsCollection)).toEqual(
-        expect.arrayContaining([
+          }),
           expect.objectContaining({
             type: "demotion",
             ldap: "shinjiwon"
-          })
-        ])
-      );
-    });
-
-    test("hyeonjilee got demoted", async () => {
-      expect(await db.getDoc<Player>(Path.player("hyeonjilee"))).toMatchObject({
-        level: 2
-      });
-
-      expect(await db.listDocs(Path.eventsCollection)).toEqual(
-        expect.arrayContaining([
+          }),
           expect.objectContaining({
             type: "demotion",
             ldap: "hyeonjilee"
           })
         ])
       );
+    });
+
+    test("Player levels have changed", async () => {
+      expect(await db.listDocs<Player>(Path.playersCollection)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ldap: "jjong",
+            level: 3
+          }),
+          expect.objectContaining({
+            ldap: "hdmoon",
+            level: 3
+          }),
+          expect.objectContaining({
+            ldap: "shinjiwon",
+            level: 1
+          }),
+          expect.objectContaining({
+            ldap: "hyeonjilee",
+            level: 2
+          })
+        ])
+      );
+    });
+
+    test("PlayerState.recentGames are reset", async () => {
+      const playerStates = await db.getDocs<PlayerState>(
+        Path.playerState("jjong"),
+        Path.playerState("hdmoon"),
+        Path.playerState("shinjiwon"),
+        Path.playerState("hyeonjilee")
+      );
+
+      for (const state of playerStates) {
+        expect(state).toMatchObject({
+          recentGames: ""
+        });
+      }
     });
   });
 });

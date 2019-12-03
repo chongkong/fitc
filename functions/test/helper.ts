@@ -1,7 +1,7 @@
 import * as testing from "@firebase/testing";
 import * as admin from "firebase-admin";
-import { Path } from "../common/path";
-import { factory } from "../common/platform/admin";
+import { Path } from "../../common/path";
+import { factory } from "../../common/platform/admin";
 
 const random = Math.random()
   .toString(36)

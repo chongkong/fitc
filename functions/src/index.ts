@@ -1,3 +1,3 @@
-export { onUserCreate } from './triggers/auth';
-export { onGameRecordCreate } from './triggers/game-record';
-export { onEventCreate } from './triggers/event';
+export { onUserCreate } from './triggers/auth.create';
+export { onGameRecordCreate } from './triggers/game-record.create';
+export { onEventCreate } from './triggers/event.create';

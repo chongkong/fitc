@@ -103,3 +103,22 @@ export interface DemotionEvent extends BaseEvent {
 }
 
 export type Event = PromotionEvent | DemotionEvent;
+
+/**
+ * Schema for storing backend-only player state that should not
+ * be visible to the client.
+ * Stored under `_playerStates/`
+ */
+export interface PlayerState {
+  recentGames: string;
+}
+
+/**
+ * Schema for storing backend-only table state that should not
+ * be visible to the client.
+ *
+ * Stored under `_tableStates/`
+ */
+export interface TableState {
+  lastRecord?: GameRecord;
+}

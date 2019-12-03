@@ -1,5 +1,5 @@
 import { checkLevelUpdate } from "./level-update-policy";
-import { Arrays } from "../../common/utils";
+import { Arrays } from "./utils";
 
 describe("checkLevelUpdate", () => {
   test("Does not get demoted below 1", () => {

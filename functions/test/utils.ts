@@ -20,6 +20,10 @@ export class TypedFirestoreWrapper {
     return snapshot.exists ? (snapshot.data() as T) : undefined;
   }
 
+  async getDocs<T>(...paths: string[]): Promise<(T | undefined)[]> {
+    return Promise.all(paths.map(path => this.getDoc<T>(path)));
+  }
+
   async listDocs<T>(path: string): Promise<T[]> {
     const querySnapshot = await this.firestore.collection(path).get();
     return querySnapshot.docs.map(doc => doc.data() as T);
