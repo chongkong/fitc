@@ -25,6 +25,7 @@
     "@angular/router": "^8.2.14",
     "@fortawesome/angular-fontawesome": "^0.5.0",
     "@fortawesome/fontawesome-pro": "^5.11.2",
+    "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "firebase": "^7.5.0",
     "material-bottom-nav": "^1.0.6",
     "rxjs": "^6.5.3",
