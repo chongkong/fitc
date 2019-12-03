@@ -6,6 +6,7 @@ import { AngularFireAuthGuardModule } from "@angular/fire/auth-guard";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
+import { TimeagoModule } from "ngx-timeago";
 
 import { AppRoutingModule } from "src/app/app-routing.module";
 import { AppComponent } from "src/app/app.component";
@@ -28,6 +29,7 @@ import { ProfileModule } from "./pages/profile/profile.module";
     MatIconModule,
     MatToolbarModule,
     BrowserAnimationsModule,
+    TimeagoModule.forRoot(),
     HistoryModule,
     ProfileModule
   ],

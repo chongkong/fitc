@@ -1,12 +1,23 @@
-<div class="player-root" *ngIf="player | async as player; else emptySummary">
+<div
+  class="player-root row"
+  *ngIf="player | async as player; else emptySummary"
+>
   <div class="player-icon">Lv.{{ player.level }}</div>
-  <div class="player-name">{{ player.name }}</div>
+  <div class="col">
+    <div class="player-name">{{ player.name }}</div>
+    <div class="player-tenure">
+      Tenure: {{ player.createdAt.toDate() | timeago }}
+    </div>
+  </div>
 </div>
 <ng-template #emptySummary>
-  <div class="player-icon">
-    Lv.??
+  <div class="player-root row">
+    <div class="player-icon">Lv.??</div>
+    <div class="col">
+      <div class="player-name">Foosball player</div>
+      <div class="player-tenure">Tenure: 42 minutes ago</div>
+    </div>
   </div>
-  <div class="player-name">Foosball Player</div>
 </ng-template>
 
 <mat-list *ngIf="playerStats | async as playerStats">

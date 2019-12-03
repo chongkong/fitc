@@ -1,41 +1,62 @@
+@import "../../../styles.scss";
+
+$foreground: map-get($fitc-theme, foreground);
+
 * {
   font-family: "Google Sans";
 }
 
-.player-root {
+.col {
   $gap: 8px;
   display: flex;
-  align-items: center;
-  width: 100%;
-  margin: 1em;
+  flex-direction: column;
 
   * {
-    margin: 0 ($gap / 2);
-    &:first-child {
-      margin-left: 0;
+    margin-bottom: $gap;
+    &:last-child {
+      margin-bottom: 0;
     }
+  }
+}
+
+.row {
+  $gap: 16px;
+  display: flex;
+  width: 100%;
+
+  * {
+    margin-right: $gap;
     &:last-child {
       margin-right: 0;
     }
   }
+}
 
-  .player-icon {
-    $icon-size: 24px;
-    box-sizing: border-box;
-    background-color: rgba(0, 0, 0, 0.1);
-    padding: 0 0.6em;
-    height: $icon-size;
-    border-radius: $icon-size;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+.player-root {
+  margin: 1em;
+}
 
-  .player-name {
-    flex: 1;
-    font-size: 24px;
-    font-weight: bold;
-  }
+.player-icon {
+  $icon-size: 48px;
+  box-sizing: border-box;
+  background-color: rgba(0, 0, 0, 0.1);
+  width: $icon-size;
+  height: $icon-size;
+  border-radius: $icon-size;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.player-name {
+  flex: 1;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.player-tenure {
+  color: map-get($foreground, text);
+  font-family: "Roboto";
 }
 
 .single-line-stats {

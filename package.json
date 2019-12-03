@@ -28,6 +28,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "firebase": "^7.5.0",
     "material-bottom-nav": "^1.0.6",
+    "ngx-timeago": "^1.0.2",
     "rxjs": "^6.5.3",
     "tslib": "^1.10.0",
     "zone.js": "^0.9.1"
