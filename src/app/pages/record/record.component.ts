@@ -103,14 +103,6 @@ export class RecordComponent implements OnInit {
     this.recordCollection = this.tableDoc.collection<GameRecord>("records");
   }
 
-  registerPlayer(ldap: string, user: firebase.User) {
-    return this.afs.doc<Player>(`players/${ldap}`).set({
-      name: user.displayName,
-      ldap,
-      level: 1
-    });
-  }
-
   addToRecentPlayers(ldap: string) {
     combineLatest(this.tableDoc.get(), this.playerCollection.get())
       .pipe(first())

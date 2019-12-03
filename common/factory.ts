@@ -20,11 +20,13 @@ export class Factory {
   createPlayer = ({
     name,
     ldap,
-    level = 1
+    level = 1,
+    createdAt
   }: RequirePartial<Player, "ldap" | "name">): Player => ({
     name,
     ldap,
-    level
+    level,
+    createdAt: createdAt || this.platform.now()
   });
 
   createGameRecord = ({

@@ -6,6 +6,7 @@ import { AngularFireAuthGuardModule } from "@angular/fire/auth-guard";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
+import { TimeagoModule } from "ngx-timeago";
 
 import { AppRoutingModule } from "src/app/app-routing.module";
 import { AppComponent } from "src/app/app.component";
@@ -14,7 +15,7 @@ import { environment } from "src/environments/environment";
 import { LoginModule } from "./pages/login/login.module";
 import { RecordModule } from "./pages/record/record.module";
 import { HistoryModule } from "./pages/history/history.module";
-import { ProfileModule } from "./profile/profile.module";
+import { ProfileModule } from "./pages/profile/profile.module";
 
 @NgModule({
   declarations: [AppComponent],
@@ -28,6 +29,7 @@ import { ProfileModule } from "./profile/profile.module";
     MatIconModule,
     MatToolbarModule,
     BrowserAnimationsModule,
+    TimeagoModule.forRoot(),
     HistoryModule,
     ProfileModule
   ],

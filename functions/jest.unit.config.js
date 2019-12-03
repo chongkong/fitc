@@ -3,10 +3,9 @@ module.exports = {
   transform: {
     "^.+\\.ts$": "ts-jest"
   },
-  testMatch: [
-    "<rootDir>/**/*.unit.test.ts"
-  ],
+  testMatch: ["<rootDir>/**/*.unit.test.ts"],
   moduleFileExtensions: ["js", "json", "ts"],
+  modulePaths: ["<rootDir>/node_modules", "<rootDir>/../node_modules"],
   testEnvironment: "node",
   globals: {
     "ts-jest": {

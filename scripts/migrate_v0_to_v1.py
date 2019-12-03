@@ -171,6 +171,18 @@ class StatsRecorder(object):
             yield 'teamStats/{}'.format(','.join(teammates)), team_stats
 
 
+def first_play_time(df, ldap):
+    min_index = len(df)
+    for col in ['w1', 'w2', 'l1', 'l2']:
+        series = df[df[col] == ldap]
+        if not series.empty:
+            min_index = min(min_index, series.index[0])
+    if min_index < len(df):
+        return df.loc[min_index].Time
+    else:
+        raise ValueError('No game found for player {}'.format(ldap))
+
+
 def save_data(df: pd.DataFrame, emulate: bool):
     db = make_firestore_client(emulate=emulate)
 
@@ -195,6 +207,7 @@ def save_data(df: pd.DataFrame, emulate: bool):
         ldap = player_data['ldap']
         if ldap in all_player_ldaps:
             continue
+        player_data.update(createdAt=first_play_time(df, ldap))
         num_registered_players += 1
         batch.set(db.document('players/{}'.format(ldap)), player_data)
 
