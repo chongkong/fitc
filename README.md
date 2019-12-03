@@ -55,6 +55,17 @@ find a plugin for them!
 
 ## Frontend Development
 
+### Using FontAwesome Pro
+
+FontAwesome provides pro icons via private NPM repository. We need a
+authentication token configuration to access private NPM packages. This is a
+token for Jongbin's personal account, so don't use it outside the project.
+
+```shell
+$ npm config set "@fortawesome:registry" https://npm.fontawesome.com/
+$ npm config set "//npm.fontawesome.com/:_authToken" 818F0BDC-4C9C-483B-83AE-F4F1A4907794
+```
+
 ### Angular CLI usage
 
 To run an Angular app in local development server, you can use Angular CLI (`ng`
