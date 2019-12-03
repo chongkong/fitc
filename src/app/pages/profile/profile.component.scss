@@ -55,7 +55,7 @@ $foreground: map-get($fitc-theme, foreground);
 }
 
 .player-tenure {
-  color: map-get($foreground, text);
+  color: map-get($foreground, disabled);
   font-family: "Roboto";
 }
 
@@ -72,5 +72,27 @@ $foreground: map-get($fitc-theme, foreground);
     flex: 1;
     font-family: monospace;
     text-align: right;
+  }
+}
+
+mat-list-item.contains-chart {
+  height: 248px;
+}
+
+.chart-stats {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 221px;
+
+  .label {
+    flex: 1;
+    font-weight: 900;
+    margin-bottom: 16px;
+  }
+
+  .chart-wrapper {
+    width: 100%;
+    height: 100%;
   }
 }

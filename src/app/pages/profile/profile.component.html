@@ -42,10 +42,24 @@
     </div>
   </mat-list-item>
   <mat-divider></mat-divider>
-  <mat-list-item>
-    <div class="single-line-stats">
-      <span class="label">Recent Games</span>
-      <span class="value">{{ playerStats.recentGames }}</span>
+  <mat-list-item
+    class="contains-chart"
+    *ngIf="playerStats.recentGames.length > 0"
+  >
+    <div class="chart-stats">
+      <div class="label">Recent Games</div>
+      <div class="chart-wrapper">
+        <ngx-charts-line-chart
+          [results]="buildChartData(playerStats)"
+          [scheme]="colorScheme"
+          [gradient]="true"
+          [tooltipDisabled]="true"
+          [xAxis]="true"
+          [autoScale]="true"
+        >
+        </ngx-charts-line-chart>
+      </div>
+      <ng-template #noRecentGames> </ng-template>
     </div>
   </mat-list-item>
 </mat-list>

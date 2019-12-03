@@ -4,6 +4,7 @@ import { AngularFirestoreModule } from "@angular/fire/firestore";
 import { AngularFireAuthModule } from "@angular/fire/auth";
 import { MatListModule } from "@angular/material/list";
 import { TimeagoModule } from "ngx-timeago";
+import { NgxChartsModule } from "@swimlane/ngx-charts";
 
 import { ProfileComponent } from "./profile.component";
 
@@ -14,7 +15,8 @@ import { ProfileComponent } from "./profile.component";
     AngularFirestoreModule,
     AngularFireAuthModule,
     MatListModule,
-    TimeagoModule
+    TimeagoModule,
+    NgxChartsModule
   ],
   providers: []
 })
