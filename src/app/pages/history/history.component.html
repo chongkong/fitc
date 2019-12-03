@@ -1,13 +1,39 @@
 <!-- Recent games -->
 <mat-list>
-  <mat-list-item
-    *ngFor="let record of records | async"
-    class="recent-game-item"
-  >
-    Winners: {{ record.winners[0] }}, {{ record.winners[1] }}<br />
-    Losers: {{ record.losers[0] }}, {{ record.losers[1] }}<br />
-    isDraw: {{ record.isDraw }}<br />
-    winStreaks: {{ record.winStreaks }}<br />
-    createdAt: {{ record.createdAt }}<br />
-  </mat-list-item>
+  <div *ngFor="let historyItem of historyItems | async" class="history-item-container">
+    <span class="date">{{ historyItem.createdAt.toMillis() | date:'yyyy/MM/dd h:mm:ss'}}</span>
+    <!-- Record -->
+    <mat-list-item *ngIf="!isEvent(historyItem)" class="record-item">
+      <div class="col win-col">
+        <div class="menu">
+          Win
+        </div>
+        <div class="info">
+          <div>{{ historyItem.winners[0] }}</div>
+          <div>{{ historyItem.winners[1] }}</div>
+        </div>
+      </div>
+      <div class="col lose-col">
+        <div class="menu">
+          Lose
+        </div>
+        <div class="info">
+          <div>{{ historyItem.losers[0] }}</div>
+          <div>{{ historyItem.losers[1] }}</div>
+        </div>
+      </div>
+      </mat-list-item>
+      <!-- Event -->
+      <mat-list-item *ngIf="isEvent(historyItem)" class="event-item">
+        <div class="menu"
+             [class.promotion]="asEvent(historyItem).type==='promotion'"
+             [class.demotion]="asEvent(historyItem).type==='demotion'">
+          <span>{{ asEvent(historyItem).type | titlecase }}</span>
+          <span>from {{ asEvent(historyItem).levelFrom }} to {{ asEvent(historyItem.levelTo) }}</span>
+        </div>
+        <div class="info">
+          {{ asEvent(historyItem).ldap }}
+        </div>
+      </mat-list-item>
+  </div>
 </mat-list>

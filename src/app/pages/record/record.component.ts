@@ -5,8 +5,9 @@ import {
   AngularFirestoreCollection,
   AngularFirestoreDocument
 } from "@angular/fire/firestore";
+import { FormControl } from "@angular/forms";
 import { Observable, combineLatest } from "rxjs";
-import { map, flatMap, first, last } from "rxjs/operators";
+import { map, flatMap, first, filter } from "rxjs/operators";
 import { firestore } from "firebase";
 
 import { Player, GameRecord, FoosballTable } from "common/types";
@@ -42,7 +43,8 @@ export class RecordComponent implements OnInit {
   me: Observable<Player>;
   records: Observable<GameRecord[]>;
   lastRecord: Observable<GameRecord | undefined>;
-  recentPlayers: Player[];
+  recentPlayers: Observable<Player[]>;
+  allPlayers: Observable<Player[]>;
 
   // Document & collection reference from firestore.
 
@@ -57,6 +59,9 @@ export class RecordComponent implements OnInit {
   winners: string[] = [];
   losers: string[] = [];
   isDraw: boolean = false;
+
+  ldapForm = new FormControl();
+  filteredOptions: Observable<Player[]>;
 
   constructor(public afAuth: AngularFireAuth, public afs: AngularFirestore) {
     // Setup me
@@ -77,10 +82,10 @@ export class RecordComponent implements OnInit {
       .collection<Player>("players")
       .valueChanges()
       .pipe(map(groupByLdap));
-    combineLatest(recentPlayersLdap, playersByLdap)
-      .pipe(map(([ldaps, players]) => ldaps.map(ldap => players[ldap])))
-      .subscribe(recentPlayers => (this.recentPlayers = recentPlayers));
-
+    this.recentPlayers = combineLatest(recentPlayersLdap, playersByLdap).pipe(
+      map(([ldaps, players]) => ldaps.map(ldap => players[ldap]))
+    );
+    this.allPlayers = afs.collection<Player>("players").valueChanges();
     // Setup records
     this.records = this.tableDoc
       .collection<GameRecord>("records", ref =>
@@ -197,5 +202,54 @@ export class RecordComponent implements OnInit {
     this.losers = [];
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    const isPlayerMatchWithFilterValue = (
+      player: Player,
+      filterValue: string
+    ) => {
+      return (
+        player.ldap.toLowerCase().includes(filterValue) ||
+        player.name.toLowerCase().includes(filterValue)
+      );
+    };
+
+    const isPlayerInRecentPlayers = (
+      player: Player,
+      recentPlayers: Player[]
+    ) => {
+      return (
+        recentPlayers.findIndex(
+          recentPlayer => recentPlayer.ldap === player.ldap
+        ) === -1
+      );
+    };
+
+    this.filteredOptions = combineLatest(
+      this.ldapForm.valueChanges,
+      this.recentPlayers,
+      this.allPlayers
+    ).pipe(
+      map(([value, recentPlayers, allPlayers]) => {
+        let filterValue =
+          typeof value === "string"
+            ? value.toLowerCase()
+            : value.ldap.toLowerCase();
+
+        return allPlayers.filter(player => {
+          return (
+            isPlayerMatchWithFilterValue(player, filterValue) &&
+            !isPlayerInRecentPlayers(player, recentPlayers)
+          );
+        });
+      })
+    );
+  }
+
+  displayFn(player?: Player): string | undefined {
+    return player ? player.ldap : undefined;
+  }
+
+  onFocus() {
+    this.ldapForm.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+  }
 }

@@ -2,14 +2,15 @@
 @import "../styles.scss";
 
 .mat-toolbar {
-  background: $fitc-color-default-blue;
-  color: $white;
+  background: $fitc-color-light-grey;
+  color: $fitc-color-dark-blue;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: $fitc-padding-xlg $fitc-padding-lg;
 }
 
 .content-container {
-  background: $fitc-color-default-grey;
+  background: $fitc-color-light-grey;
   bottom: 56px;
   left: 0;
   overflow-y: scroll;
@@ -19,7 +20,7 @@
 }
 
 .bottom-nav {
-  @include bottom-nav($background-color:$fitc-color-light-grey, $active-color: #e1e2e1, $inactive-color: #E0E0E0, $hide-inactive-labels: false);
+  @include bottom-nav($background-color:$white, $active-color: #e1e2e1, $inactive-color: #E0E0E0, $hide-inactive-labels: false);
   box-shadow: none;
 
   >a {

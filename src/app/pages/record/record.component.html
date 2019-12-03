@@ -1,15 +1,15 @@
 <!-- Recent players -->
-<mat-list *ngIf="recentPlayers && recentPlayers.length > 0">
+<mat-list *ngIf="recentPlayers | async as recentPlayers">
   <mat-list-item *ngFor="let player of recentPlayers">
-    [{{ player.level }}] {{ player.name }}
-    <button
+    <div class="profile">[{{ player.level }}] {{ player.name }}</div>
+    <button class="win-btn"
       mat-button
       (click)="toggleWinner(player.ldap)"
       [style.color]="isWinner(player.ldap) ? 'blue' : 'black'"
     >
       {{ isDraw ? "Team1" : "Win" }}
     </button>
-    <button
+    <button class="lose-btn"
       mat-button
       (click)="toggleLoser(player.ldap)"
       [style.color]="isLoser(player.ldap) ? 'red' : 'black'"
@@ -22,10 +22,17 @@
   </mat-list-item>
 </mat-list>
 <div class="row">
-  <mat-form-field>
-    <input matInput placeholder="ldap" [(ngModel)]="ldapInput" />
-  </mat-form-field>
-  <button mat-button (click)="addToRecentPlayers(ldapInput)">Add</button>
+  <form>
+    <mat-form-field>
+      <input matInput placeholder="ldap" (focus)="onFocus()" [(ngModel)]="ldapInput" [formControl]="ldapForm" [matAutocomplete]="auto"/>
+    </mat-form-field>
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+      <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+        {{option.name}} ({{option.ldap}}@)
+      </mat-option>
+    </mat-autocomplete>
+    <button mat-button (click)="addToRecentPlayers(ldapInput.ldap)">Add</button>
+  </form>
 </div>
 <!-- Record game -->
 <div class="row record-row">
