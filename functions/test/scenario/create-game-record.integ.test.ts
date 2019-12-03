@@ -286,7 +286,7 @@ describe("Creates GameRecord", () => {
         await utils.sleep(100);
       }
       // Wait until functions trigger.
-      await utils.sleep(500);
+      await utils.sleep(1000);
     });
 
     afterAll(async () => {

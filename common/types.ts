@@ -8,6 +8,7 @@ export interface Player {
   name: string;
   ldap: string;
   level: number;
+  createdAt: Timestamp;
 }
 
 /**
