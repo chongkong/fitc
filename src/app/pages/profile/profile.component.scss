@@ -1,0 +1,55 @@
+* {
+  font-family: "Google Sans";
+}
+
+.player-root {
+  $gap: 8px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 1em;
+
+  * {
+    margin: 0 ($gap / 2);
+    &:first-child {
+      margin-left: 0;
+    }
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .player-icon {
+    $icon-size: 24px;
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 0 0.6em;
+    height: $icon-size;
+    border-radius: $icon-size;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .player-name {
+    flex: 1;
+    font-size: 24px;
+    font-weight: bold;
+  }
+}
+
+.single-line-stats {
+  display: flex;
+  width: 100%;
+
+  .label {
+    flex: 1;
+    font-weight: 900;
+  }
+
+  .value {
+    flex: 1;
+    font-family: monospace;
+    text-align: right;
+  }
+}

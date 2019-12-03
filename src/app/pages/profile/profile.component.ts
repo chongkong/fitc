@@ -1,32 +1,39 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFirestore } from "@angular/fire/firestore";
-import { Observable } from "rxjs";
+import { Observable, ReplaySubject, Subject } from "rxjs";
 import { flatMap } from "rxjs/operators";
-import { Player } from "common/types";
+
+import { Player, PlayerStats } from "common/types";
+import { Path } from "common/path";
 
 @Component({
   selector: "app-profile",
   templateUrl: "./profile.component.html",
   styleUrls: ["./profile.component.scss"]
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
   // Observables from firestore.
 
-  me: Observable<Player>;
+  ldap: Subject<string>;
+  player: Observable<Player>;
+  playerStats: Observable<PlayerStats>;
 
-  // Component bindings.
-
-  myLdap: string = "";
+  // Services
 
   constructor(public afAuth: AngularFireAuth, public afs: AngularFirestore) {
-    // Setup me
-    this.me = afAuth.user.pipe(
-      flatMap((user: firebase.User) => {
-        const ldap = user.email.split("@")[0];
-        this.myLdap = ldap;
-        return afs.doc<Player>(`players/${ldap}`).valueChanges();
-      })
+    this.ldap = new ReplaySubject<string>(1);
+    this.player = this.ldap.pipe(
+      flatMap(ldap => afs.doc<Player>(Path.player(ldap)).valueChanges())
     );
+    this.playerStats = this.ldap.pipe(
+      flatMap(ldap =>
+        afs.doc<PlayerStats>(Path.playerStats(ldap)).valueChanges()
+      )
+    );
+  }
+
+  ngOnInit() {
+    this.ldap.next(this.afAuth.auth.currentUser.email.split("@")[0]);
   }
 }

@@ -1,1 +1,40 @@
-<p>{{myLdap}}</p>
+<div class="player-root" *ngIf="player | async as player; else emptySummary">
+  <div class="player-icon">Lv.{{ player.level }}</div>
+  <div class="player-name">{{ player.name }}</div>
+</div>
+<ng-template #emptySummary>
+  <div class="player-icon">
+    Lv.??
+  </div>
+  <div class="player-name">Foosball Player</div>
+</ng-template>
+
+<mat-list *ngIf="playerStats | async as playerStats">
+  <mat-list-item>
+    <div class="single-line-stats">
+      <span class="label">Total Wins</span>
+      <span class="value">{{ playerStats.totalWins }}</span>
+    </div>
+  </mat-list-item>
+  <mat-divider></mat-divider>
+  <mat-list-item>
+    <div class="single-line-stats">
+      <span class="label">Total Loses</span>
+      <span class="value">{{ playerStats.totalLoses }}</span>
+    </div>
+  </mat-list-item>
+  <mat-divider></mat-divider>
+  <mat-list-item>
+    <div class="single-line-stats">
+      <span class="label">Most Win Streaks</span>
+      <span class="value">{{ playerStats.mostWinStreaks }}</span>
+    </div>
+  </mat-list-item>
+  <mat-divider></mat-divider>
+  <mat-list-item>
+    <div class="single-line-stats">
+      <span class="label">Recent Games</span>
+      <span class="value">{{ playerStats.recentGames }}</span>
+    </div>
+  </mat-list-item>
+</mat-list>
