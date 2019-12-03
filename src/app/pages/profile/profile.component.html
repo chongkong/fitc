@@ -62,4 +62,22 @@
       <ng-template #noRecentGames> </ng-template>
     </div>
   </mat-list-item>
+  <mat-divider></mat-divider>
+  <mat-list-item *ngIf="playerRivalStats | async">
+    <div class="single-line-stats">
+      <div class="label">Rival Stats</div>
+    </div>
+  </mat-list-item>
+  <mat-list class="rival-stats" dense>
+    <mat-list-item *ngFor="let rivalStats of playerRivalStats | async">
+      <div class="single-line-stats">
+        <div class="label">{{ rivalStats.rival }}</div>
+        <div class="value">
+          {{ rivalStats.totalWins }} : {{ rivalStats.totalLoses }} ({{
+            winRate(rivalStats)
+          }}%)
+        </div>
+      </div>
+    </mat-list-item>
+  </mat-list>
 </mat-list>

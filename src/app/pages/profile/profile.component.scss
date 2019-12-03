@@ -96,3 +96,16 @@ mat-list-item.contains-chart {
     height: 100%;
   }
 }
+
+.rival-stats {
+  mat-list-item {
+    margin: 0 auto;
+    width: 90%;
+    height: 28px;
+  }
+
+  .label,
+  .value {
+    font-size: 0.9rem;
+  }
+}

@@ -2,9 +2,9 @@ import { Component, OnInit } from "@angular/core";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFirestore } from "@angular/fire/firestore";
 import { Observable, ReplaySubject, Subject } from "rxjs";
-import { flatMap } from "rxjs/operators";
+import { flatMap, map } from "rxjs/operators";
 
-import { Player, PlayerStats } from "common/types";
+import { Player, PlayerStats, RivalStats } from "common/types";
 import { Path } from "common/path";
 import { Arrays } from "common/utils";
 
@@ -19,6 +19,7 @@ export class ProfileComponent implements OnInit {
   ldap: Subject<string>;
   player: Observable<Player>;
   playerStats: Observable<PlayerStats>;
+  playerRivalStats: Observable<(RivalStats & { rival: string })[]>;
 
   colorScheme = {
     domain: ["#2C83C9"]
@@ -35,6 +36,22 @@ export class ProfileComponent implements OnInit {
         afs.doc<PlayerStats>(Path.playerStats(ldap)).valueChanges()
       )
     );
+    this.playerRivalStats = this.ldap.pipe(
+      flatMap(ldap =>
+        afs
+          .collection<RivalStats>(Path.rivalStatsCollection(ldap))
+          .snapshotChanges()
+      ),
+      map(snapshots =>
+        snapshots
+          .map(snapshot => {
+            const rival = snapshot.payload.doc.id;
+            const rivalStats = snapshot.payload.doc.data();
+            return Object.assign(rivalStats, { rival });
+          })
+          .sort((s1, s2) => s2.totalWins - s1.totalWins)
+      )
+    );
   }
 
   buildChartData({ totalWins, totalLoses, recentGames }: PlayerStats) {
@@ -47,8 +64,6 @@ export class ProfileComponent implements OnInit {
     const recentWins = results.filter(result => result === "W").length;
     const recentLoses = results.filter(result => result === "L").length;
     const initDelta = lastDelta - (recentWins - recentLoses);
-    let min = initDelta;
-    let max = initDelta;
     const series = results.reverse().reduce((data, result) => {
       const prevData =
         data.length > 0
@@ -59,8 +74,6 @@ export class ProfileComponent implements OnInit {
         name: prevData.name + 1,
         value: prevData.value + delta
       });
-      min = Math.min(min, data[data.length - 1].value);
-      max = Math.max(max, data[data.length - 1].value);
       return data;
     }, []);
     this.chartDataCache[recentGames] = [
@@ -73,6 +86,10 @@ export class ProfileComponent implements OnInit {
       }
     ];
     return this.chartDataCache[recentGames];
+  }
+
+  winRate({ totalWins, totalLoses }: PlayerStats | RivalStats) {
+    return Math.floor((totalWins / (totalWins + totalLoses)) * 1000) / 10;
   }
 
   ngOnInit() {
