@@ -3,7 +3,6 @@
   "scripts": {
     "lint": "tslint --project tsconfig.json",
     "build": "tsc --project tsconfig.json",
-    "build:pg": "tsc --project tsconfig-playground.json",
     "serve": "npm run build && firebase serve --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
