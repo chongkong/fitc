@@ -14,7 +14,6 @@ export const onEventCreate = functions.firestore
   .document("events/{eventId}")
   .onCreate(async snapshot => {
     const event = snapshot.data() as Event;
-    console.log(JSON.stringify(process.env));
     const deferred = [];
     if (event.type === "promotion") {
       const promotion = (event as unknown) as PromotionEvent;
