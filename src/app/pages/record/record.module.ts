@@ -12,12 +12,14 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDialogModule } from "@angular/material/dialog";
 
 import { RecordComponent } from "./record.component";
+import { ComponentsModule } from "src/app/components/components.module";
 
 @NgModule({
   declarations: [RecordComponent],
   imports: [
     AngularFirestoreModule,
     CommonModule,
+    ComponentsModule,
     FormsModule,
     MatAutocompleteModule,
     MatButtonModule,

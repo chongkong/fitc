@@ -1,4 +1,5 @@
-import { Component, OnInit, Inject } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
 import { AngularFireAuth } from "@angular/fire/auth";
 import {
   AngularFirestore,
@@ -6,11 +7,14 @@ import {
   AngularFirestoreDocument
 } from "@angular/fire/firestore";
 import { FormControl } from "@angular/forms";
-import { Observable, combineLatest } from "rxjs";
-import { map, flatMap, first, filter } from "rxjs/operators";
+import { Observable, combineLatest, Subscription } from "rxjs";
+import { map, flatMap, first, take } from "rxjs/operators";
 import { firestore } from "firebase";
 
 import { Player, GameRecord, FoosballTable } from "common/types";
+import { PlayerDialogComponent } from "src/app/components/player-dialog/player-dialog.component";
+import { PlayersService } from "src/app/services/players.service";
+import { Path } from "common/path";
 
 /**
  * Sort by level DESC, name ASC.
@@ -32,19 +36,22 @@ function groupByLdap(players: Player[]) {
   }, {});
 }
 
+export interface DialogData {
+  filteredPlayers: Observable<Player[]>;
+}
+
 @Component({
   selector: "app-record",
   templateUrl: "./record.component.html",
   styleUrls: ["./record.component.scss"]
 })
-export class RecordComponent implements OnInit {
+export class RecordComponent implements OnDestroy {
   // Observables from firestore.
 
   me: Observable<Player>;
   records: Observable<GameRecord[]>;
   lastRecord: Observable<GameRecord | undefined>;
   recentPlayers: Observable<Player[]>;
-  allPlayers: Observable<Player[]>;
 
   // Document & collection reference from firestore.
 
@@ -59,11 +66,16 @@ export class RecordComponent implements OnInit {
   winners: string[] = [];
   losers: string[] = [];
   isDraw: boolean = false;
+  currentRecentPlayers: Player[];
 
-  ldapForm = new FormControl();
-  filteredOptions: Observable<Player[]>;
+  subscriptions: Subscription[] = [];
 
-  constructor(public afAuth: AngularFireAuth, public afs: AngularFirestore) {
+  constructor(
+    public afAuth: AngularFireAuth,
+    public afs: AngularFirestore,
+    readonly ps: PlayersService,
+    public dialog: MatDialog
+  ) {
     // Setup me
     this.me = afAuth.user.pipe(
       flatMap((user: firebase.User) => {
@@ -75,17 +87,19 @@ export class RecordComponent implements OnInit {
 
     // Setup recentPlayers
     this.tableDoc = afs.doc<FoosballTable>("tables/default");
-    const recentPlayersLdap = this.tableDoc
+    const recentPlayersLdaps = this.tableDoc
       .valueChanges()
       .pipe(map(table => (table ? table.recentPlayers : [])));
-    const playersByLdap = afs
-      .collection<Player>("players")
-      .valueChanges()
-      .pipe(map(groupByLdap));
-    this.recentPlayers = combineLatest(recentPlayersLdap, playersByLdap).pipe(
-      map(([ldaps, players]) => ldaps.map(ldap => players[ldap]))
+
+    this.recentPlayers = combineLatest(
+      recentPlayersLdaps,
+      ps.allPlayersByLdap
+    ).pipe(
+      map(([ldaps, allPlayersByLdap]) => {
+        this.currentRecentPlayers = ldaps.map(ldap => allPlayersByLdap[ldap]);
+        return this.currentRecentPlayers;
+      })
     );
-    this.allPlayers = afs.collection<Player>("players").valueChanges();
     // Setup records
     this.records = this.tableDoc
       .collection<GameRecord>("records", ref =>
@@ -103,21 +117,8 @@ export class RecordComponent implements OnInit {
     this.recordCollection = this.tableDoc.collection<GameRecord>("records");
   }
 
-  addToRecentPlayers(ldap: string) {
-    combineLatest(this.tableDoc.get(), this.playerCollection.get())
-      .pipe(first())
-      .subscribe(([tableSnapshot, playersSnapshot]) => {
-        const validLdaps = playersSnapshot.docs.map(
-          player => player.data().ldap
-        );
-        if (!validLdaps.includes(ldap)) {
-          return;
-        }
-        this.tableDoc.update({
-          recentPlayers: [...tableSnapshot.data().recentPlayers, ldap]
-        });
-        this.ldapInput = "";
-      });
+  ngOnDestroy() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   removeFromRecentPlayers(ldap: string) {
@@ -126,10 +127,8 @@ export class RecordComponent implements OnInit {
     else if (this.losers.includes(ldap))
       this.losers.splice(this.losers.indexOf(ldap), 1);
 
-    this.tableDoc.get().subscribe(snapshot => {
-      this.tableDoc.update({
-        recentPlayers: snapshot.data().recentPlayers.filter(v => v !== ldap)
-      });
+    this.afs.doc(Path.table("default")).update({
+      recentPlayers: firestore.FieldValue.arrayRemove(ldap)
     });
   }
 
@@ -194,54 +193,32 @@ export class RecordComponent implements OnInit {
     this.losers = [];
   }
 
-  ngOnInit() {
-    const isPlayerMatchWithFilterValue = (
-      player: Player,
-      filterValue: string
-    ) => {
-      return (
-        player.ldap.toLowerCase().includes(filterValue) ||
-        player.name.toLowerCase().includes(filterValue)
-      );
-    };
-
-    const isPlayerInRecentPlayers = (
-      player: Player,
-      recentPlayers: Player[]
-    ) => {
-      return (
-        recentPlayers.findIndex(
-          recentPlayer => recentPlayer.ldap === player.ldap
-        ) !== -1
-      );
-    };
-
-    this.filteredOptions = combineLatest(
-      this.ldapForm.valueChanges,
-      this.recentPlayers,
-      this.allPlayers
-    ).pipe(
-      map(([value, recentPlayers, allPlayers]) => {
-        let filterValue =
-          typeof value === "string"
-            ? value.toLowerCase()
-            : value.ldap.toLowerCase();
-
-        return allPlayers.filter(player => {
-          return (
-            isPlayerMatchWithFilterValue(player, filterValue) &&
-            !isPlayerInRecentPlayers(player, recentPlayers)
-          );
-        });
+  openDialog() {
+    const filteredPlayers = this.ps.allPlayers.pipe(
+      map(allPlayers => {
+        return allPlayers.filter(
+          player =>
+            this.currentRecentPlayers.findIndex(
+              recentPlayer => recentPlayer.ldap === player.ldap
+            ) === -1
+        );
       })
     );
-  }
 
-  displayFn(player?: Player): string | undefined {
-    return player ? player.ldap : undefined;
-  }
+    const dialogRef = this.dialog.open(PlayerDialogComponent, {
+      width: "250px",
+      data: { filteredPlayers }
+    });
 
-  onFocus() {
-    this.ldapForm.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(selected => {
+        if (selected && selected.length > 0) {
+          this.afs.doc(Path.table("default")).update({
+            recentPlayers: firestore.FieldValue.arrayUnion(...selected)
+          });
+        }
+      });
   }
 }

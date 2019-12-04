@@ -15,6 +15,7 @@ import { LoginModule } from "./pages/login/login.module";
 import { RecordModule } from "./pages/record/record.module";
 import { HistoryModule } from "./pages/history/history.module";
 import { ProfileModule } from "./pages/profile/profile.module";
+import { PlayerDialogComponent } from "./components/player-dialog/player-dialog.component";
 
 @NgModule({
   declarations: [AppComponent],
@@ -42,6 +43,7 @@ import { ProfileModule } from "./pages/profile/profile.module";
           }
     }
   ],
+  entryComponents: [PlayerDialogComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

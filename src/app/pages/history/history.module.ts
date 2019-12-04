@@ -4,11 +4,10 @@ import { MatListModule } from "@angular/material/list";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 import { HistoryComponent } from "./history.component";
-import { PlayerChipComponent } from "../../components/player-chip/player-chip.component";
-import { GameRecordComponent } from "../../components/game-record/game-record.component";
+import { ComponentsModule } from "src/app/components/components.module";
 
 @NgModule({
-  declarations: [HistoryComponent, PlayerChipComponent, GameRecordComponent],
-  imports: [CommonModule, MatListModule, FontAwesomeModule]
+  declarations: [HistoryComponent],
+  imports: [CommonModule, MatListModule, FontAwesomeModule, ComponentsModule]
 })
 export class HistoryModule {}
