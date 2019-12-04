@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { PlayerChipComponent } from "./player-chip/player-chip.component";
 import { GameRecordComponent } from "./game-record/game-record.component";
-import { PlayerDialogComponent } from "./player-dialog/player-dialog.component";
+import { PlayerSelectDialogComponent } from "./player-select-dialog/player-select-dialog.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
@@ -11,9 +11,13 @@ import { MatButtonModule } from "@angular/material/button";
   declarations: [
     PlayerChipComponent,
     GameRecordComponent,
-    PlayerDialogComponent
+    PlayerSelectDialogComponent
   ],
   imports: [CommonModule, FontAwesomeModule, MatDialogModule, MatButtonModule],
-  exports: [PlayerChipComponent, GameRecordComponent, PlayerDialogComponent]
+  exports: [
+    PlayerChipComponent,
+    GameRecordComponent,
+    PlayerSelectDialogComponent
+  ]
 })
 export class ComponentsModule {}

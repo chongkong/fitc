@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { AngularFireAuth } from "@angular/fire/auth";
 import {
@@ -6,16 +6,15 @@ import {
   AngularFirestoreCollection,
   AngularFirestoreDocument
 } from "@angular/fire/firestore";
-import { FormControl } from "@angular/forms";
-import { Observable, combineLatest, Subscription } from "rxjs";
-import { map, flatMap, first, take } from "rxjs/operators";
+import { Observable, combineLatest } from "rxjs";
+import { map, flatMap, take } from "rxjs/operators";
 import { firestore } from "firebase";
 
 import { Player, GameRecord, FoosballTable } from "common/types";
 import {
-  PlayerDialogComponent,
+  PlayerSelectDialogComponent,
   PlayerDialogData
-} from "src/app/components/player-dialog/player-dialog.component";
+} from "src/app/components/player-select-dialog/player-select-dialog.component";
 import { PlayersService } from "src/app/services/players.service";
 import { Path } from "common/path";
 
@@ -44,7 +43,7 @@ function groupByLdap(players: Player[]) {
   templateUrl: "./record.component.html",
   styleUrls: ["./record.component.scss"]
 })
-export class RecordComponent implements OnDestroy {
+export class RecordComponent {
   // Observables from firestore.
 
   me: Observable<Player>;
@@ -66,8 +65,6 @@ export class RecordComponent implements OnDestroy {
   losers: string[] = [];
   isDraw: boolean = false;
   currentRecentPlayers: Player[];
-
-  subscriptions: Subscription[] = [];
 
   constructor(
     public afAuth: AngularFireAuth,
@@ -114,10 +111,6 @@ export class RecordComponent implements OnDestroy {
     // Setup remaining collections.
     this.playerCollection = afs.collection<Player>("players");
     this.recordCollection = this.tableDoc.collection<GameRecord>("records");
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   removeFromRecentPlayers(ldap: string) {
@@ -204,7 +197,7 @@ export class RecordComponent implements OnDestroy {
       })
     );
 
-    const dialogRef = this.dialog.open(PlayerDialogComponent, {
+    const dialogRef = this.dialog.open(PlayerSelectDialogComponent, {
       width: "250px",
       data: {
         header: "Select Players",

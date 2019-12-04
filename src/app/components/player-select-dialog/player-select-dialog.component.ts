@@ -10,15 +10,15 @@ export interface PlayerDialogData {
 }
 
 @Component({
-  selector: "app-player-dialog",
-  templateUrl: "./player-dialog.component.html",
-  styleUrls: ["./player-dialog.component.scss"]
+  selector: "app-player-select-dialog",
+  templateUrl: "./player-select-dialog.component.html",
+  styleUrls: ["./player-select-dialog.component.scss"]
 })
-export class PlayerDialogComponent implements OnInit {
+export class PlayerSelectDialogComponent implements OnInit {
   ldaps: string[] = [];
 
   constructor(
-    public dialogRef: MatDialogRef<PlayerDialogComponent>,
+    public dialogRef: MatDialogRef<PlayerSelectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: PlayerDialogData
   ) {}
 
