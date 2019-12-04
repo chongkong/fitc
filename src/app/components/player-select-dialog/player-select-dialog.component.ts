@@ -37,7 +37,7 @@ export class PlayerSelectDialogComponent implements OnInit {
         ? this.ldaps.filter(l => l !== ldap)
         : this.ldaps.concat(ldap);
     } else {
-      this.ldaps = [ldap];
+      this.dialogRef.close(ldap);
     }
   }
 }

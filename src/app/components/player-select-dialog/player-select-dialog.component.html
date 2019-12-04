@@ -12,7 +12,7 @@
     </div>
   </div>
 </div>
-<div class="dialog-actions" mat-dialog-actions>
+<div *ngIf="data.multiselect" class="dialog-actions" mat-dialog-actions>
   <button mat-button mat-stroked-button (click)="dialogRef.close()">
     CANCEL
   </button>
