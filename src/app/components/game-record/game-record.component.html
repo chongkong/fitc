@@ -7,8 +7,9 @@
     >
       <fa-icon
         [icon]="faCrown"
-        *ngFor="let _ of range(data.winStreaks)"
+        *ngFor="let _ of numCrowns(data.winStreaks)"
       ></fa-icon>
+      <div *ngIf="data.winStreaks > 6">×{{ data.winStreaks }}</div>
     </div>
     <app-player-chip
       *ngFor="let player of data.blue"
@@ -23,13 +24,13 @@
     >
       <fa-icon
         [icon]="faCrown"
-        *ngFor="let _ of range(data.winStreaks)"
+        *ngFor="let _ of numCrowns(data.winStreaks)"
       ></fa-icon>
+      <div *ngIf="data.winStreaks > 6">×{{ data.winStreaks }}</div>
     </div>
     <app-player-chip
       *ngFor="let player of data.red"
       [player]="player"
-      [reverse]="true"
     ></app-player-chip>
   </div>
 </div>

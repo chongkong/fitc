@@ -1,11 +1,11 @@
-<!-- Recent games -->
 <mat-list>
-  <div></div>
-</mat-list>
-
-<mat-list>
-  <app-game-record
-    *ngFor="let recordView of recordViews | async"
-    [data]="recordView"
-  ></app-game-record>
+  <div *ngFor="let item of items | async">
+    <app-game-record
+      *ngIf="isRecord(item); else event"
+      [data]="item"
+    ></app-game-record>
+    <ng-template #event>
+      <div class="event-message">{{ getEventMessage(item) }}</div>
+    </ng-template>
+  </div>
 </mat-list>

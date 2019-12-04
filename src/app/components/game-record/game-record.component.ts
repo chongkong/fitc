@@ -27,5 +27,6 @@ export class GameRecordComponent implements OnInit {
 
   ngOnInit() {}
 
-  range = (n: number) => Arrays.range(n);
+  numCrowns = (winStreaks: number) =>
+    Arrays.range(winStreaks > 6 ? 1 : winStreaks);
 }

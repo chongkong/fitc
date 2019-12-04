@@ -1,5 +1,12 @@
 @import "../../../styles.scss";
 
+.event-message {
+  display: flex;
+  height: 60px;
+  justify-content: center;
+  align-items: center;
+}
+
 .mat-list {
   padding-top: 0;
 
