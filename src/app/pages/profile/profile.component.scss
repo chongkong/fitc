@@ -33,7 +33,8 @@ $foreground: map-get($fitc-theme, foreground);
 }
 
 .player-root {
-  margin: 1em;
+  margin: 1em 2em;
+  width: calc(100% - 4em);
 }
 
 .player-icon {
@@ -75,8 +76,15 @@ $foreground: map-get($fitc-theme, foreground);
   }
 }
 
-mat-list-item.contains-chart {
-  height: 248px;
+.stats-root {
+  mat-list-item {
+    width: 90%;
+    margin: 0 auto;
+  }
+
+  mat-list-item.contains-chart {
+    height: 248px;
+  }
 }
 
 .chart-stats {
@@ -92,7 +100,8 @@ mat-list-item.contains-chart {
   }
 
   .chart-wrapper {
-    width: 100%;
+    width: 111%;
+    margin: 0 calc(-11% / 2);
     height: 100%;
   }
 }
