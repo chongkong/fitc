@@ -1,36 +1,67 @@
 @import "~material-bottom-nav";
 @import "../styles.scss";
+$foreground: map-get($fitc-theme, foreground);
+$border: 3px solid rgba(0, 0, 0, 0.1);
+$radius: 8px;
 
-.mat-toolbar {
+.toolbar {
+  position: sticky;
+  z-index: 100;
   background: $fitc-color-light-grey;
-  color: $fitc-color-dark-blue;
+  border-bottom: $border;
+  border-radius: 0 0 $radius $radius;
+  opacity: 0;
   display: flex;
-  justify-content: flex-start;
-  padding: $fitc-padding-xlg $fitc-padding-lg;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 100ms;
+  height: 48px;
+
+  &.show-toolbar {
+    opacity: 1;
+    transition: opacity 100ms;
+  }
+}
+
+.title {
+  font-size: 32px;
+  margin: 2rem 2rem 1rem;
 }
 
 .content-container {
   background: $fitc-color-light-grey;
+  z-index: 0;
   bottom: 56px;
   left: 0;
   overflow-y: scroll;
   right: 0;
   position: fixed;
-  top: 56px;
+  top: 0;
 }
 
 .bottom-nav {
-  @include bottom-nav($background-color:$white, $active-color: #e1e2e1, $inactive-color: #E0E0E0, $hide-inactive-labels: false);
+  @include bottom-nav(
+    $background-color: $white,
+    $active-color: #e1e2e1,
+    $inactive-color: #e0e0e0,
+    $hide-inactive-labels: false
+  );
   box-shadow: none;
+  border-top: $border;
+  border-radius: $radius $radius 0 0;
 
-  >a {
+  > * {
+    width: calc(100% / 3);
+  }
+
+  > a {
     align-items: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding-top: 8px;
     padding-bottom: 8px;
-    
+
     &.active {
       color: $fitc-color-default-blue;
     }
@@ -44,5 +75,3 @@
     font-size: 14px;
   }
 }
-
-  

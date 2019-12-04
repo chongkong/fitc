@@ -1,7 +1,7 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, HostListener } from "@angular/core";
 import { Router, NavigationEnd } from "@angular/router";
-import { Observable } from "rxjs";
-import { map, filter, last } from "rxjs/operators";
+import { Observable, Subscription } from "rxjs";
+import { map, filter } from "rxjs/operators";
 import {
   RECORD_URL_SEGMENT,
   HISTORY_URL_SEGMENT,
@@ -17,9 +17,16 @@ export const URL_SEGMENT_TO_TITLE: ReadonlyMap<string, string> = new Map<
   string,
   string
 >([
-  [RECORD_URL_SEGMENT, "Record"],
-  [HISTORY_URL_SEGMENT, "Recents"],
-  [PROFILE_URL_SEGMENT, "Profile"]
+  [RECORD_URL_SEGMENT, "New Game"],
+  [HISTORY_URL_SEGMENT, "Recent Games"],
+  [PROFILE_URL_SEGMENT, "Statistics"]
+]);
+
+// Long title might get overflowed on bottom nav
+export const BOTTOM_NAV_TITLES: ReadonlyMap<string, string> = new Map([
+  [RECORD_URL_SEGMENT, "New Game"],
+  [HISTORY_URL_SEGMENT, "Recent"],
+  [PROFILE_URL_SEGMENT, "Stats"]
 ]);
 
 const TAB_ITEMS: TabItem[] = [
@@ -41,7 +48,9 @@ export class AppComponent {
 
   title: Observable<string>;
 
-  constructor(private router: Router) {
+  showToolbar = false;
+
+  constructor(router: Router) {
     this.title = router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(event => {
@@ -53,8 +62,17 @@ export class AppComponent {
     );
   }
 
+  @HostListener("scroll", ["$event"])
+  onPageScroll(event) {
+    this.showToolbar = event.target.scrollTop > 64;
+  }
+
   getTitle(urlSegement: string): string {
     return URL_SEGMENT_TO_TITLE.get(urlSegement);
+  }
+
+  getBottomNavTitle(urlSegment: string) {
+    return BOTTOM_NAV_TITLES.get(urlSegment);
   }
 
   isActive(title: string, urlSegment: string): boolean {

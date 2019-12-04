@@ -33,7 +33,7 @@ $foreground: map-get($fitc-theme, foreground);
 }
 
 .player-root {
-  margin: 1em 2em;
+  margin: $fitc-padding-xlg $fitc-padding-xlg $fitc-padding-md;
   width: calc(100% - 4em);
 }
 

@@ -5,7 +5,6 @@ import { FirestoreSettingsToken } from "@angular/fire/firestore";
 import { AngularFireAuthGuardModule } from "@angular/fire/auth-guard";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatIconModule } from "@angular/material/icon";
-import { MatToolbarModule } from "@angular/material/toolbar";
 import { TimeagoModule } from "ngx-timeago";
 
 import { AppRoutingModule } from "src/app/app-routing.module";
@@ -27,7 +26,6 @@ import { ProfileModule } from "./pages/profile/profile.module";
     LoginModule,
     RecordModule,
     MatIconModule,
-    MatToolbarModule,
     BrowserAnimationsModule,
     TimeagoModule.forRoot(),
     HistoryModule,
