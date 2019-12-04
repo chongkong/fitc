@@ -8,10 +8,11 @@ $foreground: map-get($fitc-theme, foreground);
 
 .col {
   $gap: 8px;
+  flex: 1;
   display: flex;
   flex-direction: column;
 
-  * {
+  > * {
     margin-bottom: $gap;
     &:last-child {
       margin-bottom: 0;
@@ -24,7 +25,7 @@ $foreground: map-get($fitc-theme, foreground);
   display: flex;
   width: 100%;
 
-  * {
+  > * {
     margin-right: $gap;
     &:last-child {
       margin-right: 0;
@@ -35,29 +36,50 @@ $foreground: map-get($fitc-theme, foreground);
 .player-root {
   margin: $fitc-padding-xlg $fitc-padding-xlg $fitc-padding-md;
   width: calc(100% - 4em);
-}
 
-.player-icon {
-  $icon-size: 48px;
-  box-sizing: border-box;
-  background-color: rgba(0, 0, 0, 0.1);
-  width: $icon-size;
-  height: $icon-size;
-  border-radius: $icon-size;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  .player-icon {
+    $icon-size: 48px;
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0.1);
+    width: $icon-size;
+    height: $icon-size;
+    border-radius: $icon-size;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-.player-name {
-  flex: 1;
-  font-size: 24px;
-  font-weight: bold;
-}
+  .player-name {
+    flex: 1;
+    font-size: 24px;
+    font-weight: bold;
+  }
 
-.player-tenure {
-  color: map-get($foreground, disabled);
-  font-family: "Roboto";
+  .player-metainfo {
+    color: map-get($foreground, disabled);
+    font-family: "Roboto";
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 20px;
+
+    .icon-me {
+      --fa-primary-color: #db4437;
+      --fa-secondary-color: #db4437;
+    }
+
+    .icon-friends {
+      margin-bottom: 6px;
+      --fa-primary-color: #4285f4;
+      --fa-secondary-color: #f4b400;
+      --fa-secondary-opacity: 1;
+    }
+  }
 }
 
 .single-line-stats {
@@ -117,4 +139,8 @@ $foreground: map-get($fitc-theme, foreground);
   .value {
     font-size: 0.9rem;
   }
+}
+
+.bottom-padding {
+  margin-bottom: 40px;
 }

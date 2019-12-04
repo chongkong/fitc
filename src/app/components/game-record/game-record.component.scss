@@ -1,18 +1,21 @@
 @import "../../../styles.scss";
+
 $foreground: map-get($fitc-theme, foreground);
 $border: 8px;
+$grey: darken($fitc-app-background, 10%);
+$dark-grey: darken($grey, 10%);
 
 .root {
   border-radius: $border;
   display: flex;
   margin: $fitc-padding-md;
-  background-color: #eee;
+  background-color: rgba(0, 0, 0, 0.06);
   color: map-get($foreground, disabled);
 
   .team {
     flex: 1;
     flex-basis: 0;
-    padding: $fitc-padding-md;
+    padding: $fitc-padding-md $fitc-padding-md $fitc-padding-sm;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -21,15 +24,10 @@ $border: 8px;
 
 .icon-root {
   display: flex;
-  color: white;
   width: 100%;
   height: auto;
   margin-bottom: 8px;
   justify-content: center;
-
-  &.tombstone {
-    color: rgba(0, 0, 0, 0.8);
-  }
 
   fa-icon {
     margin: 0 1.5px;
@@ -40,9 +38,20 @@ $border: 8px;
   }
 }
 
+.crown {
+  --fa-primary-color: #ffcd36;
+  --fa-secondary-color: #ff920a;
+  --fa-primary-opacity: 1;
+  --fa-secondary-opacity: 1;
+}
+
+.tombstone {
+  color: rgba(0, 0, 0, 0.8);
+}
+
 .blue-team {
   border-radius: $border 0 0 $border;
-  border-bottom: 4px solid #ddd;
+  border-bottom: 4px solid rgba(0, 0, 0, 0.1);
   align-items: flex-start;
 
   &.win {
@@ -54,13 +63,19 @@ $border: 8px;
 
 .red-team {
   border-radius: 0 $border $border 0;
-  border-bottom: 4px solid #ddd;
+  border-bottom: 4px solid rgba(0, 0, 0, 0.1);
 
   &.win {
     background-color: $red;
     border-color: $dark-red;
     color: white;
   }
+}
+
+.chip-wrapper {
+  height: 28px;
+  display: flex;
+  align-items: center;
 }
 
 .timestamp {

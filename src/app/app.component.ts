@@ -1,15 +1,20 @@
 import { Component, HostListener } from "@angular/core";
 import { Router, NavigationEnd } from "@angular/router";
-import { Observable, Subscription } from "rxjs";
+import { Observable } from "rxjs";
 import { map, filter } from "rxjs/operators";
 import {
   RECORD_URL_SEGMENT,
   HISTORY_URL_SEGMENT,
   PROFILE_URL_SEGMENT
 } from "./services/url-constants";
+import {
+  faHistory,
+  faJoystick,
+  faChartArea
+} from "@fortawesome/pro-duotone-svg-icons";
 
 interface TabItem {
-  icon: string;
+  icon: any;
   urlSegment: string;
 }
 
@@ -30,9 +35,9 @@ export const BOTTOM_NAV_TITLES: ReadonlyMap<string, string> = new Map([
 ]);
 
 const TAB_ITEMS: TabItem[] = [
-  { icon: "history", urlSegment: HISTORY_URL_SEGMENT },
-  { icon: "create", urlSegment: RECORD_URL_SEGMENT },
-  { icon: "account_circle", urlSegment: PROFILE_URL_SEGMENT }
+  { icon: faHistory, urlSegment: HISTORY_URL_SEGMENT },
+  { icon: faJoystick, urlSegment: RECORD_URL_SEGMENT },
+  { icon: faChartArea, urlSegment: PROFILE_URL_SEGMENT }
 ];
 
 @Component({

@@ -1,31 +1,51 @@
 <!-- Recent players -->
-<mat-list *ngIf="recentPlayers | async as recentPlayers">
-  <mat-list-item *ngFor="let player of recentPlayers">
-    <div class="profile">[{{ player.level }}] {{ player.name }}</div>
-    <button class="win-btn"
-      mat-button
-      (click)="toggleWinner(player.ldap)"
-      [style.color]="isWinner(player.ldap) ? 'blue' : 'black'"
+<div class="container">
+  <app-game-staging
+    [alpha]="alpha"
+    [bravo]="bravo"
+    [charlie]="charlie"
+    [delta]="delta"
+    [nextEmpty]="nextStagingSlot()"
+    [winningTeam]="winningTeam"
+    (remove)="removeFromStaging($event)"
+    (teamClick)="onSelectTeam($event)"
+  >
+  </app-game-staging>
+
+  <h2>Bench</h2>
+
+  <div class="bench">
+    <app-player-chip
+      *ngFor="let player of benchPlayers | async"
+      [player]="player"
+      [selected]="inStaging(player.ldap)"
+      [removable]="!inStaging(player.ldap)"
+      (remove)="removeFromBench(player.ldap)"
+      (click)="toggleStaging(player.ldap)"
     >
-      {{ isDraw ? "Team1" : "Win" }}
-    </button>
-    <button class="lose-btn"
+    </app-player-chip>
+    <div
+      class="chip-placeholder"
       mat-button
-      (click)="toggleLoser(player.ldap)"
-      [style.color]="isLoser(player.ldap) ? 'red' : 'black'"
+      *ngIf="!(inBench(myLdap) | async)"
+      (click)="addToBench(myLdap)"
     >
-      {{ isDraw ? "Team2" : "Lose" }}
+      Add Me
+    </div>
+    <div class="chip-placeholder" mat-button (click)="openDialog()">
+      Add Player
+    </div>
+  </div>
+
+  <!-- Record game -->
+  <div class="actions-row">
+    <button
+      class="record-button"
+      mat-button
+      (click)="onSubmit()"
+      [disabled]="!readyToSubmit()"
+    >
+      Record Game
     </button>
-    <button mat-button (click)="removeFromRecentPlayers(player.ldap)">
-      Delete
-    </button>
-  </mat-list-item>
-</mat-list>
-<div class="row">
-  <button mat-button (click)="openDialog()">Add player</button>
-</div>
-<!-- Record game -->
-<div class="row record-row">
-  <mat-checkbox [(ngModel)]="isDraw">isDraw</mat-checkbox>
-  <button mat-button (click)="recordGame()">Record Game</button>
+  </div>
 </div>

@@ -1,0 +1,126 @@
+@import "../../../../styles.scss";
+
+$foreground: map-get($fitc-theme, foreground);
+$border: 8px;
+
+.staging-root {
+  display: flex;
+  border-radius: $border;
+  margin: 0 -8px;
+  background-color: rgba(0, 0, 0, 0.06);
+
+  .team {
+    flex: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: $fitc-padding-md $fitc-padding-md $fitc-padding-sm;
+  }
+
+  .blue-team {
+    border-radius: $border 0 0 $border;
+    border-bottom: 4px solid rgba(0, 0, 0, 0.1);
+
+    &.win {
+      background-color: $blue;
+      border-color: $dark-blue;
+      color: white;
+    }
+
+    &.lose {
+      color: map-get($foreground, disabled);
+    }
+
+    &:not(.win):not(.lose) {
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .red-team {
+    border-radius: 0 $border $border 0;
+    border-bottom: 4px solid rgba(0, 0, 0, 0.1);
+
+    &.win {
+      background-color: $red;
+      border-color: $dark-red;
+      color: white;
+    }
+
+    &.lose {
+      color: map-get($foreground, disabled);
+    }
+  }
+}
+
+.touch-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  margin-bottom: 8px;
+
+  .crown {
+    --fa-primary-color: #ffcd36;
+    --fa-secondary-color: #ff920a;
+    --fa-primary-opacity: 1;
+    --fa-secondary-opacity: 1;
+  }
+
+  .tombstone {
+    color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+.blue-team {
+  .question {
+    --fa-primary-color: #4285f4;
+    --fa-secondary-color: #f4b400;
+    --fa-primary-opacity: 1;
+    --fa-secondary-opacity: 1;
+  }
+}
+.red-team {
+  .question {
+    --fa-primary-color: #db4437;
+    --fa-secondary-color: #0f9d58;
+    --fa-primary-opacity: 1;
+    --fa-secondary-opacity: 1;
+  }
+}
+
+.chip-wrapper {
+  height: 28px;
+  display: flex;
+  align-items: center;
+
+  .empty-slot {
+    flex: 1;
+    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: map-get($foreground, disabled);
+    font-size: 14px;
+
+    &.next {
+      background-color: rgba(0, 0, 0, 0.4);
+      border-radius: 6px;
+      border-top: 3px solid rgba(0, 0, 0, 0.3);
+      border-bottom: 3px solid rgba(0, 0, 0, 0);
+      color: white;
+    }
+  }
+}
+
+.tooltip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 24px;
+  font-size: 14px;
+  color: map-get($foreground, disabled);
+  margin: 8px 0;
+}

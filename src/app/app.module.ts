@@ -15,7 +15,8 @@ import { LoginModule } from "./pages/login/login.module";
 import { RecordModule } from "./pages/record/record.module";
 import { HistoryModule } from "./pages/history/history.module";
 import { ProfileModule } from "./pages/profile/profile.module";
-import { PlayerDialogComponent } from "./components/player-dialog/player-dialog.component";
+import { PlayerSelectDialogComponent } from "./components/player-select-dialog/player-select-dialog.component";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 @NgModule({
   declarations: [AppComponent],
@@ -30,7 +31,8 @@ import { PlayerDialogComponent } from "./components/player-dialog/player-dialog.
     BrowserAnimationsModule,
     TimeagoModule.forRoot(),
     HistoryModule,
-    ProfileModule
+    ProfileModule,
+    FontAwesomeModule
   ],
   providers: [
     {
@@ -43,7 +45,7 @@ import { PlayerDialogComponent } from "./components/player-dialog/player-dialog.
           }
     }
   ],
-  entryComponents: [PlayerDialogComponent],
+  entryComponents: [PlayerSelectDialogComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

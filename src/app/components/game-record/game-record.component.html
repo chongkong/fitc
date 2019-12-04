@@ -7,14 +7,14 @@
     >
       <fa-icon
         [icon]="faCrown"
+        class="crown"
         *ngFor="let _ of numCrowns(data.winStreaks)"
       ></fa-icon>
       <div *ngIf="data.winStreaks > 6">×{{ data.winStreaks }}</div>
     </div>
-    <app-player-chip
-      *ngFor="let player of data.blue"
-      [player]="player"
-    ></app-player-chip>
+    <div class="chip-wrapper" *ngFor="let player of data.blue">
+      <app-player-chip [player]="player"></app-player-chip>
+    </div>
   </div>
   <div class="team red-team" [class.win]="data.winner === 'red'">
     <div
@@ -24,20 +24,20 @@
     >
       <fa-icon
         [icon]="faCrown"
+        class="crown"
         *ngFor="let _ of numCrowns(data.winStreaks)"
       ></fa-icon>
       <div *ngIf="data.winStreaks > 6">×{{ data.winStreaks }}</div>
     </div>
-    <app-player-chip
-      *ngFor="let player of data.red"
-      [player]="player"
-    ></app-player-chip>
+    <div class="chip-wrapper" *ngFor="let player of data.red">
+      <app-player-chip [player]="player"></app-player-chip>
+    </div>
   </div>
 </div>
 <div class="timestamp">{{ data.createdAt | date }}</div>
 
 <ng-template #tombstone>
-  <div class="icon-root tombstone">
-    <fa-icon [icon]="faTombstone"></fa-icon>
+  <div class="icon-root">
+    <fa-icon [icon]="faTombstone" class="tombstone"></fa-icon>
   </div>
 </ng-template>

@@ -188,7 +188,7 @@ def save_data(df: pd.DataFrame, emulate: bool):
 
     # Creates foosball table entry
 
-    db.document('tables/default').set({'name': 'GFC-24F', 'recentPlayers': []})
+    db.document('tables/default').set({'name': 'GFC-24F', 'bench': []})
 
     # Creates players
 

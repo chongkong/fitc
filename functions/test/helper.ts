@@ -76,7 +76,7 @@ export async function createDummyData() {
     app.firestore().doc(Path.table("default")),
     factory.createTable({
       name: "For Test",
-      recentPlayers: fitcDevelopers.map(player => player.name)
+      bench: fitcDevelopers.map(player => player.name)
     })
   );
 

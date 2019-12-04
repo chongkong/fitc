@@ -1,0 +1,22 @@
+<div class="dialog-content" mat-dialog-content>
+  <h2 class="dialog-header">
+    {{ data.header }}
+  </h2>
+  <div class="options-root">
+    <div class="player" *ngFor="let player of data.players | async">
+      <app-player-chip
+        [player]="player"
+        [selected]="isSelected(player.ldap)"
+        (click)="select(player.ldap)"
+      ></app-player-chip>
+    </div>
+  </div>
+</div>
+<div *ngIf="data.multiselect" class="dialog-actions" mat-dialog-actions>
+  <button mat-button mat-stroked-button (click)="dialogRef.close()">
+    CANCEL
+  </button>
+  <button mat-button mat-flat-button color="primary" [mat-dialog-close]="ldaps">
+    SELECT
+  </button>
+</div>

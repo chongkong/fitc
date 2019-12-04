@@ -1,32 +1,55 @@
-
 @import "../../../styles.scss";
 
-.row {
-    padding: 8px 16px 8px 16px;
+$foreground: map-get($fitc-theme, foreground);
+$background: map-get($fitc-theme, background);
 
-    &.record-row {
-        align-items: center;
-        display: flex;
-        justify-content: flex-end;
-    }
+.container {
+  padding: $fitc-padding-lg;
 }
 
-form {
+.bench {
+  display: flex;
+  width: calc(100% + 24px);
+  margin: 0 -12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  * {
+    flex: 0 0 calc(50% - 2px);
+    margin-bottom: 6px;
+  }
+  $height: 32px;
+
+  .chip-placeholder {
     display: flex;
-    .mat-form-field {
-        flex: 1;
-    }
+    align-items: center;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    height: $height;
+    border-radius: $height / 2;
+    border: 1px dashed rgba(0, 0, 0, 0.3);
+    font-size: 14px;
+  }
 }
 
-.mat-list .mat-list-item {
-    height: auto;
-    .win-btn {
-        color: $blue;
+.actions-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: $fitc-padding-xlg;
+
+  .record-button {
+    border-radius: 8px;
+    border-bottom: 3px solid rgba(0, 0, 0, 0.1);
+    font-family: "Google Sans";
+    background-color: map-get($fitc-accent, default);
+    color: map-get($fitc-accent, default-contrast);
+
+    &[disabled] {
+      background-color: map-get($background, disabled-button);
+      color: map-get($foreground, disabled);
     }
-    .lose-btn {
-        color: $red;
-    }
-    .profile {
-        flex: 1;
-    }
+  }
 }

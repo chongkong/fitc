@@ -7,6 +7,9 @@ import { TimeagoModule } from "ngx-timeago";
 import { NgxChartsModule } from "@swimlane/ngx-charts";
 
 import { ProfileComponent } from "./profile.component";
+import { ComponentsModule } from "src/app/components/components.module";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { MatDialogModule } from "@angular/material/dialog";
 
 @NgModule({
   declarations: [ProfileComponent],
@@ -15,8 +18,11 @@ import { ProfileComponent } from "./profile.component";
     AngularFirestoreModule,
     AngularFireAuthModule,
     MatListModule,
+    MatDialogModule,
     TimeagoModule,
-    NgxChartsModule
+    NgxChartsModule,
+    ComponentsModule,
+    FontAwesomeModule
   ],
   providers: []
 })

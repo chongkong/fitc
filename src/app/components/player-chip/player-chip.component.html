@@ -1,5 +1,12 @@
-<div class="root" [ngClass]="{ reverse: reverse }" (click)="selectable && toggle()">
-  <div class="player-level" [ngClass]="classNames()">L{{ player.level }}</div>
+<div class="root" [ngClass]="rootClassNames()">
+  <div class="player-level" [ngClass]="levelClassNames()">
+    L{{ player.level }}
+  </div>
   <div class="player-name">{{ player.name }}</div>
-  <div *ngIf="selectable">{{selected? "yes" : "no"}}</div>
+  <fa-icon
+    *ngIf="removable"
+    class="remove-button fa-swap-opacity"
+    [icon]="faTimesCircle"
+    (click)="onRemove($event)"
+  ></fa-icon>
 </div>
