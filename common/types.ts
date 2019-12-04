@@ -39,7 +39,11 @@ export interface GameRecord {
  */
 export interface FoosballTable {
   name: string;
-  recentPlayers: string[];
+  alpha?: string;
+  bravo?: string;
+  charlie?: string;
+  delta?: string;
+  bench: string[];
 }
 
 /**

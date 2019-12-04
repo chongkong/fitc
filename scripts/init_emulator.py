@@ -37,11 +37,11 @@ def init_firestore():
             'recentGames': '',
         })
 
-    def add_table(table_id, name, recent_players):
+    def add_table(table_id, name, bench):
         print('Add table {}'.format(table_id))
         batch.set(db.collection('tables').document(table_id), {
             'name': name,
-            'recentPlayers': recent_players
+            'bench': bench
         })
 
     add_player(ldap='jjong', name='Jongbin Park', level=2)
@@ -53,7 +53,7 @@ def init_firestore():
     add_table(
         table_id='default',
         name='Default',
-        recent_players=['jjong', 'hyeonjilee', 'shinjiwon', 'anzor', 'hdmoon']
+        bench=['jjong', 'hyeonjilee', 'shinjiwon', 'anzor', 'hdmoon']
     )
 
     batch.commit()

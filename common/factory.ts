@@ -48,7 +48,13 @@ export class Factory {
     recordedBy
   });
 
-  createTable = (arg: FoosballTable) => arg;
+  createTable = ({
+    name,
+    bench
+  }: RequirePartial<FoosballTable, "name">): FoosballTable => ({
+    name,
+    bench: bench || []
+  });
 
   emptyPlayerStats = (): PlayerStats => ({
     totalWins: 0,
