@@ -1,23 +1,42 @@
+@import "../../../styles.scss";
+
+$height: 32px;
+
 .root {
   display: flex;
   align-items: center;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: flex-start;
 
-  &:not(.reverse) {
-    * {
-      margin-right: 8px;
-      &:last-child {
-        margin-right: 0;
-      }
-    }
+  &.selected {
+    height: $height;
+    border-radius: $height / 2;
+    padding: 0 12px 0 8px;
+
+    color: map-get($fitc-primary, default-contrast);
+    background-color: map-get($fitc-primary, default);
+
+    transition: color 100ms;
+    transition: background-color 100ms;
   }
 
-  &.reverse {
-    flex-direction: row-reverse;
-    * {
-      margin-left: 8px;
-      &:last-child {
-        margin-left: 0;
-      }
+  &.not-selected {
+    height: $height;
+    border-radius: $height / 2;
+    padding: 0 12px 0 8px;
+
+    color: inherit;
+    background-color: rgba(0, 0, 0, 0.1);
+
+    transition: color 100ms;
+    transition: background-color 100ms;
+  }
+
+  * {
+    margin-right: 8px;
+    &:last-child {
+      margin-right: 0;
     }
   }
 }

@@ -5,6 +5,7 @@ import { GameRecordComponent } from "./game-record/game-record.component";
 import { PlayerDialogComponent } from "./player-dialog/player-dialog.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { MatDialogModule } from "@angular/material/dialog";
+import { MatButtonModule } from "@angular/material/button";
 
 @NgModule({
   declarations: [
@@ -12,7 +13,7 @@ import { MatDialogModule } from "@angular/material/dialog";
     GameRecordComponent,
     PlayerDialogComponent
   ],
-  imports: [CommonModule, FontAwesomeModule, MatDialogModule],
+  imports: [CommonModule, FontAwesomeModule, MatDialogModule, MatButtonModule],
   exports: [PlayerChipComponent, GameRecordComponent, PlayerDialogComponent]
 })
 export class ComponentsModule {}

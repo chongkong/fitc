@@ -12,7 +12,10 @@ import { map, flatMap, first, take } from "rxjs/operators";
 import { firestore } from "firebase";
 
 import { Player, GameRecord, FoosballTable } from "common/types";
-import { PlayerDialogComponent } from "src/app/components/player-dialog/player-dialog.component";
+import {
+  PlayerDialogComponent,
+  PlayerDialogData
+} from "src/app/components/player-dialog/player-dialog.component";
 import { PlayersService } from "src/app/services/players.service";
 import { Path } from "common/path";
 
@@ -34,10 +37,6 @@ function groupByLdap(players: Player[]) {
     dict[player.ldap] = player;
     return dict;
   }, {});
-}
-
-export interface DialogData {
-  filteredPlayers: Observable<Player[]>;
 }
 
 @Component({
@@ -194,7 +193,7 @@ export class RecordComponent implements OnDestroy {
   }
 
   openDialog() {
-    const filteredPlayers = this.ps.allPlayers.pipe(
+    const unselected = this.ps.allPlayers.pipe(
       map(allPlayers => {
         return allPlayers.filter(
           player =>
@@ -207,7 +206,11 @@ export class RecordComponent implements OnDestroy {
 
     const dialogRef = this.dialog.open(PlayerDialogComponent, {
       width: "250px",
-      data: { filteredPlayers }
+      data: {
+        header: "Select Players",
+        players: unselected,
+        multiselect: true
+      } as PlayerDialogData
     });
 
     dialogRef

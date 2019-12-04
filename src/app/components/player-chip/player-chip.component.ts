@@ -11,7 +11,7 @@ export class PlayerChipComponent {
   public player: Player;
 
   @Input()
-  public reverse: boolean;
+  public selected?: boolean;
 
   @Input()
   public selectable: boolean;
@@ -19,10 +19,15 @@ export class PlayerChipComponent {
   @Output()
   onToggle = new EventEmitter<string>();
 
-  private selected: boolean = false;
-
-  classNames() {
+  levelClassNames() {
     return [`level-${this.player.level}`];
+  }
+
+  rootClassNames() {
+    return {
+      selected: this.selected !== undefined && this.selected,
+      "not-selected": this.selected !== undefined && !this.selected
+    };
   }
 
   toggle() {
