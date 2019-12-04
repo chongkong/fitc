@@ -1,13 +1,24 @@
-<mat-toolbar>{{ title | async }}</mat-toolbar>
-<div class="content-container">
+<div class="toolbar" [class.show-toolbar]="showToolbar">
+  {{ title | async }}
+</div>
+<div class="content-container" (scroll)="onPageScroll($event)">
+  <h1 class="title">{{ title | async }}</h1>
   <router-outlet></router-outlet>
 </div>
 <nav class="bottom-nav">
-  <a *ngFor="let tabItem of TAB_ITEMS"
-      class="bottom-nav__action"
-      [class.active]="isActive(title | async, tabItem.urlSegment)"
-      [routerLink]=[tabItem.urlSegment]>
-    <mat-icon fontSet="material-icons-round" class="bottom-nav__icon" [innerHTML]="tabItem.icon"></mat-icon>
-    <span *ngIf="isActive(title | async, tabItem.urlSegment)">{{getTitle(tabItem.urlSegment)}}</span>
+  <a
+    *ngFor="let tabItem of TAB_ITEMS"
+    class="bottom-nav__action"
+    [class.active]="isActive(title | async, tabItem.urlSegment)"
+    [routerLink]="[tabItem.urlSegment]"
+  >
+    <mat-icon
+      fontSet="material-icons-round"
+      class="bottom-nav__icon"
+      [innerHTML]="tabItem.icon"
+    ></mat-icon>
+    <span *ngIf="isActive(title | async, tabItem.urlSegment)">{{
+      getTitle(tabItem.urlSegment)
+    }}</span>
   </a>
 </nav>
