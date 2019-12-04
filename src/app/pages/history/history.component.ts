@@ -123,9 +123,9 @@ export class HistoryComponent {
 
   getEventMessage({ type, name, levelFrom, levelTo }: EventView) {
     if (type === "promotion") {
-      return `🚀 ${name} got promoted: ${levelFrom} → ${levelTo}`;
+      return `${name} got promoted: ${levelFrom} → ${levelTo}`;
     } else {
-      return `💩 ${name} got demoted: ${levelFrom} → ${levelTo}`;
+      return `${name} got demoted: ${levelFrom} → ${levelTo}`;
     }
   }
 

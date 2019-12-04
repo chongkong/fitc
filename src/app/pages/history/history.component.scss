@@ -1,9 +1,36 @@
 @import "../../../styles.scss";
 
+@mixin gradient-animation-background($name, $color1, $color2) {
+  background: linear-gradient(270deg, $color1, $color2);
+  background-size: 400% 400%;
+  animation: $name 10s ease infinite;
+
+  @keyframes #{$name} {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+
 .event-message {
   display: flex;
   height: 48px;
   margin-bottom: 6px;
   justify-content: center;
   align-items: center;
+  color: white;
+
+  &.promotion {
+    @include gradient-animation-background(promotion, #b7f8db, #50a7c2);
+    // @include gradient-animation-background(promotion, #ffc3a0, #ffafbd);
+  }
+  &.demotion {
+    @include gradient-animation-background(promotion, #09203f, #537895);
+  }
 }
