@@ -5,9 +5,25 @@
   <div class="player-icon">Lv.{{ player.level }}</div>
   <div class="col">
     <div class="player-name">{{ player.name }}</div>
-    <div class="player-tenure">
+    <div *ngIf="isFitcDeveloper(player.ldap)" class="player-metainfo">
+      FitC Developer (2019)
+    </div>
+    <div class="player-metainfo">
       Tenure: {{ player.createdAt.toDate() | timeago }}
     </div>
+  </div>
+  <div class="actions">
+    <fa-icon
+      class="icon-friends"
+      [icon]="faUsers"
+      (click)="openDialog()"
+    ></fa-icon>
+    <fa-icon
+      *ngIf="myLdap !== player.ldap"
+      class="icon-me"
+      [icon]="faFingerprint"
+      (click)="goMyPage()"
+    ></fa-icon>
   </div>
 </div>
 <ng-template #emptySummary>

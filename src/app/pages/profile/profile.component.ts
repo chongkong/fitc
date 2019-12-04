@@ -1,12 +1,18 @@
 import { Component, OnInit } from "@angular/core";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFirestore } from "@angular/fire/firestore";
-import { Observable, ReplaySubject, Subject } from "rxjs";
-import { flatMap, map } from "rxjs/operators";
+import { faFingerprint, faUsers } from "@fortawesome/pro-duotone-svg-icons";
+import { Observable, ReplaySubject, Subject, combineLatest } from "rxjs";
+import { flatMap, map, take } from "rxjs/operators";
 
 import { Player, PlayerStats, RivalStats } from "common/types";
 import { Path } from "common/path";
-import { Arrays } from "common/utils";
+import { MatDialog } from "@angular/material/dialog";
+import {
+  PlayerSelectDialogComponent,
+  PlayerDialogData
+} from "src/app/components/player-select-dialog/player-select-dialog.component";
+import { PlayersService } from "src/app/services/players.service";
 
 @Component({
   selector: "app-profile",
@@ -14,7 +20,8 @@ import { Arrays } from "common/utils";
   styleUrls: ["./profile.component.scss"]
 })
 export class ProfileComponent implements OnInit {
-  // Observables from firestore.
+  faFingerprint = faFingerprint;
+  faUsers = faUsers;
 
   ldap: Subject<string>;
   player: Observable<Player>;
@@ -22,11 +29,16 @@ export class ProfileComponent implements OnInit {
   playerRivalStats: Observable<(RivalStats & { rival: string })[]>;
 
   colorScheme = {
-    domain: ["#2C83C9"]
+    domain: ["#4285f4"]
   };
   chartDataCache = {};
 
-  constructor(public afAuth: AngularFireAuth, public afs: AngularFirestore) {
+  constructor(
+    public afAuth: AngularFireAuth,
+    public afs: AngularFirestore,
+    public dialog: MatDialog,
+    public ps: PlayersService
+  ) {
     this.ldap = new ReplaySubject<string>(1);
     this.player = this.ldap.pipe(
       flatMap(ldap => afs.doc<Player>(Path.player(ldap)).valueChanges())
@@ -52,6 +64,14 @@ export class ProfileComponent implements OnInit {
           .sort((s1, s2) => s2.totalWins - s1.totalWins)
       )
     );
+  }
+
+  get myLdap() {
+    return this.afAuth.auth.currentUser.email.split("@")[0];
+  }
+
+  isFitcDeveloper(ldap: string) {
+    return ["jjong", "shinjiwon", "hyeonjilee"].includes(ldap);
   }
 
   buildChartData({ totalWins, totalLoses, recentGames }: PlayerStats) {
@@ -93,6 +113,35 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.ldap.next(this.afAuth.auth.currentUser.email.split("@")[0]);
+    this.goMyPage();
+  }
+
+  goMyPage() {
+    this.ldap.next(this.myLdap);
+  }
+
+  openDialog() {
+    const friendLdaps = combineLatest(this.ps.all, this.ldap).pipe(
+      map(([players, except]) =>
+        players.filter(player => player.ldap !== except)
+      )
+    );
+
+    const dialogRef = this.dialog.open(PlayerSelectDialogComponent, {
+      data: {
+        header: "Choose Player",
+        players: friendLdaps,
+        multiselect: false
+      } as PlayerDialogData
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(ldap => {
+        if (ldap) {
+          this.ldap.next(ldap);
+        }
+      });
   }
 }
