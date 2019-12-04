@@ -220,7 +220,7 @@ export class RecordComponent implements OnInit {
       return (
         recentPlayers.findIndex(
           recentPlayer => recentPlayer.ldap === player.ldap
-        ) === -1
+        ) !== -1
       );
     };
 
