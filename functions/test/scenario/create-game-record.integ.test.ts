@@ -199,6 +199,28 @@ describe("Creates GameRecord", () => {
         recentGames: "L"
       });
     });
+
+    test("PlayerStates have been created", async () => {
+      const winnerStates = await db.getDocs<PlayerState>(
+        Path.playerState("jjong"),
+        Path.playerState("hdmoon")
+      );
+      winnerStates.forEach(state => {
+        expect(state).toEqual({
+          recentGames: "W"
+        });
+      });
+
+      const loserStates = await db.getDocs<PlayerState>(
+        Path.playerState("hyeonjilee"),
+        Path.playerState("shinjiwon")
+      );
+      loserStates.forEach(state => {
+        expect(state).toEqual({
+          recentGames: "L"
+        });
+      });
+    });
   });
 
   describe("On draw", () => {
@@ -270,6 +292,44 @@ describe("Creates GameRecord", () => {
     });
   });
 
+  describe("On streaks", () => {
+    beforeAll(async () => {
+      await helper.createDummyData();
+      for (let winStreaks = 1; winStreaks <= 2; winStreaks++) {
+        const now = web.now();
+        db.setDoc<GameRecord>(Path.gameRecord("default", now), {
+          winners: ["jjong", "hdmoon"],
+          losers: ["shinjiwon", "hyeonjilee"],
+          isDraw: false,
+          winStreaks: 0,
+          createdAt: now,
+          recordedBy: "jjong"
+        });
+        await utils.sleep(100);
+      }
+      await utils.sleep(1000);
+    });
+
+    afterAll(async () => {
+      await helper.clearFirestoreData();
+    });
+
+    test("WinStreaks calculated from server", async () => {
+      const records = await db.listDocs<GameRecord>(
+        Path.gameRecordCollection("default")
+      );
+
+      expect(records).toEqual([
+        expect.objectContaining({
+          winStreaks: 1
+        }),
+        expect.objectContaining({
+          winStreaks: 2
+        })
+      ]);
+    });
+  });
+
   describe("On 10 streaks", () => {
     beforeAll(async () => {
       await helper.createDummyData();
@@ -286,7 +346,7 @@ describe("Creates GameRecord", () => {
         await utils.sleep(100);
       }
       // Wait until functions trigger.
-      await utils.sleep(1000);
+      await utils.sleep(2000);
     });
 
     afterAll(async () => {

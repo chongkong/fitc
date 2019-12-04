@@ -43,6 +43,11 @@ export const onGameRecordCreate = functions.firestore
     const newState = reduceTableState(oldState, record);
     batch.set(firestore().doc(Path.tableState(tableId)), newState);
 
+    if (newState.lastRecord.winStreaks !== record.winStreaks) {
+      record.winStreaks = newState.lastRecord.winStreaks;
+      batch.update(snapshot.ref, { winStreaks: record.winStreaks });
+    }
+
     // Update Player-wise data.
 
     const baseContext = { batch, ...newState.lastRecord };
