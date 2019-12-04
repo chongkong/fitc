@@ -8,13 +8,14 @@ import {
   PlayerStats,
   TeamStats,
   RivalStats,
-  SeasonStats
+  SeasonStats,
+  TableState,
+  PlayerState
 } from "../../../common/types";
 import { Path } from "../../../common/path";
 import { factory } from "../../../common/platform/admin";
 import { Timestamp } from "../../../common/platform/base";
 import { firestore } from "../firebase";
-import { TableState, PlayerState } from "../../../common/types";
 import {
   reducePlayerStats,
   reduceTableState,
