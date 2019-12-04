@@ -1,1 +1,18 @@
-<p>player-dialog works!</p>
+<div mat-dialog-content>
+  <div *ngFor="let player of data.filteredPlayers | async">
+    <app-player-chip
+      [player]="player"
+      [selectable]="true"
+      (onToggle)="updateSelectedPlayers($event)"
+    ></app-player-chip>
+  </div>
+  <div *ngFor="let ldap of selectedPlayerLdaps">
+    {{ ldap }}
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button [mat-dialog-close]="selectedPlayerLdaps">
+    Ok
+  </button>
+</div>

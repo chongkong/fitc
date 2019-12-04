@@ -19,7 +19,7 @@ import { ProfileModule } from "./pages/profile/profile.module";
 import { PlayerDialogComponent } from "./components/player-dialog/player-dialog.component";
 
 @NgModule({
-  declarations: [AppComponent, PlayerDialogComponent],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

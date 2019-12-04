@@ -24,19 +24,6 @@
 <div class="row">
   <button mat-button (click)="openDialog()">Add player</button>
 </div>
-<div class="row">
-  <form>
-    <mat-form-field>
-      <input matInput placeholder="ldap" (focus)="onFocus()" [(ngModel)]="ldapInput" [formControl]="ldapForm" [matAutocomplete]="auto"/>
-    </mat-form-field>
-    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-      <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-        {{option.name}} ({{option.ldap}}@)
-      </mat-option>
-    </mat-autocomplete>
-    <button mat-button (click)="addToRecentPlayers(ldapInput.ldap)">Add</button>
-  </form>
-</div>
 <!-- Record game -->
 <div class="row record-row">
   <mat-checkbox [(ngModel)]="isDraw">isDraw</mat-checkbox>
