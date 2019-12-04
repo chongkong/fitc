@@ -1,0 +1,67 @@
+@import "../../../styles.scss";
+
+.root {
+  border-radius: 6px;
+  display: flex;
+  margin: 1em;
+  background-color: #eee;
+
+  .team {
+    flex: 1;
+    flex-basis: 0;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.icon-root {
+  display: flex;
+  color: white;
+  opacity: 0.8;
+  width: 100%;
+  height: 28px;
+
+  &.tombstone {
+    color: rgba(0, 0, 0, 0.8);
+  }
+
+  fa-icon {
+    margin: 0 2px;
+  }
+
+  &.too-many {
+    font-size: 11px;
+    fa-icon {
+      margin: 0 1px;
+    }
+  }
+}
+
+.blue-team {
+  border-radius: 6px 0 0 6px;
+  border-bottom: 4px solid #ddd;
+  align-items: flex-start;
+
+  &.win {
+    background-color: $blue;
+    border-color: $dark-blue;
+    color: white;
+  }
+}
+
+.red-team {
+  border-radius: 0 6px 6px 0;
+  border-bottom: 4px solid #ddd;
+  align-items: flex-end;
+
+  &.win {
+    background-color: $red;
+    border-color: $dark-red;
+    color: white;
+  }
+
+  .icon-root {
+    flex-direction: row-reverse;
+  }
+}

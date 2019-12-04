@@ -1,0 +1,41 @@
+<div class="root">
+  <div class="team blue-team" [class.win]="data.winner === 'blue'">
+    <div
+      class="icon-root"
+      *ngIf="data.winner === 'blue'; else tombstone"
+      [class.too-many]="data.winStreaks > 6"
+    >
+      <fa-icon
+        [icon]="faCrown"
+        *ngFor="let _ of range(data.winStreaks)"
+      ></fa-icon>
+    </div>
+    <app-player-chip
+      *ngFor="let player of data.blue"
+      [player]="player"
+    ></app-player-chip>
+  </div>
+  <div class="team red-team" [class.win]="data.winner === 'red'">
+    <div
+      class="icon-root"
+      *ngIf="data.winner === 'red'; else tombstone"
+      [class.too-many]="data.winStreaks > 6"
+    >
+      <fa-icon
+        [icon]="faCrown"
+        *ngFor="let _ of range(data.winStreaks)"
+      ></fa-icon>
+    </div>
+    <app-player-chip
+      *ngFor="let player of data.red"
+      [player]="player"
+      [reverse]="true"
+    ></app-player-chip>
+  </div>
+</div>
+
+<ng-template #tombstone>
+  <div class="icon-root tombstone">
+    <fa-icon [icon]="faTombstone"></fa-icon>
+  </div>
+</ng-template>
