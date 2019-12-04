@@ -12,7 +12,7 @@ import { firestore } from "../firebase";
 
 export const onEventCreate = functions.firestore
   .document("events/{eventId}")
-  .onCreate(async snapshot => {
+  .onCreate(snapshot => {
     const event = snapshot.data() as Event;
     const deferred = [];
     if (event.type === "promotion") {
@@ -42,7 +42,6 @@ export const onEventCreate = functions.firestore
           .catch(error => console.error(error))
       );
     }
-    // Explicitly return to suppress Typescript error.
     return Promise.all(deferred);
   });
 
@@ -69,5 +68,5 @@ function createPromotionMessage({ ldap, levelFrom, levelTo }: PromotionEvent) {
 }
 
 function createDemotionMessage({ ldap, levelFrom, levelTo }: DemotionEvent) {
-  return `😿 ${ldap} is demoted from ${levelFrom} to ${levelTo}.`;
+  return `💩 ${ldap} is demoted from ${levelFrom} to ${levelTo}.`;
 }
