@@ -17,6 +17,7 @@ import { HistoryModule } from "./pages/history/history.module";
 import { ProfileModule } from "./pages/profile/profile.module";
 import { PlayerSelectDialogComponent } from "./components/player-select-dialog/player-select-dialog.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { ServiceWorkerModule } from "@angular/service-worker";
 
 @NgModule({
   declarations: [AppComponent],
@@ -32,7 +33,10 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
     TimeagoModule.forRoot(),
     HistoryModule,
     ProfileModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    ServiceWorkerModule.register("ngsw-worker.js", {
+      enabled: environment.production
+    })
   ],
   providers: [
     {

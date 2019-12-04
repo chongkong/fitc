@@ -43,8 +43,8 @@ export class GameStagingComponent implements OnInit {
   @Output()
   teamClick: EventEmitter<TeamColor> = new EventEmitter();
 
-  private readonly teams = ["blue", "red"];
-  private readonly displayNames = {
+  public readonly teams = ["blue", "red"];
+  public readonly displayNames = {
     alpha: "Blue Player 1",
     bravo: "Blue Player 2",
     charlie: "Red Player 1",
