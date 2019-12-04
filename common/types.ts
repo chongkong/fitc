@@ -8,6 +8,7 @@ export interface Player {
   name: string;
   ldap: string;
   level: number;
+  createdAt: Timestamp;
 }
 
 /**
@@ -27,6 +28,8 @@ export interface GameRecord {
   createdAt: Timestamp;
   // Player who recorded this game.
   recordedBy: string;
+  // Winner color optionally set for UI.
+  winColor?: "blue" | "red";
 }
 
 /**

@@ -1,0 +1,42 @@
+.root {
+  display: flex;
+
+  &:not(.reverse) {
+    * {
+      margin-right: 8px;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+
+  &.reverse {
+    flex-direction: row-reverse;
+    * {
+      margin-left: 8px;
+      &:last-child {
+        margin-left: 0;
+      }
+    }
+  }
+}
+
+.player-level {
+  $size: 16px;
+  font-size: 10px;
+  font-family: "Roboto";
+
+  background: rgba(0, 0, 0, 0.15);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  // width: $size;
+  padding: 0 0.6em;
+  height: $size;
+  border-radius: $size / 2;
+}
+
+.player-name {
+  font-size: 14px;
+}

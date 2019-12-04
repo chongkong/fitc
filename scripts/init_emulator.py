@@ -1,5 +1,6 @@
 import json
 import os
+import datetime
 
 import firebase_admin
 from firebase_admin import credentials
@@ -25,7 +26,8 @@ def init_firestore():
         batch.set(db.collection('players').document(ldap), {
             'name': name,
             'ldap': ldap,
-            'level': level
+            'level': level,
+            'createdAt': datetime.datetime.now()
         })
         print('Add playerStats {}'.format(ldap))
         batch.set(db.collection('playerStats').document(ldap), {
