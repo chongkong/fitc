@@ -62,3 +62,13 @@ $border: 8px;
     color: white;
   }
 }
+
+.timestamp {
+  margin: -0.8rem 1.5rem 1.2rem;
+  width: calc(100% - 3rem);
+
+  color: map-get($foreground, disabled);
+  text-align: right;
+  font-size: 12px;
+  font-style: italic;
+}
