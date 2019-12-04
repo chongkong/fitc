@@ -5,14 +5,14 @@ $border: 8px;
 .root {
   border-radius: $border;
   display: flex;
-  margin: 1em;
+  margin: $fitc-padding-md;
   background-color: #eee;
   color: map-get($foreground, disabled);
 
   .team {
     flex: 1;
     flex-basis: 0;
-    padding: 1em;
+    padding: $fitc-padding-md;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -64,7 +64,7 @@ $border: 8px;
 }
 
 .timestamp {
-  margin: -0.8rem 1.5rem 1.2rem;
+  margin: -14px $fitc-padding-lg 2px;
   width: calc(100% - 3rem);
 
   color: map-get($foreground, disabled);
