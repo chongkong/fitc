@@ -1,4 +1,5 @@
 import { Component, OnInit, Inject } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
 import { AngularFireAuth } from "@angular/fire/auth";
 import {
   AngularFirestore,
@@ -11,6 +12,7 @@ import { map, flatMap, first, filter } from "rxjs/operators";
 import { firestore } from "firebase";
 
 import { Player, GameRecord, FoosballTable } from "common/types";
+import { PlayerDialogComponent } from "src/app/components/player-dialog/player-dialog.component";
 
 /**
  * Sort by level DESC, name ASC.
@@ -30,6 +32,10 @@ function groupByLdap(players: Player[]) {
     dict[player.ldap] = player;
     return dict;
   }, {});
+}
+
+export interface DialogData {
+  allPlayers: Player[];
 }
 
 @Component({
@@ -63,7 +69,11 @@ export class RecordComponent implements OnInit {
   ldapForm = new FormControl();
   filteredOptions: Observable<Player[]>;
 
-  constructor(public afAuth: AngularFireAuth, public afs: AngularFirestore) {
+  constructor(
+    public afAuth: AngularFireAuth,
+    public afs: AngularFirestore,
+    public dialog: MatDialog
+  ) {
     // Setup me
     this.me = afAuth.user.pipe(
       flatMap((user: firebase.User) => {
@@ -243,5 +253,15 @@ export class RecordComponent implements OnInit {
 
   onFocus() {
     this.ldapForm.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+  }
+
+  openDialog() {
+    let players: Player[];
+    this.allPlayers.subscribe(allPlayers => (players = allPlayers));
+
+    this.dialog.open(PlayerDialogComponent, {
+      width: "250px",
+      data: { allPlayers: players }
+    });
   }
 }

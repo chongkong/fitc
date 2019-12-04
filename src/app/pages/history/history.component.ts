@@ -86,7 +86,7 @@ export class HistoryComponent {
             ({
               type: event.type,
               ldap: event.ldap,
-              name: players[event.ldap],
+              name: players[event.ldap].name,
               levelFrom: event.levelFrom,
               levelTo: event.levelTo,
               createdAt: event.createdAt.toDate()
