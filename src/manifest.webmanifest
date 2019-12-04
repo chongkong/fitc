@@ -1,8 +1,8 @@
 {
-  "name": "fitc",
-  "short_name": "fitc",
-  "theme_color": "#1976d2",
-  "background_color": "#fafafa",
+  "name": "FitC",
+  "short_name": "FitC",
+  "theme_color": "#1e88e5",
+  "background_color": "#f0f0f0",
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
