@@ -7,7 +7,7 @@ $border: 8px;
   display: flex;
   border-radius: $border;
   margin: 0 -8px;
-  background-color: #eee;
+  background-color: rgba(0, 0, 0, 0.06);
 
   .team {
     flex: 50%;
@@ -19,7 +19,7 @@ $border: 8px;
 
   .blue-team {
     border-radius: $border 0 0 $border;
-    border-bottom: 4px solid #ddd;
+    border-bottom: 4px solid rgba(0, 0, 0, 0.1);
 
     &.win {
       background-color: $blue;
@@ -38,7 +38,7 @@ $border: 8px;
 
   .red-team {
     border-radius: 0 $border $border 0;
-    border-bottom: 4px solid #ddd;
+    border-bottom: 4px solid rgba(0, 0, 0, 0.1);
 
     &.win {
       background-color: $red;

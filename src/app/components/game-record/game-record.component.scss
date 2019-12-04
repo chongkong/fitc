@@ -1,12 +1,15 @@
 @import "../../../styles.scss";
+
 $foreground: map-get($fitc-theme, foreground);
 $border: 8px;
+$grey: darken($fitc-app-background, 10%);
+$dark-grey: darken($grey, 10%);
 
 .root {
   border-radius: $border;
   display: flex;
   margin: $fitc-padding-md;
-  background-color: #eee;
+  background-color: rgba(0, 0, 0, 0.06);
   color: map-get($foreground, disabled);
 
   .team {
@@ -48,7 +51,7 @@ $border: 8px;
 
 .blue-team {
   border-radius: $border 0 0 $border;
-  border-bottom: 4px solid #ddd;
+  border-bottom: 4px solid rgba(0, 0, 0, 0.1);
   align-items: flex-start;
 
   &.win {
@@ -60,7 +63,7 @@ $border: 8px;
 
 .red-team {
   border-radius: 0 $border $border 0;
-  border-bottom: 4px solid #ddd;
+  border-bottom: 4px solid rgba(0, 0, 0, 0.1);
 
   &.win {
     background-color: $red;

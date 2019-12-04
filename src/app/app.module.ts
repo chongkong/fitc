@@ -16,6 +16,7 @@ import { RecordModule } from "./pages/record/record.module";
 import { HistoryModule } from "./pages/history/history.module";
 import { ProfileModule } from "./pages/profile/profile.module";
 import { PlayerSelectDialogComponent } from "./components/player-select-dialog/player-select-dialog.component";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 @NgModule({
   declarations: [AppComponent],
@@ -30,7 +31,8 @@ import { PlayerSelectDialogComponent } from "./components/player-select-dialog/p
     BrowserAnimationsModule,
     TimeagoModule.forRoot(),
     HistoryModule,
-    ProfileModule
+    ProfileModule,
+    FontAwesomeModule
   ],
   providers: [
     {

@@ -11,8 +11,8 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$fitc-primary: mat-palette($mat-blue-grey, 600, 100, 800);
-$fitc-accent: mat-palette($mat-pink, A200, A100, A400);
+$fitc-primary: mat-palette($mat-blue, 600, 100, 800);
+$fitc-accent: mat-palette($mat-amber, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
 $fitc-warn: mat-palette($mat-red);
@@ -27,21 +27,19 @@ $fitc-theme: mat-light-theme($fitc-primary, $fitc-accent, $fitc-warn);
 
 /* You can add global styles to this file, and also import other style files */
 
-// Colors
-$white: #ffffff;
-$red: #e53935;
-$dark-red: #d32f2f;
-$blue: #1976d2;
-$dark-blue: #1565c0;
+// $fitc-app-background: #fbfcfb;
+$fitc-app-background: #f0f0f0;
 
-$fitc-color-default-blue: #546e7a;
-$fitc-color-light-blue: #819ca9;
-$fitc-color-dark-blue: #29434e;
+$google-blue: #4285f4;
+$google-yellow: #f4b400;
+$google-red: #db4437;
+$google-green: #0f9d58;
 
-$fitc-color-light-grey: #fbfcfb;
-$fitc-color-default-grey: #e3e4e5;
-$fitc-color-dark-grey: #e1e2e1;
-$fitc-color-darkest-grey: #a3a3a6;
+// For Foosball team color
+$red: $google-red;
+$dark-red: darken($google-red, 10%);
+$blue: $google-blue;
+$dark-blue: darken($google-blue, 10%);
 
 // Paddings
 $fitc-padding-xs: 4px;
