@@ -22,6 +22,13 @@ export const URL_SEGMENT_TO_TITLE: ReadonlyMap<string, string> = new Map<
   [PROFILE_URL_SEGMENT, "Statistics"]
 ]);
 
+// Long title might get overflowed on bottom nav
+export const BOTTOM_NAV_TITLES: ReadonlyMap<string, string> = new Map([
+  [RECORD_URL_SEGMENT, "New Game"],
+  [HISTORY_URL_SEGMENT, "Recent"],
+  [PROFILE_URL_SEGMENT, "Stats"]
+]);
+
 const TAB_ITEMS: TabItem[] = [
   { icon: "history", urlSegment: HISTORY_URL_SEGMENT },
   { icon: "create", urlSegment: RECORD_URL_SEGMENT },
@@ -62,6 +69,10 @@ export class AppComponent {
 
   getTitle(urlSegement: string): string {
     return URL_SEGMENT_TO_TITLE.get(urlSegement);
+  }
+
+  getBottomNavTitle(urlSegment: string) {
+    return BOTTOM_NAV_TITLES.get(urlSegment);
   }
 
   isActive(title: string, urlSegment: string): boolean {

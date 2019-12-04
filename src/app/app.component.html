@@ -18,7 +18,7 @@
       [innerHTML]="tabItem.icon"
     ></mat-icon>
     <span *ngIf="isActive(title | async, tabItem.urlSegment)">{{
-      getTitle(tabItem.urlSegment)
+      getBottomNavTitle(tabItem.urlSegment)
     }}</span>
   </a>
 </nav>
