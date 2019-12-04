@@ -11,7 +11,7 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$fitc-primary: mat-palette($mat-indigo);
+$fitc-primary: mat-palette($mat-blue-grey, 600, 100, 800);
 $fitc-accent: mat-palette($mat-pink, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
@@ -27,13 +27,36 @@ $fitc-theme: mat-light-theme($fitc-primary, $fitc-accent, $fitc-warn);
 
 /* You can add global styles to this file, and also import other style files */
 
+// Colors
+$white: #ffffff;
+$red: #e53935;
+$dark-red: #d32f2f;
+$blue: #1976d2;
+$dark-blue: #1565c0;
+
+$fitc-color-default-blue: #546e7a;
+$fitc-color-light-blue: #819ca9;
+$fitc-color-dark-blue: #29434e;
+
+$fitc-color-light-grey: #fbfcfb;
+$fitc-color-default-grey: #e3e4e5;
+$fitc-color-dark-grey: #e1e2e1;
+$fitc-color-darkest-grey: #a3a3a6;
+
+// Paddings
+$fitc-padding-xs: 4px;
+$fitc-padding-sm: calc(#{$fitc-padding-xs} * 2);
+$fitc-padding-md: calc(#{$fitc-padding-xs} * 4);
+$fitc-padding-lg: calc(#{$fitc-padding-xs} * 6);
+$fitc-padding-xlg: calc(#{$fitc-padding-xs} * 8);
+
 html,
 body {
   height: 100%;
 }
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: "Google Sans", "Helvetica Neue", sans-serif;
 }
 
 // Workaround for https://github.com/swimlane/ngx-charts/issues/1224 and

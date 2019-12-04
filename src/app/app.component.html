@@ -7,7 +7,7 @@
       class="bottom-nav__action"
       [class.active]="isActive(title | async, tabItem.urlSegment)"
       [routerLink]=[tabItem.urlSegment]>
-    <mat-icon class="bottom-nav__icon" [innerHTML]="tabItem.icon"></mat-icon>
-    <span>{{getTitle(tabItem.urlSegment)}}</span>
+    <mat-icon fontSet="material-icons-round" class="bottom-nav__icon" [innerHTML]="tabItem.icon"></mat-icon>
+    <span *ngIf="isActive(title | async, tabItem.urlSegment)">{{getTitle(tabItem.urlSegment)}}</span>
   </a>
 </nav>

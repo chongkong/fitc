@@ -1,25 +1,26 @@
-@import '~material-bottom-nav';
+@import "~material-bottom-nav";
+@import "../styles.scss";
 
 .mat-toolbar {
-  background: #4b536e; 
-  color: white;
+  background: $fitc-color-light-grey;
+  color: $fitc-color-dark-blue;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: $fitc-padding-xlg $fitc-padding-lg;
 }
 
 .content-container {
-  background: #e6e6e6;
+  background: $fitc-color-light-grey;
   bottom: 56px;
   left: 0;
   overflow-y: scroll;
   right: 0;
-  padding: 16px;
   position: fixed;
   top: 56px;
 }
 
 .bottom-nav {
-  @include bottom-nav($background-color:#fbfcfb, $active-color: #FFFFFF, $inactive-color: #E0E0E0, $hide-inactive-labels: true);
+  @include bottom-nav($background-color:$white, $active-color: #e1e2e1, $inactive-color: #E0E0E0, $hide-inactive-labels: false);
   box-shadow: none;
 
   >a {
@@ -31,7 +32,7 @@
     padding-bottom: 8px;
     
     &.active {
-      color: #4b536e;
+      color: $fitc-color-default-blue;
     }
   }
 

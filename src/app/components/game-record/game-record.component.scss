@@ -1,0 +1,68 @@
+@import "../../../styles.scss";
+$foreground: map-get($fitc-theme, foreground);
+$border: 8px;
+
+.root {
+  border-radius: $border;
+  display: flex;
+  margin: 1em;
+  background-color: #eee;
+  color: map-get($foreground, disabled);
+
+  .team {
+    flex: 1;
+    flex-basis: 0;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}
+
+.icon-root {
+  display: flex;
+  color: white;
+  width: 100%;
+  height: auto;
+  margin-bottom: 8px;
+  justify-content: center;
+
+  &.tombstone {
+    color: rgba(0, 0, 0, 0.8);
+  }
+
+  fa-icon {
+    margin: 0 1.5px;
+  }
+
+  &.too-many {
+    font-size: 1.3em;
+  }
+}
+
+.blue-team {
+  border-radius: $border 0 0 $border;
+  border-bottom: 4px solid #ddd;
+  align-items: flex-start;
+
+  &.win {
+    background-color: $blue;
+    border-color: $dark-blue;
+    color: white;
+  }
+}
+
+.red-team {
+  border-radius: 0 $border $border 0;
+  border-bottom: 4px solid #ddd;
+
+  &.win {
+    background-color: $red;
+    border-color: $dark-red;
+    color: white;
+  }
+
+  .icon-root {
+    flex-direction: row-reverse;
+  }
+}
