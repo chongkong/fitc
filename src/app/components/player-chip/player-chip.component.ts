@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { faTimesCircle } from "@fortawesome/pro-duotone-svg-icons";
 import { Player } from "common/types";
 
 @Component({
@@ -7,6 +8,8 @@ import { Player } from "common/types";
   styleUrls: ["./player-chip.component.scss"]
 })
 export class PlayerChipComponent {
+  faTimesCircle = faTimesCircle;
+
   @Input()
   public player: Player;
 
@@ -14,10 +17,10 @@ export class PlayerChipComponent {
   public selected?: boolean;
 
   @Input()
-  public selectable: boolean;
+  public removable: boolean;
 
   @Output()
-  onToggle = new EventEmitter<string>();
+  remove: EventEmitter<void> = new EventEmitter();
 
   levelClassNames() {
     return [`level-${this.player.level}`];
@@ -30,9 +33,9 @@ export class PlayerChipComponent {
     };
   }
 
-  toggle() {
-    this.selected = !this.selected;
-    this.onToggle.emit(this.player.ldap);
+  onRemove($event) {
+    $event.stopPropagation();
+    this.remove.emit();
   }
 
   constructor() {}

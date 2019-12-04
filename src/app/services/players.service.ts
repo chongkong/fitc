@@ -1,10 +1,9 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { AngularFirestore } from "@angular/fire/firestore";
-import { BehaviorSubject, Subscription, Subject } from "rxjs";
-import { Player, FoosballTable } from "common/types";
+import { BehaviorSubject, Subscription, Observable } from "rxjs";
+import { Player } from "common/types";
 import { Path } from "common/path";
-import { combineLatest } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, take } from "rxjs/operators";
 
 function groupByLdap(players: Player[]) {
   return players.reduce((dict, player) => {
@@ -17,32 +16,40 @@ function groupByLdap(players: Player[]) {
   providedIn: "root"
 })
 export class PlayersService implements OnDestroy {
-  private _allPlayers: BehaviorSubject<Player[]> = new BehaviorSubject([]);
+  private players: BehaviorSubject<Player[]> = new BehaviorSubject([]);
 
-  private subscriptions: Subscription[] = [];
+  private subscription: Subscription;
 
   constructor(public afs: AngularFirestore) {
-    // Set allPlayers
-    this.subscriptions.push(
-      afs
-        .collection<Player>(Path.playersCollection)
-        .valueChanges()
-        .subscribe(values => {
-          this._allPlayers.next(values);
-        })
-    );
+    this.subscription = afs
+      .collection<Player>(Path.playersCollection)
+      .valueChanges()
+      .subscribe(values => {
+        this.players.next(values);
+      });
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscription.unsubscribe();
   }
 
-  get allPlayers() {
-    return this._allPlayers;
+  get all(): Observable<Player[]> {
+    return this.players;
   }
 
-  get allPlayersByLdap() {
-    return this._allPlayers.pipe(
+  once(): Observable<Player[]> {
+    return this.players.pipe(take(1));
+  }
+
+  getOnce(ldap: string): Observable<Player | undefined> {
+    return this.players.pipe(
+      take(1),
+      map(players => players.find(player => player.ldap === ldap))
+    );
+  }
+
+  byLdap() {
+    return this.players.pipe(
       map(players =>
         players.reduce(
           (dict, player) => Object.assign(dict, { [player.ldap]: player }),

@@ -58,6 +58,7 @@ $foreground: map-get($fitc-theme, foreground);
 .player-tenure {
   color: map-get($foreground, disabled);
   font-family: "Roboto";
+  font-size: 14px;
 }
 
 .single-line-stats {

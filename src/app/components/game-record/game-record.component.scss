@@ -12,7 +12,7 @@ $border: 8px;
   .team {
     flex: 1;
     flex-basis: 0;
-    padding: $fitc-padding-md;
+    padding: $fitc-padding-md $fitc-padding-md $fitc-padding-sm;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -21,15 +21,10 @@ $border: 8px;
 
 .icon-root {
   display: flex;
-  color: white;
   width: 100%;
   height: auto;
   margin-bottom: 8px;
   justify-content: center;
-
-  &.tombstone {
-    color: rgba(0, 0, 0, 0.8);
-  }
 
   fa-icon {
     margin: 0 1.5px;
@@ -38,6 +33,17 @@ $border: 8px;
   &.too-many {
     font-size: 1.3em;
   }
+}
+
+.crown {
+  --fa-primary-color: #ffcd36;
+  --fa-secondary-color: #d18700;
+  --fa-primary-opacity: 1;
+  --fa-secondary-opacity: 1;
+}
+
+.tombstone {
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .blue-team {
@@ -61,6 +67,12 @@ $border: 8px;
     border-color: $dark-red;
     color: white;
   }
+}
+
+.chip-wrapper {
+  height: 28px;
+  display: flex;
+  align-items: center;
 }
 
 .timestamp {

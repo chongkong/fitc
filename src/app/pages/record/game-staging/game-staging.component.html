@@ -1,0 +1,58 @@
+<div class="staging-root">
+  <div
+    *ngFor="let team of teams"
+    class="team"
+    [ngClass]="{
+      'blue-team': team === 'blue',
+      'red-team': team === 'red',
+      win: winningTeam && winningTeam === team,
+      lose: winningTeam && winningTeam !== team
+    }"
+    (click)="clickTeam(team)"
+  >
+    <div class="touch-area">
+      <fa-icon
+        *ngIf="winningTeam === team"
+        class="crown"
+        [icon]="faCrown"
+      ></fa-icon>
+      <fa-icon
+        *ngIf="winningTeam && winningTeam !== team"
+        class="tombstone"
+        [icon]="faTombstone"
+      ></fa-icon>
+      <fa-icon
+        *ngIf="!winningTeam"
+        class="question"
+        [icon]="faQuestion"
+      ></fa-icon>
+    </div>
+    <ng-container
+      *ngFor="let name of players(team)"
+      [ngTemplateOutlet]="hasPlayer(name) ? playerTemplate : emptyTemplate"
+      [ngTemplateOutletContext]="{ name: name }"
+    >
+    </ng-container>
+  </div>
+</div>
+
+<div class="tooltip">
+  {{ getTooltip() }}
+</div>
+
+<ng-template #playerTemplate let-name="name">
+  <div class="chip-wrapper">
+    <app-player-chip
+      [player]="getPlayer(name)"
+      (click)="removePlayer(name, $event)"
+    ></app-player-chip>
+  </div>
+</ng-template>
+
+<ng-template #emptyTemplate let-name="name">
+  <div class="chip-wrapper">
+    <div class="empty-slot" [ngClass]="{ next: nextEmpty === name }">
+      {{ displayNames[name] }}
+    </div>
+  </div>
+</ng-template>

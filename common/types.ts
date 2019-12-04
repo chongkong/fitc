@@ -39,10 +39,6 @@ export interface GameRecord {
  */
 export interface FoosballTable {
   name: string;
-  alpha?: string;
-  bravo?: string;
-  charlie?: string;
-  delta?: string;
   bench: string[];
 }
 

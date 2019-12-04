@@ -10,12 +10,14 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatListModule } from "@angular/material/list";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDialogModule } from "@angular/material/dialog";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
 import { RecordComponent } from "./record.component";
 import { ComponentsModule } from "src/app/components/components.module";
+import { GameStagingComponent } from "./game-staging/game-staging.component";
 
 @NgModule({
-  declarations: [RecordComponent],
+  declarations: [RecordComponent, GameStagingComponent],
   imports: [
     AngularFirestoreModule,
     CommonModule,
@@ -29,6 +31,7 @@ import { ComponentsModule } from "src/app/components/components.module";
     MatIconModule,
     MatInputModule,
     MatListModule,
+    FontAwesomeModule,
     ReactiveFormsModule
   ]
 })

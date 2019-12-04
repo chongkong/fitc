@@ -12,7 +12,7 @@ $height: 32px;
   &.selected {
     height: $height;
     border-radius: $height / 2;
-    padding: 0 12px 0 8px;
+    padding: 0 6px 0 8px;
 
     color: map-get($fitc-primary, default-contrast);
     background-color: map-get($fitc-primary, default);
@@ -24,7 +24,7 @@ $height: 32px;
   &.not-selected {
     height: $height;
     border-radius: $height / 2;
-    padding: 0 12px 0 8px;
+    padding: 0 6px 0 8px;
 
     color: inherit;
     background-color: rgba(0, 0, 0, 0.1);
@@ -42,6 +42,7 @@ $height: 32px;
 }
 
 .player-level {
+  flex: 0;
   $size: 16px;
   font-size: 10px;
   font-family: "Roboto";
@@ -57,5 +58,20 @@ $height: 32px;
 }
 
 .player-name {
+  flex: 1;
   font-size: 14px;
+}
+
+.remove-button {
+  flex: 0;
+  font-size: 20px;
+  --fa-primary-color: rgba(0, 0, 0, 0.6);
+  --fa-secondary-color: rgba(0, 0, 0, 0.3);
+}
+
+.selected {
+  .remove-button {
+    --fa-primary-color: white;
+    --fa-secondary-color: rgba(0, 0, 0, 0.6);
+  }
 }

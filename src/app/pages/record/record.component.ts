@@ -1,13 +1,9 @@
-import { Component } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { AngularFireAuth } from "@angular/fire/auth";
-import {
-  AngularFirestore,
-  AngularFirestoreCollection,
-  AngularFirestoreDocument
-} from "@angular/fire/firestore";
-import { Observable, combineLatest } from "rxjs";
-import { map, flatMap, take } from "rxjs/operators";
+import { AngularFirestore } from "@angular/fire/firestore";
+import { combineLatest, BehaviorSubject, Subscription } from "rxjs";
+import { map, take } from "rxjs/operators";
 import { firestore } from "firebase";
 
 import { Player, GameRecord, FoosballTable } from "common/types";
@@ -18,187 +14,175 @@ import {
 import { PlayersService } from "src/app/services/players.service";
 import { Path } from "common/path";
 
-/**
- * Sort by level DESC, name ASC.
- * We preform client-side sorting since composite-key sorting is
- * difficult in Firestore.
- */
-const playerCompareFn = (p1: Player, p2: Player) => {
-  if (p1.level < p2.level) return 1;
-  if (p1.level > p2.level) return -1;
-  if (p1.name < p2.name) return -1;
-  if (p1.name > p2.name) return 1;
-  return 0;
-};
-
-function groupByLdap(players: Player[]) {
-  return players.reduce((dict, player) => {
-    dict[player.ldap] = player;
-    return dict;
-  }, {});
-}
+const distinct = <T>(value: T, index: number, arr: T[]) =>
+  arr.indexOf(value) === index;
 
 @Component({
   selector: "app-record",
   templateUrl: "./record.component.html",
   styleUrls: ["./record.component.scss"]
 })
-export class RecordComponent {
-  // Observables from firestore.
+export class RecordComponent implements OnInit, OnDestroy {
+  benchPlayers: BehaviorSubject<Player[]>;
+  subscriptions: Subscription[] = [];
 
-  me: Observable<Player>;
-  records: Observable<GameRecord[]>;
-  lastRecord: Observable<GameRecord | undefined>;
-  recentPlayers: Observable<Player[]>;
-
-  // Document & collection reference from firestore.
-
-  tableDoc: AngularFirestoreDocument<FoosballTable>;
-  playerCollection: AngularFirestoreCollection<Player>;
-  recordCollection: AngularFirestoreCollection<GameRecord>;
-
-  // Component bindings.
+  // Component bindings. (local state)
 
   myLdap: string = "";
-  ldapInput: string = "";
-  winners: string[] = [];
-  losers: string[] = [];
-  isDraw: boolean = false;
-  currentRecentPlayers: Player[];
+  alpha?: Player;
+  bravo?: Player;
+  charlie?: Player;
+  delta?: Player;
+  winningTeam?: "blue" | "red";
 
   constructor(
     public afAuth: AngularFireAuth,
     public afs: AngularFirestore,
-    readonly ps: PlayersService,
+    readonly players: PlayersService,
     public dialog: MatDialog
   ) {
-    // Setup me
-    this.me = afAuth.user.pipe(
-      flatMap((user: firebase.User) => {
-        const ldap = user.email.split("@")[0];
-        this.myLdap = ldap;
-        return afs.doc<Player>(`players/${ldap}`).valueChanges();
-      })
-    );
-
-    // Setup recentPlayers
-    this.tableDoc = afs.doc<FoosballTable>("tables/default");
-    const recentPlayersLdaps = this.tableDoc
-      .valueChanges()
-      .pipe(map(table => (table ? table.recentPlayers : [])));
-
-    this.recentPlayers = combineLatest(
-      recentPlayersLdaps,
-      ps.allPlayersByLdap
-    ).pipe(
-      map(([ldaps, allPlayersByLdap]) => {
-        this.currentRecentPlayers = ldaps.map(ldap => allPlayersByLdap[ldap]);
-        return this.currentRecentPlayers;
-      })
-    );
-    // Setup records
-    this.records = this.tableDoc
-      .collection<GameRecord>("records", ref =>
-        ref.orderBy("createdAt", "desc").limit(50)
-      )
-      .valueChanges();
-
-    // Setup lastRecord
-    this.lastRecord = this.records.pipe(
-      map(records => (records ? records[0] : undefined))
-    );
-
-    // Setup remaining collections.
-    this.playerCollection = afs.collection<Player>("players");
-    this.recordCollection = this.tableDoc.collection<GameRecord>("records");
+    this.myLdap = afAuth.auth.currentUser.email.split("@")[0];
+    this.benchPlayers = new BehaviorSubject<Player[]>([]);
   }
 
-  removeFromRecentPlayers(ldap: string) {
-    if (this.winners.includes(ldap))
-      this.winners.splice(this.winners.indexOf(ldap), 1);
-    else if (this.losers.includes(ldap))
-      this.losers.splice(this.losers.indexOf(ldap), 1);
+  ngOnInit() {
+    this.subscriptions.push(
+      combineLatest(
+        this.players.byLdap(),
+        this.afs.doc<FoosballTable>(Path.table("default")).valueChanges()
+      ).subscribe(([playersByLdap, table]) => {
+        if (table.bench) {
+          this.benchPlayers.next(
+            table.bench
+              .map(ldap => playersByLdap[ldap])
+              .filter(player => Boolean(player))
+          );
+        }
+      })
+    );
+  }
 
+  ngOnDestroy() {
+    this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  inBench(ldap: string) {
+    return this.benchPlayers.pipe(
+      map(players => players.some(player => player.ldap === ldap))
+    );
+  }
+
+  removeFromBench(ldap: string) {
     this.afs.doc(Path.table("default")).update({
-      recentPlayers: firestore.FieldValue.arrayRemove(ldap)
+      bench: firestore.FieldValue.arrayRemove(ldap)
     });
   }
 
-  private toggle(xs: string[], ys: string[], value: string) {
-    const addTo = (arr: string[], val: string) => {
-      if (!arr.includes(val)) {
-        arr.push(val);
-        if (arr.length > 2) arr.shift();
-      }
-    };
-
-    const removeFrom = (arr: string[], val: string) => {
-      if (arr.includes(val)) {
-        arr.splice(arr.indexOf(val), 1);
-      }
-    };
-
-    if (xs.includes(value)) {
-      removeFrom(xs, value);
-    } else {
-      addTo(xs, value);
-      removeFrom(ys, value);
-    }
+  addToBench(ldap: string) {
+    this.afs.doc(Path.table("default")).update({
+      bench: firestore.FieldValue.arrayUnion(ldap)
+    });
   }
 
-  toggleWinner(ldap: string) {
-    this.toggle(this.winners, this.losers, ldap);
-  }
-
-  toggleLoser(ldap: string) {
-    this.toggle(this.losers, this.winners, ldap);
-  }
-
-  isWinner(ldap: string) {
-    return this.winners.includes(ldap);
-  }
-
-  isLoser(ldap: string) {
-    return this.losers.includes(ldap);
-  }
-
-  recordGame() {
+  recordGame(winners: string[], losers: string[]) {
     // You must have chosen proper winners and losers before recording.
-    if (this.winners.length !== 2 || this.losers.length !== 2) {
+    if (winners.length !== 2 || losers.length !== 2) {
       return;
     }
-
     const now = firestore.Timestamp.now();
     const record: GameRecord = {
-      winners: this.winners,
-      losers: this.losers,
-      isDraw: this.isDraw,
-      winStreaks: 0, // Placeholder value that will be resolved from firebase trigger.
+      winners: winners,
+      losers: losers,
+      isDraw: false, // Ignore draw game
+      winStreaks: 0, // Placeholder value that will be resolved from backend
       createdAt: now,
       recordedBy: this.myLdap
     };
-    this.recordCollection
-      .doc<GameRecord>(now.toMillis().toString())
-      .set(record);
+    this.afs
+      .doc<GameRecord>(Path.gameRecord("default", now))
+      .set(record)
+      .then(() => this.resetStaging());
+  }
 
-    // Remove losers for next challengers.
-    this.losers = [];
+  get stagingPlayers() {
+    return [this.alpha, this.bravo, this.charlie, this.delta];
+  }
+
+  get stagingPlayerLdaps() {
+    return this.stagingPlayers
+      .filter(player => Boolean(player))
+      .map(player => player.ldap)
+      .filter(distinct);
+  }
+
+  nextStagingSlot() {
+    if (!this.alpha) return "alpha";
+    if (!this.bravo) return "bravo";
+    if (!this.charlie) return "charlie";
+    if (!this.delta) return "delta";
+  }
+
+  inStaging(ldap: string) {
+    return this.stagingPlayers.some(player => player && player.ldap === ldap);
+  }
+
+  selectForStaging(ldap: string) {
+    const next = this.nextStagingSlot();
+    if (next && !this.inStaging(ldap)) {
+      this.players.getOnce(ldap).subscribe(player => {
+        this[next] = player;
+      });
+    }
+  }
+
+  removeFromStaging(slot: "alpha" | "bravo" | "charlie" | "delta") {
+    this[slot] = undefined;
+  }
+
+  slotForIndex(index: number) {
+    return ["alpha", "bravo", "charlie", "delta"][index];
+  }
+
+  toggleStaging(ldap: string) {
+    const index = this.stagingPlayers.findIndex(
+      player => player && player.ldap === ldap
+    );
+    if (index >= 0) {
+      this[this.slotForIndex(index)] = undefined;
+    } else {
+      this.selectForStaging(ldap);
+    }
+  }
+
+  resetStaging() {
+    if (this.winningTeam !== "blue") {
+      this.alpha = undefined;
+      this.bravo = undefined;
+    }
+    if (this.winningTeam !== "red") {
+      this.charlie = undefined;
+      this.delta = undefined;
+    }
+    this.winningTeam = undefined;
+  }
+
+  onSelectTeam(team: "blue" | "red") {
+    if (this.winningTeam === team) {
+      this.winningTeam = undefined;
+    } else {
+      this.winningTeam = team;
+    }
   }
 
   openDialog() {
-    const unselected = this.ps.allPlayers.pipe(
-      map(allPlayers => {
-        return allPlayers.filter(
-          player =>
-            this.currentRecentPlayers.findIndex(
-              recentPlayer => recentPlayer.ldap === player.ldap
-            ) === -1
-        );
+    const unselected = combineLatest(this.players.all, this.benchPlayers).pipe(
+      map(([allPlayers, benchPlayers]) => {
+        const benchLdaps = new Set(benchPlayers.map(player => player.ldap));
+        return allPlayers.filter(player => !benchLdaps.has(player.ldap));
       })
     );
 
     const dialogRef = this.dialog.open(PlayerSelectDialogComponent, {
-      width: "250px",
       data: {
         header: "Select Players",
         players: unselected,
@@ -212,9 +196,31 @@ export class RecordComponent {
       .subscribe(selected => {
         if (selected && selected.length > 0) {
           this.afs.doc(Path.table("default")).update({
-            recentPlayers: firestore.FieldValue.arrayUnion(...selected)
+            bench: firestore.FieldValue.arrayUnion(...selected)
           });
         }
       });
+  }
+
+  readyToSubmit() {
+    return (
+      this.alpha &&
+      this.bravo &&
+      this.charlie &&
+      this.delta &&
+      this.winningTeam &&
+      this.stagingPlayerLdaps.length === 4
+    );
+  }
+
+  onSubmit() {
+    if (this.readyToSubmit()) {
+      const blueTeam = [this.alpha, this.bravo].map(player => player.ldap);
+      const redTeam = [this.charlie, this.delta].map(player => player.ldap);
+      this.recordGame(
+        this.winningTeam === "blue" ? blueTeam : redTeam,
+        this.winningTeam === "red" ? blueTeam : redTeam
+      );
+    }
   }
 }
