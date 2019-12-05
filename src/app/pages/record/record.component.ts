@@ -141,6 +141,7 @@ export class RecordComponent implements OnInit, OnDestroy {
 
   removeFromStaging(slot: "alpha" | "bravo" | "charlie" | "delta") {
     this[slot] = undefined;
+    this.winningTeam = undefined; // Should disable team option as well.
   }
 
   slotForIndex(index: number) {
