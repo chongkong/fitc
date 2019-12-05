@@ -22,23 +22,28 @@ const loggedInWithCorpAccount = map((user: User | null) => {
 });
 
 const routes: Routes = [
-  { path: "", redirectTo: `/${RECORD_URL_SEGMENT}`, pathMatch: "full" },
   {
-    path: `${LOGIN_URL_SEGMENT}`,
+    path: "",
+    redirectTo: "/login",
+    pathMatch: "full",
+    ...canActivate(loggedInWithCorpAccount)
+  },
+  {
+    path: LOGIN_URL_SEGMENT,
     component: LoginComponent
   },
   {
-    path: `${RECORD_URL_SEGMENT}`,
+    path: RECORD_URL_SEGMENT,
     component: RecordComponent,
     ...canActivate(loggedInWithCorpAccount)
   },
   {
-    path: `${HISTORY_URL_SEGMENT}`,
+    path: HISTORY_URL_SEGMENT,
     component: HistoryComponent,
     ...canActivate(loggedInWithCorpAccount)
   },
   {
-    path: `${PROFILE_URL_SEGMENT}`,
+    path: PROFILE_URL_SEGMENT,
     component: ProfileComponent,
     ...canActivate(loggedInWithCorpAccount)
   }

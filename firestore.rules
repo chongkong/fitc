@@ -3,15 +3,15 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Allow reading everything for auth users.
     match /{document=**} {
-      allow read: if request.auth.uid != null;
+      allow read: if request.auth.token.email.matches('.*google[.]com$');
     }
     // Auth users can edit tableState.
     match /tables/{tableId} {
-      allow write: if request.auth.uid != null;
+      allow write: if request.auth.token.email.matches('.*google[.]com$');
     }
     // Auth users can record games.
     match /tables/{tableId}/records/{recordId} {
-      allow write: if request.auth.uid != null;
+      allow write: if request.auth.token.email.matches('.*google[.]com$');
     }
   }
 }
