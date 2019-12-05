@@ -11,12 +11,12 @@
   },
   "박주람": {
     "ldap": "jurampark",
-    "level": 3,
+    "level": 4,
     "name": "Juram Park"
   },
   "김용록": {
     "ldap": "yrkim",
-    "level": 5,
+    "level": 4,
     "name": "Yongrok Kim"
   },
   "Kevin": {
@@ -31,12 +31,12 @@
   },
   "박형철": {
     "ldap": "hcpark",
-    "level": 2,
+    "level": 3,
     "name": "Hyungchul Park"
   },
   "한지호": {
     "ldap": "jiho",
-    "level": 5,
+    "level": 4,
     "name": "Jiho Han"
   },
   "오영진": {
@@ -51,7 +51,7 @@
   },
   "권순선": {
     "ldap": "soonson",
-    "level": 2,
+    "level": 3,
     "name": "Soonson Kwon"
   },
   "김우진": {
@@ -71,17 +71,17 @@
   },
   "유원석": {
     "ldap": "yoowonseok",
-    "level": 7,
+    "level": 6,
     "name": "Won-seok Yoo"
   },
   "박종빈": {
     "ldap": "jjong",
-    "level": 2,
+    "level": 1,
     "name": "Jongbin Park"
   },
   "라예지": {
     "ldap": "yejir",
-    "level": 1,
+    "level": 2,
     "name": "Diana Yeji Rha"
   },
   "Saken": {
@@ -96,12 +96,12 @@
   },
   "정제건": {
     "ldap": "jegeon",
-    "level": 4,
+    "level": 3,
     "name": "Jegeon Jung"
   },
   "박진석": {
     "ldap": "jinpark",
-    "level": 3,
+    "level": 4,
     "name": "Jin Seok Park"
   },
   "민경민": {
@@ -131,7 +131,7 @@
   },
   "이형욱": {
     "ldap": "huklee",
-    "level": 1,
+    "level": 2,
     "name": "Hyeonguk Lee"
   },
   "정유진": {
@@ -141,7 +141,7 @@
   },
   "장정식": {
     "ldap": "jayjang",
-    "level": 5,
+    "level": 6,
     "name": "Jungshik Jang"
   },
   "강민": {

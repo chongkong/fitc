@@ -41,7 +41,11 @@ export class RecordComponent implements OnInit, OnDestroy {
     readonly players: PlayersService,
     public dialog: MatDialog
   ) {
-    this.myLdap = afAuth.auth.currentUser.email.split("@")[0];
+    if (afAuth.auth.currentUser) {
+      this.myLdap = afAuth.auth.currentUser.email.split("@")[0];
+    } else {
+      this.myLdap = "";
+    }
     this.benchPlayers = new BehaviorSubject<Player[]>([]);
   }
 

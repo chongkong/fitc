@@ -67,7 +67,9 @@ export class ProfileComponent implements OnInit {
   }
 
   get myLdap() {
-    return this.afAuth.auth.currentUser.email.split("@")[0];
+    if (this.afAuth.auth.currentUser) {
+      return this.afAuth.auth.currentUser.email.split("@")[0];
+    }
   }
 
   isFitcDeveloper(ldap: string) {
