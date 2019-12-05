@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Observable } from "rxjs";
 import { Player } from "common/types";
+import { map } from "rxjs/operators";
 
 export interface PlayerDialogData {
   players: Observable<Player[]>;
@@ -17,10 +18,16 @@ export interface PlayerDialogData {
 export class PlayerSelectDialogComponent implements OnInit {
   ldaps: string[] = [];
 
+  sortedPlayers: Observable<Player[]>;
+
   constructor(
     public dialogRef: MatDialogRef<PlayerSelectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: PlayerDialogData
-  ) {}
+  ) {
+    this.sortedPlayers = this.data.players.pipe(
+      map(players => players.sort((a, b) => a.name.localeCompare(b.name)))
+    );
+  }
 
   ngOnInit() {
     // Occupy full width

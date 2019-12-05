@@ -3,7 +3,7 @@
     {{ data.header }}
   </h2>
   <div class="options-root">
-    <div class="player" *ngFor="let player of data.players | async">
+    <div class="player" *ngFor="let player of sortedPlayers | async">
       <app-player-chip
         [player]="player"
         [selected]="isSelected(player.ldap)"
