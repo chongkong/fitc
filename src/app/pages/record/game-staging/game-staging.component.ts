@@ -77,10 +77,6 @@ export class GameStagingComponent implements OnInit {
 
   removePlayer(name: PlayerName, $event) {
     this.remove.emit(name);
-    // Disable winning/losing at all
-    if (this.winningTeam) {
-      this.teamClick.emit(this.winningTeam);
-    }
     $event.stopPropagation();
   }
 
