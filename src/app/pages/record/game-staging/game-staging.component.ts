@@ -79,7 +79,7 @@ export class GameStagingComponent implements OnInit {
     this.remove.emit(name);
     // Disable winning/losing at all
     if (this.winningTeam) {
-      this.clickTeam(this.winningTeam);
+      this.teamClick.emit(this.winningTeam);
     }
     $event.stopPropagation();
   }
