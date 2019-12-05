@@ -25,12 +25,14 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.subscription = this.fireauth.user.subscribe(user => {
       if (!user) {
-        this.fireauth.auth.signInWithPopup(googleAuthProvider);
+        this.fireauth.auth.signInWithRedirect(googleAuthProvider);
       } else if (user && !user.email.endsWith("@google.com")) {
         alert("Please login with Corp (@google.com) account.");
         this.fireauth.auth
           .signOut()
-          .then(() => this.fireauth.auth.signInWithPopup(googleAuthProvider));
+          .then(() =>
+            this.fireauth.auth.signInWithRedirect(googleAuthProvider)
+          );
       } else {
         this.router.navigate(["record"]);
       }
