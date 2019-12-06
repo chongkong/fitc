@@ -23,10 +23,12 @@ export const onUserCreate = functions.auth.user().onCreate(async user => {
     return Promise.all([
       firestore()
         .doc(Path.player(ldap))
-        .set({
-          name: user.displayName,
-          ldap
-        }),
+        .set(
+          factory.createPlayer({
+            name: user.displayName || ldap,
+            ldap
+          })
+        ),
       firestore()
         .doc(Path.playerStats(ldap))
         .set(factory.emptyPlayerStats())
