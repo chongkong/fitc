@@ -48,7 +48,7 @@ export class PlayersService implements OnDestroy {
     );
   }
 
-  byLdap() {
+  byLdap(): Observable<{ [ldap: string]: Player }> {
     return this.players.pipe(
       map(players =>
         players.reduce(

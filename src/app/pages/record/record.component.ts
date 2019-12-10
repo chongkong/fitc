@@ -60,6 +60,7 @@ export class RecordComponent implements OnInit, OnDestroy {
             table.bench
               .map(ldap => playersByLdap[ldap])
               .filter(player => Boolean(player))
+              .sort((a, b) => a.name.localeCompare(b.name))
           );
         }
       })
