@@ -25,6 +25,7 @@ import {
   reduceTeamStats
 } from "../reducers";
 import { checkLevelUpdate } from "../../../common/level-update-policy";
+import { setEquals } from "../../../common/utils";
 
 export const onGameRecordCreate = functions.firestore
   .document("tables/{tableId}/records/{recordId}")
@@ -41,6 +42,15 @@ export const onGameRecordCreate = functions.firestore
     const oldState = stateSnapshot.exists
       ? (stateSnapshot.data() as TableState)
       : factory.initialTableState();
+
+    // Ignore Duplicate record for convenience.
+    if (
+      oldState.lastRecord &&
+      looksLikeDuplicate(oldState.lastRecord, record)
+    ) {
+      return snapshot.ref.delete();
+    }
+
     const newState = reduceTableState(oldState, record);
     batch.set(firestore().doc(Path.tableState(tableId)), newState);
 
@@ -85,6 +95,15 @@ export const onGameRecordCreate = functions.firestore
     // All batch has been written.
     return batch.commit();
   });
+
+function looksLikeDuplicate(a: GameRecord, b: GameRecord) {
+  return (
+    setEquals(a.winners, b.winners) &&
+    setEquals(a.losers, b.losers) &&
+    a.isDraw === b.isDraw &&
+    Math.abs(a.createdAt.toMillis() - b.createdAt.toMillis()) < 60000
+  );
+}
 
 async function updatePlayer(context: {
   batch: admin.firestore.WriteBatch;
