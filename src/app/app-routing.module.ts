@@ -15,11 +15,12 @@ import { LoginComponent } from "src/app/pages/login/login.component";
 import { RecordComponent } from "src/app/pages/record/record.component";
 import { ProfileComponent } from "src/app/pages/profile/profile.component";
 
-const loggedInWithCorpAccount = map((user: User | null) => {
-  if (!user || !user.email || !user.email.endsWith("@google.com"))
-    return ["login"];
-  else return true;
-});
+const loggedInWithCorpAccount = () =>
+  map((user: User | null) => {
+    if (!user || !user.email || !user.email.endsWith("@google.com"))
+      return ["login"];
+    else return true;
+  });
 
 const routes: Routes = [
   {
