@@ -18,6 +18,7 @@ import { ProfileModule } from "./pages/profile/profile.module";
 import { PlayerSelectDialogComponent } from "./components/player-select-dialog/player-select-dialog.component";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { ServiceWorkerModule } from "@angular/service-worker";
+import { EventDialogComponent } from "./components/event-dialog/event-dialog.component";
 
 @NgModule({
   declarations: [AppComponent],
@@ -49,7 +50,7 @@ import { ServiceWorkerModule } from "@angular/service-worker";
           }
     }
   ],
-  entryComponents: [PlayerSelectDialogComponent],
+  entryComponents: [PlayerSelectDialogComponent, EventDialogComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

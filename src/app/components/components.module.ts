@@ -9,13 +9,15 @@ import { PlayerChipComponent } from "./player-chip/player-chip.component";
 import { GameRecordComponent } from "./game-record/game-record.component";
 import { PlayerSelectDialogComponent } from "./player-select-dialog/player-select-dialog.component";
 import { EventMessageComponent } from "./event-message/event-message.component";
+import { EventDialogComponent } from "./event-dialog/event-dialog.component";
 
 @NgModule({
   declarations: [
     PlayerChipComponent,
     GameRecordComponent,
     PlayerSelectDialogComponent,
-    EventMessageComponent
+    EventMessageComponent,
+    EventDialogComponent
   ],
   imports: [
     CommonModule,
@@ -28,7 +30,8 @@ import { EventMessageComponent } from "./event-message/event-message.component";
     PlayerChipComponent,
     GameRecordComponent,
     PlayerSelectDialogComponent,
-    EventMessageComponent
+    EventMessageComponent,
+    EventDialogComponent
   ]
 })
 export class ComponentsModule {}

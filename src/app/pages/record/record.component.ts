@@ -3,10 +3,10 @@ import { MatDialog } from "@angular/material/dialog";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFirestore } from "@angular/fire/firestore";
 import { combineLatest, BehaviorSubject, Subscription, Observable } from "rxjs";
-import { map, take } from "rxjs/operators";
+import { map, take, skip } from "rxjs/operators";
 import { firestore } from "firebase";
 
-import { Player, GameRecord, FoosballTable } from "common/types";
+import { Player, GameRecord, FoosballTable, Event } from "common/types";
 import {
   PlayerSelectDialogComponent,
   PlayerDialogData
@@ -15,6 +15,7 @@ import { PlayersService } from "src/app/services/players.service";
 import { Path } from "common/path";
 import { EventsService } from "src/app/services/events.service";
 import { EventView } from "src/app/components/event-message/event-message.component";
+import { EventDialogComponent } from "src/app/components/event-dialog/event-dialog.component";
 
 const distinct = <T>(value: T, index: number, arr: T[]) =>
   arr.indexOf(value) === index;
@@ -51,14 +52,17 @@ export class RecordComponent implements OnInit, OnDestroy {
       this.myLdap = "";
     }
 
-    this.recentEvents = combineLatest(players.byLdap(), events.last24h()).pipe(
-      map(([players, events]) =>
+    this.recentEvents = combineLatest(
+      players.namesByLdap,
+      events.last24h()
+    ).pipe(
+      map(([namesByLdap, events]) =>
         events.map(
           event =>
             ({
               type: event.type,
               ldap: event.ldap,
-              name: players[event.ldap].name,
+              name: namesByLdap[event.ldap],
               levelFrom: event.levelFrom,
               levelTo: event.levelTo,
               createdAt: event.createdAt.toDate()
@@ -72,18 +76,40 @@ export class RecordComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscriptions.push(
+      // Update bench players
       combineLatest(
         this.players.byLdap(),
         this.afs.doc<FoosballTable>(Path.table("default")).valueChanges()
-      ).subscribe(([playersByLdap, table]) => {
+      ).subscribe(([players, table]) => {
         if (table.bench) {
           this.benchPlayers.next(
             table.bench
-              .map(ldap => playersByLdap[ldap])
+              .map(ldap => players[ldap])
               .filter(player => Boolean(player))
               .sort((a, b) => a.name.localeCompare(b.name))
           );
         }
+      }),
+      // Open dialogs on Event creation
+      combineLatest(
+        this.players.namesByLdap,
+        this.afs
+          .collection<Event>(Path.eventsCollection)
+          .stateChanges(["added"])
+          .pipe(skip(1))
+      ).subscribe(([namesByLdap, changeAction]) => {
+        changeAction.forEach(action => {
+          const event = action.payload.doc.data();
+          const eventView = {
+            type: event.type,
+            ldap: event.ldap,
+            name: namesByLdap[event.ldap],
+            levelFrom: event.levelFrom,
+            levelTo: event.levelTo,
+            createdAt: event.createdAt.toDate()
+          } as EventView;
+          this.dialog.open(EventDialogComponent, { data: eventView });
+        });
       })
     );
   }

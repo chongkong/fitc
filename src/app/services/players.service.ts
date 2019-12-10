@@ -3,30 +3,54 @@ import { AngularFirestore } from "@angular/fire/firestore";
 import { ReplaySubject, Subscription, Observable } from "rxjs";
 import { Player } from "common/types";
 import { Path } from "common/path";
-import { map, take } from "rxjs/operators";
+import { map, take, skip } from "rxjs/operators";
 
 @Injectable({
   providedIn: "root"
 })
 export class PlayersService implements OnDestroy {
   private players: ReplaySubject<Player[]> = new ReplaySubject(1);
-  private subscription: Subscription;
+  private names: ReplaySubject<{
+    [ldap: string]: string;
+  }> = new ReplaySubject(1);
+  private subscriptions: Subscription[];
 
   constructor(afs: AngularFirestore) {
-    this.subscription = afs
-      .collection<Player>(Path.playersCollection)
-      .valueChanges()
-      .subscribe(values => {
-        this.players.next(values);
-      });
+    const namesByLdap = {};
+    this.subscriptions = [
+      afs
+        .collection<Player>(Path.playersCollection)
+        .valueChanges()
+        .subscribe(values => {
+          this.players.next(values);
+        }),
+      afs
+        .collection<Player>(Path.playersCollection)
+        .stateChanges(["added", "removed"])
+        .subscribe(actions => {
+          const players = actions.map(action => {
+            const { ldap, name } = action.payload.doc.data();
+            if (action.type === "added") {
+              namesByLdap[ldap] = name;
+            } else {
+              delete namesByLdap[ldap];
+            }
+          });
+          this.names.next(Object.assign({}, namesByLdap));
+        })
+    ];
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   get all(): Observable<Player[]> {
     return this.players;
+  }
+
+  get namesByLdap(): Observable<{ [ldap: string]: string }> {
+    return this.names;
   }
 
   once(): Observable<Player[]> {
