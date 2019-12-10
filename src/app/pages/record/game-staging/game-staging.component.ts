@@ -76,8 +76,10 @@ export class GameStagingComponent implements OnInit {
   }
 
   removePlayer(name: PlayerName, $event) {
-    this.remove.emit(name);
-    $event.stopPropagation();
+    if (this.remove.observers.length > 0) {
+      this.remove.emit(name);
+      $event.stopPropagation();
+    }
   }
 
   clickTeam(team: TeamColor) {
