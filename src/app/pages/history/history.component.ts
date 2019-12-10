@@ -2,21 +2,13 @@ import { Component } from "@angular/core";
 import { AngularFirestore } from "@angular/fire/firestore";
 import { Observable, combineLatest } from "rxjs";
 
-import { GameRecord, Event, Player } from "common/types";
+import { Player } from "common/types";
 import { Path } from "common/path";
 import { map } from "rxjs/operators";
 import { GameRecordView } from "../../components/game-record/game-record.component";
+import { EventView } from "../../components/event-message/event-message.component";
 import { EventsService } from "src/app/services/events.service";
 import { RecordsService } from "src/app/services/records.service";
-
-interface EventView {
-  type: "promotion" | "demotion";
-  ldap: string;
-  name: string;
-  levelFrom: number;
-  levelTo: number;
-  createdAt: Date;
-}
 
 const HISTORY_SIZE = 100;
 

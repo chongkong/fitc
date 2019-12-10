@@ -8,9 +8,7 @@
       [data]="item"
     ></app-game-record>
     <ng-template #event>
-      <div class="event-message" [ngClass]="item.type">
-        {{ getEventMessage(item) }}
-      </div>
+      <app-event-message [data]="item"></app-event-message>
     </ng-template>
   </div>
 </mat-list>

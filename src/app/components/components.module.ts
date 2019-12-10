@@ -8,12 +8,14 @@ import { TimeagoModule } from "ngx-timeago";
 import { PlayerChipComponent } from "./player-chip/player-chip.component";
 import { GameRecordComponent } from "./game-record/game-record.component";
 import { PlayerSelectDialogComponent } from "./player-select-dialog/player-select-dialog.component";
+import { EventMessageComponent } from "./event-message/event-message.component";
 
 @NgModule({
   declarations: [
     PlayerChipComponent,
     GameRecordComponent,
-    PlayerSelectDialogComponent
+    PlayerSelectDialogComponent,
+    EventMessageComponent
   ],
   imports: [
     CommonModule,
@@ -25,7 +27,8 @@ import { PlayerSelectDialogComponent } from "./player-select-dialog/player-selec
   exports: [
     PlayerChipComponent,
     GameRecordComponent,
-    PlayerSelectDialogComponent
+    PlayerSelectDialogComponent,
+    EventMessageComponent
   ]
 })
 export class ComponentsModule {}
