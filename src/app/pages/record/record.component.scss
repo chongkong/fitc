@@ -38,7 +38,7 @@ $background: map-get($fitc-theme, background);
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-top: $fitc-padding-xlg;
+  margin: $fitc-padding-xlg 0;
 
   .record-button {
     border-radius: 8px;
@@ -52,4 +52,9 @@ $background: map-get($fitc-theme, background);
       color: map-get($foreground, disabled);
     }
   }
+}
+
+.event-message {
+  display: block;
+  margin-bottom: $fitc-padding-md;
 }

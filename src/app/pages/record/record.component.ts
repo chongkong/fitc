@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFirestore } from "@angular/fire/firestore";
-import { combineLatest, BehaviorSubject, Subscription } from "rxjs";
+import { combineLatest, BehaviorSubject, Subscription, Observable } from "rxjs";
 import { map, take } from "rxjs/operators";
 import { firestore } from "firebase";
 
@@ -13,6 +13,8 @@ import {
 } from "src/app/components/player-select-dialog/player-select-dialog.component";
 import { PlayersService } from "src/app/services/players.service";
 import { Path } from "common/path";
+import { EventsService } from "src/app/services/events.service";
+import { EventView } from "src/app/components/event-message/event-message.component";
 
 const distinct = <T>(value: T, index: number, arr: T[]) =>
   arr.indexOf(value) === index;
@@ -23,6 +25,7 @@ const distinct = <T>(value: T, index: number, arr: T[]) =>
   styleUrls: ["./record.component.scss"]
 })
 export class RecordComponent implements OnInit, OnDestroy {
+  recentEvents: Observable<EventView[]>;
   benchPlayers: BehaviorSubject<Player[]>;
   subscriptions: Subscription[] = [];
 
@@ -36,16 +39,34 @@ export class RecordComponent implements OnInit, OnDestroy {
   winningTeam?: "blue" | "red";
 
   constructor(
-    public afAuth: AngularFireAuth,
-    public afs: AngularFirestore,
-    readonly players: PlayersService,
-    public dialog: MatDialog
+    private afAuth: AngularFireAuth,
+    private afs: AngularFirestore,
+    private players: PlayersService,
+    private events: EventsService,
+    private dialog: MatDialog
   ) {
     if (afAuth.auth.currentUser) {
       this.myLdap = afAuth.auth.currentUser.email.split("@")[0];
     } else {
       this.myLdap = "";
     }
+
+    this.recentEvents = combineLatest(players.byLdap(), events.last24h()).pipe(
+      map(([players, events]) =>
+        events.map(
+          event =>
+            ({
+              type: event.type,
+              ldap: event.ldap,
+              name: players[event.ldap].name,
+              levelFrom: event.levelFrom,
+              levelTo: event.levelTo,
+              createdAt: event.createdAt.toDate()
+            } as EventView)
+        )
+      )
+    );
+
     this.benchPlayers = new BehaviorSubject<Player[]>([]);
   }
 

@@ -1,3 +1,6 @@
-<div class="event-message" [ngClass]="data.type">
+<div class="event-message" [ngClass]="[data.type, shape]">
   {{ getEventMessage(data) }}
+</div>
+<div class="timestamp" [ngClass]="{ hidden: !showDate }">
+  {{ data.createdAt | timeago }}
 </div>

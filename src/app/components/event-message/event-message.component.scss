@@ -1,3 +1,7 @@
+@import "../../../styles.scss";
+
+$foreground: map-get($fitc-theme, foreground);
+
 @mixin gradient-animation-background($name, $color1, $color2) {
   background: linear-gradient(270deg, $color1, $color2);
   background-size: 400% 400%;
@@ -5,20 +9,20 @@
 
   @keyframes #{$name} {
     0% {
-      background-position: 0% 50%;
+      background-position: 50% 50%;
     }
     50% {
       background-position: 100% 50%;
     }
     100% {
-      background-position: 0% 50%;
+      background-position: 50% 50%;
     }
   }
 }
 
 .event-message {
   display: flex;
-  height: 48px;
+  padding: $fitc-padding-md;
   justify-content: center;
   align-items: center;
   color: white;
@@ -29,5 +33,21 @@
   }
   &.demotion {
     @include gradient-animation-background(promotion, #ffc3a0, #ffafbd);
+  }
+
+  &.round {
+    border-radius: 8px;
+  }
+}
+
+.timestamp {
+  margin: $fitc-padding-xs $fitc-padding-lg;
+  color: map-get($foreground, disabled);
+  text-align: right;
+  font-size: 12px;
+  font-style: italic;
+
+  &.hidden {
+    display: none;
   }
 }

@@ -1,14 +1,12 @@
 import { Component } from "@angular/core";
-import { AngularFirestore } from "@angular/fire/firestore";
 import { Observable, combineLatest } from "rxjs";
 
-import { Player } from "common/types";
-import { Path } from "common/path";
 import { map } from "rxjs/operators";
 import { GameRecordView } from "../../components/game-record/game-record.component";
 import { EventView } from "../../components/event-message/event-message.component";
 import { EventsService } from "src/app/services/events.service";
 import { RecordsService } from "src/app/services/records.service";
+import { PlayersService } from "src/app/services/players.service";
 
 const HISTORY_SIZE = 100;
 
@@ -23,23 +21,11 @@ export class HistoryComponent {
   items: Observable<(GameRecordView | EventView)[]>;
 
   constructor(
-    public afs: AngularFirestore,
+    players: PlayersService,
     events: EventsService,
     records: RecordsService
   ) {
-    const players = afs
-      .collection<Player>(Path.playersCollection)
-      .valueChanges()
-      .pipe(
-        map(players =>
-          players.reduce(
-            (dict, player) => Object.assign(dict, { [player.ldap]: player }),
-            {} as { [ldap: string]: Player }
-          )
-        )
-      );
-
-    const recordViews = combineLatest(players, records.recents).pipe(
+    const recordViews = combineLatest(players.byLdap(), records.recents).pipe(
       map(([players, records]) => {
         let winner: "blue" | "red" = "blue";
         return records
@@ -65,7 +51,7 @@ export class HistoryComponent {
       })
     );
 
-    const eventViews = combineLatest(players, events.recents).pipe(
+    const eventViews = combineLatest(players.byLdap(), events.recents).pipe(
       map(([players, events]) =>
         events.map(
           event =>

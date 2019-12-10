@@ -18,6 +18,12 @@ export class EventMessageComponent {
   @Input()
   data: EventView;
 
+  @Input()
+  shape: "fill" | "round" = "fill";
+
+  @Input()
+  showDate: boolean = false;
+
   getEventMessage({ type, name, levelFrom, levelTo }: EventView) {
     if (type === "promotion") {
       return `${name} got promoted: ${levelFrom} → ${levelTo}`;

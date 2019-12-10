@@ -47,4 +47,19 @@
       Record Game
     </button>
   </div>
+
+  <div *ngIf="(recentEvents | async)?.length > 0">
+    <h2>Recent Events</h2>
+
+    <div class="events">
+      <app-event-message
+        class="event-message"
+        *ngFor="let event of recentEvents | async"
+        [data]="event"
+        [showDate]="false"
+        shape="round"
+      >
+      </app-event-message>
+    </div>
+  </div>
 </div>

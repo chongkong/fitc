@@ -3,6 +3,7 @@ import { AngularFirestore } from "@angular/fire/firestore";
 import { ReplaySubject, Subscription, Observable } from "rxjs";
 import { Path } from "common/path";
 import { Event } from "common/types";
+import { map } from "rxjs/operators";
 
 const HISTORY_SIZE = 100;
 
@@ -30,5 +31,14 @@ export class EventsService implements OnDestroy {
 
   get recents(): Observable<Event[]> {
     return this.events;
+  }
+
+  last24h(): Observable<Event[]> {
+    const threshold = new Date().getTime() - 86400 * 1000;
+    return this.events.pipe(
+      map(events =>
+        events.filter(event => event.createdAt.toMillis() > threshold)
+      )
+    );
   }
 }
