@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { AngularFirestore } from "@angular/fire/firestore";
-import { BehaviorSubject, Subscription, Observable } from "rxjs";
+import { ReplaySubject, Subscription, Observable } from "rxjs";
 import { Player } from "common/types";
 import { Path } from "common/path";
 import { map, take } from "rxjs/operators";
@@ -16,7 +16,7 @@ function groupByLdap(players: Player[]) {
   providedIn: "root"
 })
 export class PlayersService implements OnDestroy {
-  private players: BehaviorSubject<Player[]> = new BehaviorSubject([]);
+  private players: ReplaySubject<Player[]> = new ReplaySubject(1);
 
   private subscription: Subscription;
 
