@@ -1,5 +1,8 @@
-<mat-list>
-  <div *ngFor="let item of items | async">
+<mat-list class="container">
+  <div
+    [ngClass]="{ 'game-record': isRecord(item), event: !isRecord(item) }"
+    *ngFor="let item of items | async"
+  >
     <app-game-record
       *ngIf="isRecord(item); else event"
       [data]="item"

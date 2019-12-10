@@ -1,5 +1,19 @@
 @import "../../../styles.scss";
 
+.container {
+  .game-record {
+    margin: $fitc-padding-md;
+  }
+
+  .event {
+    margin: 32px 0 48px;
+  }
+
+  .event + .event {
+    margin-top: -32px;
+  }
+}
+
 @mixin gradient-animation-background($name, $color1, $color2) {
   background: linear-gradient(270deg, $color1, $color2);
   background-size: 400% 400%;
@@ -21,10 +35,10 @@
 .event-message {
   display: flex;
   height: 48px;
-  margin: 24px 0 36px;
   justify-content: center;
   align-items: center;
   color: white;
+  border-bottom: 4px solid rgba(0, 0, 0, 0.1);
 
   &.promotion {
     @include gradient-animation-background(promotion, #b7f8db, #50a7c2);
