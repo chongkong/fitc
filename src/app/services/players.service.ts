@@ -5,22 +5,14 @@ import { Player } from "common/types";
 import { Path } from "common/path";
 import { map, take } from "rxjs/operators";
 
-function groupByLdap(players: Player[]) {
-  return players.reduce((dict, player) => {
-    dict[player.ldap] = player;
-    return dict;
-  }, {});
-}
-
 @Injectable({
   providedIn: "root"
 })
 export class PlayersService implements OnDestroy {
   private players: ReplaySubject<Player[]> = new ReplaySubject(1);
-
   private subscription: Subscription;
 
-  constructor(public afs: AngularFirestore) {
+  constructor(afs: AngularFirestore) {
     this.subscription = afs
       .collection<Player>(Path.playersCollection)
       .valueChanges()

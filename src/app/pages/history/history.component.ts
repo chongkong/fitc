@@ -6,6 +6,8 @@ import { GameRecord, Event, Player } from "common/types";
 import { Path } from "common/path";
 import { map } from "rxjs/operators";
 import { GameRecordView } from "../../components/game-record/game-record.component";
+import { EventsService } from "src/app/services/events.service";
+import { RecordsService } from "src/app/services/records.service";
 
 interface EventView {
   type: "promotion" | "demotion";
@@ -28,7 +30,11 @@ const swapColor = (color: "red" | "blue") => (color === "red" ? "blue" : "red");
 export class HistoryComponent {
   items: Observable<(GameRecordView | EventView)[]>;
 
-  constructor(public afs: AngularFirestore) {
+  constructor(
+    public afs: AngularFirestore,
+    events: EventsService,
+    records: RecordsService
+  ) {
     const players = afs
       .collection<Player>(Path.playersCollection)
       .valueChanges()
@@ -41,13 +47,7 @@ export class HistoryComponent {
         )
       );
 
-    const records = afs
-      .collection<GameRecord>(Path.gameRecordCollection("default"), ref =>
-        ref.orderBy("createdAt", "desc").limit(HISTORY_SIZE)
-      )
-      .valueChanges();
-
-    const recordViews = combineLatest(players, records).pipe(
+    const recordViews = combineLatest(players, records.recents).pipe(
       map(([players, records]) => {
         let winner: "blue" | "red" = "blue";
         return records
@@ -73,13 +73,7 @@ export class HistoryComponent {
       })
     );
 
-    const events = afs
-      .collection<Event>(Path.eventsCollection, ref =>
-        ref.orderBy("createdAt", "desc").limit(HISTORY_SIZE)
-      )
-      .valueChanges();
-
-    const eventViews = combineLatest(players, events).pipe(
+    const eventViews = combineLatest(players, events.recents).pipe(
       map(([players, events]) =>
         events.map(
           event =>
