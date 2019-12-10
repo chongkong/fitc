@@ -1,5 +1,5 @@
 import { NgModule } from "@angular/core";
-import { canActivate } from "@angular/fire/auth-guard";
+import { AngularFireAuthGuard } from "@angular/fire/auth-guard";
 import { Routes, RouterModule } from "@angular/router";
 import { User } from "firebase";
 import { map } from "rxjs/operators";
@@ -24,9 +24,12 @@ const loggedInWithCorpAccount = map((user: User | null) => {
 const routes: Routes = [
   {
     path: "",
-    redirectTo: "/login",
+    redirectTo: RECORD_URL_SEGMENT,
     pathMatch: "full",
-    ...canActivate(loggedInWithCorpAccount)
+    canActivate: [AngularFireAuthGuard],
+    data: {
+      authGuardPipe: loggedInWithCorpAccount
+    }
   },
   {
     path: LOGIN_URL_SEGMENT,
@@ -35,17 +38,26 @@ const routes: Routes = [
   {
     path: RECORD_URL_SEGMENT,
     component: RecordComponent,
-    ...canActivate(loggedInWithCorpAccount)
+    canActivate: [AngularFireAuthGuard],
+    data: {
+      authGuardPipe: loggedInWithCorpAccount
+    }
   },
   {
     path: HISTORY_URL_SEGMENT,
     component: HistoryComponent,
-    ...canActivate(loggedInWithCorpAccount)
+    canActivate: [AngularFireAuthGuard],
+    data: {
+      authGuardPipe: loggedInWithCorpAccount
+    }
   },
   {
     path: PROFILE_URL_SEGMENT,
     component: ProfileComponent,
-    ...canActivate(loggedInWithCorpAccount)
+    canActivate: [AngularFireAuthGuard],
+    data: {
+      authGuardPipe: loggedInWithCorpAccount
+    }
   }
 ];
 
