@@ -226,7 +226,7 @@ describe("Creates GameRecord", () => {
   describe("On draw", () => {
     beforeAll(async () => {
       await helper.createDummyData();
-      const now = web.now();
+      const now = timeGen();
       await db.setDoc<GameRecord>(Path.gameRecord("default", now), {
         winners: ["jjong", "hdmoon"],
         losers: ["shinjiwon", "hyeonjilee"],
@@ -296,7 +296,7 @@ describe("Creates GameRecord", () => {
     beforeAll(async () => {
       await helper.createDummyData();
       for (let winStreaks = 1; winStreaks <= 2; winStreaks++) {
-        const now = web.now();
+        const now = timeGen();
         db.setDoc<GameRecord>(Path.gameRecord("default", now), {
           winners: ["jjong", "hdmoon"],
           losers: ["shinjiwon", "hyeonjilee"],
@@ -334,7 +334,7 @@ describe("Creates GameRecord", () => {
     beforeAll(async () => {
       await helper.createDummyData();
       for (let winStreaks = 1; winStreaks <= 10; winStreaks++) {
-        const now = web.now();
+        const now = timeGen();
         db.setDoc<GameRecord>(Path.gameRecord("default", now), {
           winners: ["jjong", "hdmoon"],
           losers: ["shinjiwon", "hyeonjilee"],
@@ -415,3 +415,13 @@ describe("Creates GameRecord", () => {
     });
   });
 });
+
+function createTimeGen() {
+  let currentMillis = web.timestampFromDate("2019-01-01T00:00:00").toMillis();
+  return () => {
+    currentMillis += 5 * 60 * 1000; // 5 minutes passed.
+    return web.timestampFromMillis(currentMillis);
+  };
+}
+
+const timeGen = createTimeGen();

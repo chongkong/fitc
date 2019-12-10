@@ -6,4 +6,5 @@ export interface Timestamp {
 export interface Platform {
   now: () => Timestamp;
   timestampFromDate: (dateArg: string) => Timestamp;
+  timestampFromMillis: (millis: number) => Timestamp;
 }
