@@ -1,10 +1,10 @@
 {
   "name": "fitc",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --prod",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "test:fe": "ng test",
