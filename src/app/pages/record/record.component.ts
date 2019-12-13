@@ -36,11 +36,11 @@ export class RecordComponent implements OnInit, OnDestroy {
   myLdap: string = "";
 
   constructor(
+    public playerStats: PlayerStatsService,
+    public table: FoosballTableService,
     private afs: AngularFirestore,
     private dialog: MatDialog,
     private players: PlayersService,
-    private playerStats: PlayerStatsService,
-    private table: FoosballTableService,
     afAuth: AngularFireAuth,
     events: EventsService
   ) {
@@ -169,13 +169,13 @@ export class RecordComponent implements OnInit, OnDestroy {
     const next = this.nextStagingSlot();
     if (next && !this.inStaging(ldap)) {
       this.players.getOnce(ldap).subscribe(player => {
-        this[next] = player;
+        this.table[next] = player;
       });
     }
   }
 
   removeFromStaging(slot: "alpha" | "bravo" | "charlie" | "delta") {
-    this[slot] = undefined;
+    this.table[slot] = undefined;
     this.table.winningTeam = undefined; // Should disable team option as well.
   }
 
@@ -188,7 +188,7 @@ export class RecordComponent implements OnInit, OnDestroy {
       player => player && player.ldap === ldap
     );
     if (index >= 0) {
-      this[this.slotForIndex(index)] = undefined;
+      this.table[this.slotForIndex(index)] = undefined;
     } else {
       this.selectForStaging(ldap);
     }

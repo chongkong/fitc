@@ -54,6 +54,22 @@ $background: map-get($fitc-theme, background);
   }
 }
 
+.recent-updates-heading,
+.near-update-heading {
+  text-align: center;
+}
+
+.divider {
+  height: 1px;
+  border: 0;
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0)
+  );
+}
+
 .events {
   margin-bottom: $fitc-padding-xlg;
 
