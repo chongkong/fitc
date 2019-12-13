@@ -88,12 +88,13 @@ $foreground: map-get($fitc-theme, foreground);
 
   .label {
     flex: 1;
-    font-weight: 900;
+    font-weight: bold;
   }
 
   .value {
     flex: 1;
-    font-family: monospace;
+    font-size: 0.9rem;
+    font-family: "Roboto Mono";
     text-align: right;
   }
 }
@@ -117,7 +118,7 @@ $foreground: map-get($fitc-theme, foreground);
 
   .label {
     flex: 1;
-    font-weight: 900;
+    font-weight: bold;
     margin-bottom: 16px;
   }
 
@@ -137,7 +138,35 @@ $foreground: map-get($fitc-theme, foreground);
 
   .label,
   .value {
+    font-weight: normal;
     font-size: 0.9rem;
+  }
+
+  .value {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .rival-wins {
+    display: inline-block;
+    min-width: 32px;
+    font-family: "Roboto Mono";
+    color: $google-green;
+    text-align: right;
+  }
+  .rival-losses {
+    display: inline-block;
+    min-width: 32px;
+    font-family: "Roboto Mono";
+    color: $google-red;
+    text-align: left;
+  }
+  .rival-versus {
+    display: inline-block;
+    width: 12px;
+    font-family: "Roboto Mono";
+    color: map-get($foreground, disabled);
+    text-align: center;
   }
 }
 

@@ -89,9 +89,9 @@
       <div class="single-line-stats">
         <div class="label">{{ rivalStats.rival }}</div>
         <div class="value">
-          {{ rivalStats.totalWins }} : {{ rivalStats.totalLoses }} ({{
-            winRate(rivalStats)
-          }}%)
+          <span class="rival-wins">{{ rivalStats.totalWins }}</span>
+          <span class="rival-versus">:</span>
+          <span class="rival-losses">{{ rivalStats.totalLoses }}</span>
         </div>
       </div>
     </mat-list-item>

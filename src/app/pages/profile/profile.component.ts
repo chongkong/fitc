@@ -50,14 +50,17 @@ export class ProfileComponent implements OnInit {
     );
     this.playerRivalStats = this.ldap.pipe(
       flatMap(ldap =>
-        afs
-          .collection<RivalStats>(Path.rivalStatsCollection(ldap))
-          .snapshotChanges()
+        combineLatest(
+          afs
+            .collection<RivalStats>(Path.rivalStatsCollection(ldap))
+            .snapshotChanges(),
+          ps.namesByLdap
+        )
       ),
-      map(snapshots =>
+      map(([snapshots, namesByLdap]) =>
         snapshots
           .map(snapshot => {
-            const rival = snapshot.payload.doc.id;
+            const rival = namesByLdap[snapshot.payload.doc.id];
             const rivalStats = snapshot.payload.doc.data();
             return Object.assign(rivalStats, { rival });
           })
