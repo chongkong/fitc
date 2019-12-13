@@ -7,6 +7,11 @@ $background: map-get($fitc-theme, background);
   padding: $fitc-padding-lg;
 }
 
+.game-staging {
+  display: block;
+  margin-bottom: $fitc-padding-lg;
+}
+
 .bench {
   display: flex;
   width: calc(100% + 24px);
@@ -54,17 +59,11 @@ $background: map-get($fitc-theme, background);
   }
 }
 
-.recent-updates-heading,
-.near-update-heading {
-  text-align: center;
-}
-
 .divider {
   height: 1px;
   border: 0;
   background-image: linear-gradient(
     to right,
-    rgba(0, 0, 0, 0),
     rgba(0, 0, 0, 0.2),
     rgba(0, 0, 0, 0)
   );
