@@ -17,6 +17,7 @@ import { EventsService } from "src/app/services/events.service";
 import { EventView } from "src/app/components/event-message/event-message.component";
 import { EventDialogComponent } from "src/app/components/event-dialog/event-dialog.component";
 import { PlayerStatsService } from "src/app/services/player-stats.service";
+import { FoosballTableService } from "src/app/services/foosball-table.service";
 
 const distinct = <T>(value: T, index: number, arr: T[]) =>
   arr.indexOf(value) === index;
@@ -28,23 +29,18 @@ const distinct = <T>(value: T, index: number, arr: T[]) =>
 })
 export class RecordComponent implements OnInit, OnDestroy {
   recentEvents: Observable<EventView[]>;
-  benchPlayers: BehaviorSubject<Player[]>;
   subscriptions: Subscription[] = [];
 
   // Component bindings. (local state)
 
   myLdap: string = "";
-  alpha?: Player;
-  bravo?: Player;
-  charlie?: Player;
-  delta?: Player;
-  winningTeam?: "blue" | "red";
 
   constructor(
     private afs: AngularFirestore,
     private dialog: MatDialog,
     private players: PlayersService,
     private playerStats: PlayerStatsService,
+    private table: FoosballTableService,
     afAuth: AngularFireAuth,
     events: EventsService
   ) {
@@ -72,26 +68,10 @@ export class RecordComponent implements OnInit, OnDestroy {
         )
       )
     );
-
-    this.benchPlayers = new BehaviorSubject<Player[]>([]);
   }
 
   ngOnInit() {
     this.subscriptions.push(
-      // Update bench players
-      combineLatest(
-        this.players.byLdap(),
-        this.afs.doc<FoosballTable>(Path.table("default")).valueChanges()
-      ).subscribe(([players, table]) => {
-        if (table.bench) {
-          this.benchPlayers.next(
-            table.bench
-              .map(ldap => players[ldap])
-              .filter(player => Boolean(player))
-              .sort((a, b) => a.name.localeCompare(b.name))
-          );
-        }
-      }),
       // Open dialogs on Event creation
       combineLatest(
         this.players.namesByLdap,
@@ -121,7 +101,7 @@ export class RecordComponent implements OnInit, OnDestroy {
   }
 
   inBench(ldap: string) {
-    return this.benchPlayers.pipe(
+    return this.table.benchPlayers.pipe(
       map(players => players.some(player => player.ldap === ldap))
     );
   }
@@ -159,7 +139,12 @@ export class RecordComponent implements OnInit, OnDestroy {
   }
 
   get stagingPlayers() {
-    return [this.alpha, this.bravo, this.charlie, this.delta];
+    return [
+      this.table.alpha,
+      this.table.bravo,
+      this.table.charlie,
+      this.table.delta
+    ];
   }
 
   get stagingPlayerLdaps() {
@@ -170,10 +155,10 @@ export class RecordComponent implements OnInit, OnDestroy {
   }
 
   nextStagingSlot() {
-    if (!this.alpha) return "alpha";
-    if (!this.bravo) return "bravo";
-    if (!this.charlie) return "charlie";
-    if (!this.delta) return "delta";
+    if (!this.table.alpha) return "alpha";
+    if (!this.table.bravo) return "bravo";
+    if (!this.table.charlie) return "charlie";
+    if (!this.table.delta) return "delta";
   }
 
   inStaging(ldap: string) {
@@ -191,7 +176,7 @@ export class RecordComponent implements OnInit, OnDestroy {
 
   removeFromStaging(slot: "alpha" | "bravo" | "charlie" | "delta") {
     this[slot] = undefined;
-    this.winningTeam = undefined; // Should disable team option as well.
+    this.table.winningTeam = undefined; // Should disable team option as well.
   }
 
   slotForIndex(index: number) {
@@ -210,27 +195,30 @@ export class RecordComponent implements OnInit, OnDestroy {
   }
 
   resetStaging() {
-    if (this.winningTeam !== "blue") {
-      this.alpha = undefined;
-      this.bravo = undefined;
+    if (this.table.winningTeam !== "blue") {
+      this.table.alpha = undefined;
+      this.table.bravo = undefined;
     }
-    if (this.winningTeam !== "red") {
-      this.charlie = undefined;
-      this.delta = undefined;
+    if (this.table.winningTeam !== "red") {
+      this.table.charlie = undefined;
+      this.table.delta = undefined;
     }
-    this.winningTeam = undefined;
+    this.table.winningTeam = undefined;
   }
 
   onSelectTeam(team: "blue" | "red") {
-    if (this.winningTeam === team) {
-      this.winningTeam = undefined;
+    if (this.table.winningTeam === team) {
+      this.table.winningTeam = undefined;
     } else {
-      this.winningTeam = team;
+      this.table.winningTeam = team;
     }
   }
 
   openDialog() {
-    const unselected = combineLatest(this.players.all, this.benchPlayers).pipe(
+    const unselected = combineLatest(
+      this.players.all,
+      this.table.benchPlayers
+    ).pipe(
       map(([allPlayers, benchPlayers]) => {
         const benchLdaps = new Set(benchPlayers.map(player => player.ldap));
         return allPlayers.filter(player => !benchLdaps.has(player.ldap));
@@ -259,22 +247,26 @@ export class RecordComponent implements OnInit, OnDestroy {
 
   readyToSubmit() {
     return (
-      this.alpha &&
-      this.bravo &&
-      this.charlie &&
-      this.delta &&
-      this.winningTeam &&
+      this.table.alpha &&
+      this.table.bravo &&
+      this.table.charlie &&
+      this.table.delta &&
+      this.table.winningTeam &&
       this.stagingPlayerLdaps.length === 4
     );
   }
 
   onSubmit() {
     if (this.readyToSubmit()) {
-      const blueTeam = [this.alpha, this.bravo].map(player => player.ldap);
-      const redTeam = [this.charlie, this.delta].map(player => player.ldap);
+      const blueTeam = [this.table.alpha, this.table.bravo].map(
+        player => player.ldap
+      );
+      const redTeam = [this.table.charlie, this.table.delta].map(
+        player => player.ldap
+      );
       this.recordGame(
-        this.winningTeam === "blue" ? blueTeam : redTeam,
-        this.winningTeam === "red" ? blueTeam : redTeam
+        this.table.winningTeam === "blue" ? blueTeam : redTeam,
+        this.table.winningTeam === "red" ? blueTeam : redTeam
       );
     }
   }
