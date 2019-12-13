@@ -9,6 +9,15 @@ export function setEquals<T>(a1: T[], a2: T[]) {
   return s1.size === s2.size && a1.every(elem => s2.has(elem));
 }
 
+export function groupByLdap<T extends { ldap: string }>(
+  elems: T[]
+): { [ldap: string]: T } {
+  return elems.reduce(
+    (dict, elem) => Object.assign(dict, { [elem.ldap]: elem }),
+    {}
+  );
+}
+
 export namespace Arrays {
   export function range(from: number, to?: number, stride?: number) {
     const arr = [];

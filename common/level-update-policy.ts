@@ -1,3 +1,5 @@
+import { Arrays } from "./utils";
+
 // Player cannot be promoted over MAX_LEVEL.
 const MAX_LEVEL = 10;
 
@@ -58,4 +60,30 @@ export function checkLevelUpdate({
 
   // No promotion and demotion.
   return 0;
+}
+
+export function requiredWinsForPromo(recentGames: string, level: number) {
+  for (const moreWins of Arrays.range(1, 4)) {
+    if (
+      checkLevelUpdate({
+        recentGames: "W".repeat(moreWins) + recentGames,
+        level
+      }) > 0
+    ) {
+      return moreWins;
+    }
+  }
+}
+
+export function requiredLossesForDemo(recentGames: string, level: number) {
+  for (const moreLosses of Arrays.range(1, 4)) {
+    if (
+      checkLevelUpdate({
+        recentGames: "L".repeat(moreLosses) + recentGames,
+        level
+      }) < 0
+    ) {
+      return moreLosses;
+    }
+  }
 }
