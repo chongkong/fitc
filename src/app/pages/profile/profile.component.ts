@@ -13,6 +13,7 @@ import {
   PlayerDialogData
 } from "src/app/components/player-select-dialog/player-select-dialog.component";
 import { PlayersService } from "src/app/services/players.service";
+import { PlayerStatsService } from "src/app/services/player-stats.service";
 
 @Component({
   selector: "app-profile",
@@ -37,16 +38,15 @@ export class ProfileComponent implements OnInit {
     public afAuth: AngularFireAuth,
     public afs: AngularFirestore,
     public dialog: MatDialog,
-    public ps: PlayersService
+    public ps: PlayersService,
+    playerStats: PlayerStatsService
   ) {
     this.ldap = new ReplaySubject<string>(1);
     this.player = this.ldap.pipe(
       flatMap(ldap => afs.doc<Player>(Path.player(ldap)).valueChanges())
     );
-    this.playerStats = this.ldap.pipe(
-      flatMap(ldap =>
-        afs.doc<PlayerStats>(Path.playerStats(ldap)).valueChanges()
-      )
+    this.playerStats = combineLatest(this.ldap, playerStats.byLdap).pipe(
+      map(([ldap, playerStatsByLdap]) => playerStatsByLdap[ldap])
     );
     this.playerRivalStats = this.ldap.pipe(
       flatMap(ldap =>
