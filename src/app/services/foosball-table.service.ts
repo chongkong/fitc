@@ -29,7 +29,7 @@ export class FoosballTableService implements OnDestroy {
     this.subscriptions = [
       combineLatest(
         afs.doc<FoosballTable>(Path.table("default")).valueChanges(),
-        players.byLdap()
+        players.byLdap
       ).subscribe(([table, playersByLdap]) => {
         this.benchPlayers.next(
           table.bench

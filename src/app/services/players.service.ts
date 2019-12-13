@@ -69,7 +69,7 @@ export class PlayersService implements OnDestroy {
     );
   }
 
-  byLdap(): Observable<{ [ldap: string]: Player }> {
+  get byLdap(): Observable<{ [ldap: string]: Player }> {
     return this.playersByLdap;
   }
 }

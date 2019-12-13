@@ -25,7 +25,7 @@ export class HistoryComponent {
     events: EventsService,
     records: RecordsService
   ) {
-    const recordViews = combineLatest(players.byLdap(), records.recents).pipe(
+    const recordViews = combineLatest(players.byLdap, records.recents).pipe(
       map(([players, records]) => {
         let winner: "blue" | "red" = "blue";
         return records
@@ -51,7 +51,7 @@ export class HistoryComponent {
       })
     );
 
-    const eventViews = combineLatest(players.byLdap(), events.recents).pipe(
+    const eventViews = combineLatest(players.byLdap, events.recents).pipe(
       map(([players, events]) =>
         events.map(
           event =>

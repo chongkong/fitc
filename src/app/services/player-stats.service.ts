@@ -60,7 +60,7 @@ export class PlayerStatsService implements OnDestroy {
         })
     ];
 
-    this.candidates = combineLatest(players.byLdap(), this.statesByLdap).pipe(
+    this.candidates = combineLatest(players.byLdap, this.statesByLdap).pipe(
       map(([playersByLdap, statesByLdap]) =>
         Object.keys(statesByLdap).reduce((candidates, ldap) => {
           const { level, name } = playersByLdap[ldap];
