@@ -2,5 +2,5 @@
   {{ getEventMessage(data) }}
 </div>
 <div class="timestamp" [ngClass]="{ hidden: !showDate }">
-  {{ data.createdAt | timeago }}
+  {{ data.createdAt.getTime() | timeago }}
 </div>
