@@ -144,3 +144,15 @@ $foreground: map-get($fitc-theme, foreground);
 .bottom-padding {
   margin-bottom: 40px;
 }
+
+.divider {
+  margin: 0 $fitc-padding-lg;
+  height: 1px;
+  border: 0;
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0)
+  );
+}
