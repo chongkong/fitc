@@ -16,6 +16,7 @@ import { Path } from "common/path";
 import { EventsService } from "src/app/services/events.service";
 import { EventView } from "src/app/components/event-message/event-message.component";
 import { EventDialogComponent } from "src/app/components/event-dialog/event-dialog.component";
+import { PlayerStatsService } from "src/app/services/player-stats.service";
 
 const distinct = <T>(value: T, index: number, arr: T[]) =>
   arr.indexOf(value) === index;
@@ -40,11 +41,12 @@ export class RecordComponent implements OnInit, OnDestroy {
   winningTeam?: "blue" | "red";
 
   constructor(
-    private afAuth: AngularFireAuth,
     private afs: AngularFirestore,
+    private dialog: MatDialog,
     private players: PlayersService,
-    private events: EventsService,
-    private dialog: MatDialog
+    private playerStats: PlayerStatsService,
+    afAuth: AngularFireAuth,
+    events: EventsService
   ) {
     if (afAuth.auth.currentUser) {
       this.myLdap = afAuth.auth.currentUser.email.split("@")[0];

@@ -43,10 +43,10 @@ $dark-blue: darken($google-blue, 10%);
 
 // Paddings
 $fitc-padding-xs: 4px;
-$fitc-padding-sm: calc(#{$fitc-padding-xs} * 2);
-$fitc-padding-md: calc(#{$fitc-padding-xs} * 4);
-$fitc-padding-lg: calc(#{$fitc-padding-xs} * 6);
-$fitc-padding-xlg: calc(#{$fitc-padding-xs} * 8);
+$fitc-padding-sm: $fitc-padding-xs * 2;
+$fitc-padding-md: $fitc-padding-xs * 4;
+$fitc-padding-lg: $fitc-padding-xs * 6;
+$fitc-padding-xlg: $fitc-padding-xs * 8;
 
 html,
 body {

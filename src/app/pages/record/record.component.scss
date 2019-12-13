@@ -54,7 +54,19 @@ $background: map-get($fitc-theme, background);
   }
 }
 
-.event-message {
-  display: block;
-  margin-bottom: $fitc-padding-md;
+.events {
+  margin-bottom: $fitc-padding-xlg;
+
+  .event-message {
+    display: block;
+    margin-bottom: $fitc-padding-md;
+  }
+}
+
+.near-update {
+  .near-update-item {
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: $fitc-padding-sm;
+  }
 }

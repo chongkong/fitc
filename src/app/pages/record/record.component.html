@@ -49,7 +49,7 @@
   </div>
 
   <div *ngIf="(recentEvents | async)?.length > 0">
-    <h2>Recent Events</h2>
+    <h2>Recent Updates</h2>
 
     <div class="events">
       <app-event-message
@@ -60,6 +60,27 @@
         shape="round"
       >
       </app-event-message>
+    </div>
+  </div>
+
+  <div class="near-update" *ngIf="(playerStats.candidates | async)?.length > 0">
+    <h2>Near Update</h2>
+    <div>
+      <div
+        class="near-update-item"
+        *ngFor="let candidate of playerStats.candidates | async"
+      >
+        <div *ngIf="candidate.moreWins">
+          {{ candidate.name }} will be <b>promoted</b> after
+          {{ candidate.moreWins }}
+          {{ candidate.moreWins > 1 ? "wins" : "win" }}!
+        </div>
+        <div *ngIf="candidate.moreLosses">
+          {{ candidate.name }} will be <b>demoted</b> after
+          {{ candidate.moreLosses }}
+          {{ candidate.moreLosses > 1 ? "losses" : "loss" }}.
+        </div>
+      </div>
     </div>
   </div>
 </div>
