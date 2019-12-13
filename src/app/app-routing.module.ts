@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { AngularFireAuthGuard } from "@angular/fire/auth-guard";
 import { Routes, RouterModule } from "@angular/router";
-import { User } from "firebase";
+import { User } from "firebase/app";
 import { map } from "rxjs/operators";
 
 import {

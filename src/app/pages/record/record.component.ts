@@ -4,7 +4,7 @@ import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFirestore } from "@angular/fire/firestore";
 import { combineLatest, BehaviorSubject, Subscription, Observable } from "rxjs";
 import { map, take, skip } from "rxjs/operators";
-import { firestore } from "firebase";
+import { firestore } from "firebase/app";
 
 import { Player, GameRecord, FoosballTable, Event } from "common/types";
 import {

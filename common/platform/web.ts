@@ -1,4 +1,4 @@
-import { firestore } from "firebase";
+import { firestore } from "firebase/app";
 import { Platform } from "./base";
 import { Factory } from "../factory";
 
